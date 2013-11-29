@@ -12,6 +12,7 @@ namespace NAVI2PG
     {
         const std::string PG_CONNECTION_STRING = "pg_connection_string";
         const std::string S57_DATASOURCE_NAME = "S57_datasource_name";
+        const std::string RSC_FILENAME = "rsc filename";
     }
 
     typedef std::map<std::string, std::string> ValuesCollection;

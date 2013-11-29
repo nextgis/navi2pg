@@ -47,6 +47,11 @@ NAVI2PG::ValuesCollection NAVI2PG::CommandLineParse(int argc, char* argv[])
             Usage();
         }
 
+        else if( EQUAL(argv[iArg],"--rsc") )
+        {
+            values[CommandLineKeys::RSC_FILENAME] = std::string(argv[++iArg]);
+        }
+
         else if( argv[iArg][0] == '-' )
         {
             std::cout << "Unknown option name: " << argv[iArg] << std::endl;
