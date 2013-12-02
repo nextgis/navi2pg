@@ -1,198 +1,215 @@
-#include <vector>
+#include <map>
 
 #include "logger.h"
 #include "navi2pg.h"
 
 namespace
 {
-    void addStandartFields(OGRLayer* layer)
+    typedef struct
     {
-        OGRFieldDefn oFieldType( "type", OFTString );
-        oFieldType.SetWidth(32);
-        OGRFieldDefn oFieldNameEn( "name_en", OFTString );
-        oFieldType.SetWidth(32);
-        OGRFieldDefn oFieldNameRu( "name_ru", OFTString );
-        oFieldType.SetWidth(32);
+        CPLString layerName;
+        std::vector<CPLString> srcLayers;
+        OGRwkbGeometryType geomType;
 
-        if( layer->CreateField( &oFieldType ) != OGRERR_NONE ||
-                layer->CreateField( &oFieldNameEn ) != OGRERR_NONE ||
-                layer->CreateField( &oFieldNameRu ) != OGRERR_NONE)
-        {
-            LOG( "Creating field failed.\n" );
-            return;
-        }
+    }NaviLayerConfuguration;
+
+    typedef std::vector<NaviLayerConfuguration> Navi2PGConfig;
+
+    Navi2PGConfig configurate()
+    {
+        Navi2PGConfig configuration;
+
+        NaviLayerConfuguration layerConf;
+
+        layerConf.srcLayers.push_back("BCNLAT");
+        layerConf.srcLayers.push_back("BCNSPP");
+        layerConf.srcLayers.push_back("BOYCAR");
+        layerConf.srcLayers.push_back("BOYLAT");
+        layerConf.srcLayers.push_back("BOYSAW");
+        layerConf.srcLayers.push_back("LIGHTS");
+        layerConf.geomType = wkbPoint;
+        layerConf.layerName = "beacon";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("ACHARE");
+        layerConf.geomType = wkbPolygon;
+        layerConf.layerName = "anchor_parking_plg";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("ACHARE");
+        layerConf.geomType = wkbPoint;
+        layerConf.layerName = "anchor_parking_pt";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("DYKCON");
+        layerConf.srcLayers.push_back("SLCONS");
+        layerConf.geomType = wkbLineString;
+        layerConf.layerName = "building_ln";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("BUAARE");
+        layerConf.srcLayers.push_back("DOCARE");
+        layerConf.srcLayers.push_back("SLCONS");
+        layerConf.geomType = wkbPolygon;
+        layerConf.layerName = "building_plg";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("SEAARE");
+        layerConf.geomType = wkbPolygon;
+        layerConf.layerName = "called_sea_parts";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("COALNE");
+        layerConf.geomType = wkbLineString;
+        layerConf.layerName = "coastline";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("DEPARE");
+        layerConf.srcLayers.push_back("DEPCNT");
+        layerConf.geomType = wkbLineString;
+        layerConf.layerName = "depths_area_ln";
+        configuration.push_back(layerConf);
+
+
+        return configuration;
     }
-    bool checkSpatialReferences(std::vector<NAVI2PG::NAVILayer*> layers)
-    {
+}
 
-        for(size_t iLayer = 1; iLayer < layers.size(); ++iLayer)
+NAVI2PG::NAVILayer::NAVILayer(
+            const CPLString& layerName,
+            OGRwkbGeometryType geomType,
+            OGRDataSource *poSrcDatasource,
+            std::vector<CPLString> srcLayerNames)
+    : LayerName_(layerName),
+      LayerGeometryType_(geomType)
+{
+    for(size_t iLayerName = 0; iLayerName < srcLayerNames.size(); ++iLayerName)
+    {
+        //TODO Сheck for NULL layer
+        SrcLayers_.push_back(poSrcDatasource->GetLayerByName(srcLayerNames[iLayerName]));
+    }
+}
+
+void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
+{
+    if( !checkSpatialReferences() )
+    {
+        //TODO set exception
+        CPLString errMsg;
+        errMsg.Printf("Error. %s layer creation error. Spatial references are not equal", LayerName_.c_str());
+        LOG(errMsg);
+
+        return;
+    }
+
+    OGRLayer *poLayer =
+        poDstDatasource->CreateLayer( LayerName_.c_str(), SrcLayers_[0]->GetSpatialRef(), LayerGeometryType_, NULL );
+
+    InitFields(poLayer);
+
+    for(size_t iLayer = 0; iLayer < SrcLayers_.size(); ++iLayer)
+    {
+        OGRLayer *poSrcLayer = SrcLayers_[iLayer];
+
+        poSrcLayer->ResetReading();
+
+        OGRFeature *poFeatureFrom;
+        OGRFeature *poFeatureTo;
+
+        while( (poFeatureFrom = poSrcLayer->GetNextFeature()) != NULL )
         {
-            if ( !layers[iLayer-1]->equalSpatialReferences(*layers[iLayer]) )
+            poFeatureTo = OGRFeature::CreateFeature(poLayer->GetLayerDefn());
+
+            OGRGeometry *poGeometry = poFeatureFrom->GetGeometryRef();
+
+            if( poGeometry == NULL
+                || wkbFlatten(poGeometry->getGeometryType()) != poLayer->GetLayerDefn()->GetGeomType() )
             {
-                return false;
+                LOG("Warrning. Feature hav bad GeometryType");
+                continue;
             }
-        }
 
-        return true;
-    }
+            poFeatureTo->SetGeometry(poGeometry);
 
-    void createBeaconLayer(OGRDataSource *poSrcDatasource, OGRDataSource *poDstDatasource)
-    {
-        const CPLString newLayerName("beacon");
-        OGRwkbGeometryType newLayerGeometry = wkbPoint;
+            SetFields(poSrcLayer, poFeatureTo);
 
-        OGRLayer * ogrLayerBCNLAT = poSrcDatasource->GetLayerByName("BCNLAT");
+            poLayer->CreateFeature(poFeatureTo);
 
-        NAVI2PG::NAVILayer * layerBCNLAT =
-                new NAVI2PG::NAVILayer(ogrLayerBCNLAT);
-        NAVI2PG::NAVILayer * layerBCNSPP =
-                new NAVI2PG::NAVILayer(poSrcDatasource->GetLayerByName("BCNSPP"));
-        NAVI2PG::NAVILayer * layerBOYCAR =
-                new NAVI2PG::NAVILayer(poSrcDatasource->GetLayerByName("BOYCAR"));
-        NAVI2PG::NAVILayer * layerBOYLAT =
-                new NAVI2PG::NAVILayer(poSrcDatasource->GetLayerByName("BOYLAT"));
-        NAVI2PG::NAVILayer * layerBOYSAW =
-                new NAVI2PG::NAVILayer(poSrcDatasource->GetLayerByName("BOYSAW"));
-        NAVI2PG::NAVILayer * layerLIGHTS =
-                new NAVI2PG::LightsNAVILayer(poSrcDatasource->GetLayerByName("LIGHTS"));
-
-        std::vector<NAVI2PG::NAVILayer*> layers;
-        layers.push_back(layerBCNLAT);
-        layers.push_back(layerBCNSPP);
-        layers.push_back(layerBOYCAR);
-        layers.push_back(layerBOYLAT);
-        layers.push_back(layerBOYSAW);
-        layers.push_back(layerLIGHTS);
-
-        if( !checkSpatialReferences(layers) )
-        {
-            LOG("Error. \"beacon\" layer creation error. Spatial references are not equal");
-            return;
-        }
-
-        OGRLayer *beaconLayer =
-            poDstDatasource->CreateLayer( newLayerName.c_str(), ogrLayerBCNLAT->GetSpatialRef(), newLayerGeometry, NULL );
-
-        addStandartFields(beaconLayer);
-
-        for(size_t iLayer = 0; iLayer < layers.size(); ++iLayer)
-        {
-            layers[iLayer]->copyFeaturesTo(beaconLayer);
+            OGRFeature::DestroyFeature( poFeatureFrom );
+            OGRFeature::DestroyFeature( poFeatureTo );
         }
     }
-    void createAnchorParkingPlg(OGRDataSource *poSrcDatasource, OGRDataSource *poDstDatasource)
+}
+
+bool NAVI2PG::NAVILayer::checkSpatialReferences()
+{
+    for(size_t iLayer = 1; iLayer < SrcLayers_.size(); ++iLayer)
     {
-        const CPLString newLayerName("anchor_parking_plg");
-        OGRwkbGeometryType newLayerGeometry = wkbPolygon;
+        OGRSpatialReference *sr1 =  SrcLayers_[iLayer-1]->GetSpatialRef();
+        OGRSpatialReference *sr2 =  SrcLayers_[iLayer]->GetSpatialRef();
 
-        OGRLayer * ogrLayerACHARE = poSrcDatasource->GetLayerByName("ACHARE");
-
-        NAVI2PG::NAVILayer * layerACHARE =
-                new NAVI2PG::NAVILayer(ogrLayerACHARE);
-
-        OGRLayer *anchorParkingPlgLayer =
-            poDstDatasource->CreateLayer( newLayerName.c_str(), ogrLayerACHARE->GetSpatialRef(), newLayerGeometry, NULL );
-
-        addStandartFields(anchorParkingPlgLayer);
-
-        layerACHARE->copyFeaturesTo(anchorParkingPlgLayer);
-    }
-    void createAnchorParkingPt(OGRDataSource *poSrcDatasource, OGRDataSource *poDstDatasource)
-    {
-        const CPLString newLayerName("anchor_parking_pt");
-        OGRwkbGeometryType newLayerGeometry = wkbPoint;
-
-        OGRLayer * ogrLayerACHARE = poSrcDatasource->GetLayerByName("ACHARE");
-
-        NAVI2PG::NAVILayer * layerACHARE =
-                new NAVI2PG::NAVILayer(ogrLayerACHARE);
-
-        OGRLayer *anchorParkingPtLayer =
-            poDstDatasource->CreateLayer( newLayerName.c_str(), ogrLayerACHARE->GetSpatialRef(), newLayerGeometry, NULL );
-
-        addStandartFields(anchorParkingPtLayer);
-
-        layerACHARE->copyFeaturesTo(anchorParkingPtLayer);
-    }
-
-}
-
-
-NAVI2PG::NAVILayer::NAVILayer(OGRLayer *layer):poLayer(layer)
-{
-
-}
-
-void NAVI2PG::NAVILayer::copyFeaturesTo(OGRLayer *layerTo)
-{
-
-    poLayer->ResetReading();
-    layerTo->ResetReading();
-
-    OGRFeature *poFeatureFrom;
-    OGRFeature *poFeatureTo;
-
-    while( (poFeatureFrom = poLayer->GetNextFeature()) != NULL )
-    {
-        poFeatureTo = OGRFeature::CreateFeature(layerTo->GetLayerDefn());
-
-        OGRGeometry *poGeometry = poFeatureFrom->GetGeometryRef();
-
-        if( poGeometry == NULL
-            || wkbFlatten(poGeometry->getGeometryType()) != layerTo->GetLayerDefn()->GetGeomType() )
-        {
-            LOG("Warrning. Feature hav bad GeometryType");
-            continue;
-        }
-
-        poFeatureTo->SetGeometry(poGeometry);
-
-        doCreateFields(poFeatureFrom, poFeatureTo);
-
-        layerTo->CreateFeature(poFeatureTo);
-
-        OGRFeature::DestroyFeature( poFeatureFrom );
-        OGRFeature::DestroyFeature( poFeatureTo );
-    }
-}
-
-void NAVI2PG::NAVILayer::doCreateFields(OGRFeature *featureFrom, OGRFeature *featureTo)
-{
-    doCreateTypeField(featureFrom, featureTo);
-    doCreateNameEnField(featureFrom, featureTo);
-    doCreateNameRuField(featureFrom, featureTo);
-}
-
-void NAVI2PG::NAVILayer::doCreateTypeField(OGRFeature *featureFrom, OGRFeature *featureTo)
-{
-    featureTo->SetField( "type",  poLayer->GetName());
-}
-
-void NAVI2PG::NAVILayer::doCreateNameEnField(OGRFeature *featureFrom, OGRFeature *featureTo)
-{
-
-}
-
-void NAVI2PG::NAVILayer::doCreateNameRuField(OGRFeature *featureFrom, OGRFeature *featureTo)
-{
-
-}
-
-bool NAVI2PG::NAVILayer::equalSpatialReferences(const NAVILayer& layer)
-{
-
-    OGRSpatialReference *sr1 =  poLayer->GetSpatialRef();
-    OGRSpatialReference *sr2 =  layer.poLayer->GetSpatialRef();
-
-    if ( !sr1->IsSame(sr2))
-    {
-        return false;
+        if ( !sr1->IsSame(sr2))
+            return false;
     }
 
     return true;
 }
 
-void NAVI2PG::LightsNAVILayer::doCreateNameEnField(OGRFeature *featureFrom, OGRFeature *featureTo)
+
+NAVI2PG::NAVILayerSimple::NAVILayerSimple(
+        const CPLString &layerName,
+        OGRwkbGeometryType geomType,
+        OGRDataSource *poSrcDatasource,
+        std::vector<CPLString> srcLayerNames)
+    : NAVILayer(layerName, geomType, poSrcDatasource, srcLayerNames)
+{
+
+}
+
+void NAVI2PG::NAVILayerSimple::InitFields(OGRLayer *poLayer)
+{
+    OGRFieldDefn oFieldType( "type", OFTString );
+    oFieldType.SetWidth(32);
+    OGRFieldDefn oFieldNameEn( "name_en", OFTString );
+    oFieldType.SetWidth(32);
+    OGRFieldDefn oFieldNameRu( "name_ru", OFTString );
+    oFieldType.SetWidth(32);
+
+    if( poLayer->CreateField( &oFieldType ) != OGRERR_NONE ||
+            poLayer->CreateField( &oFieldNameEn ) != OGRERR_NONE ||
+            poLayer->CreateField( &oFieldNameRu ) != OGRERR_NONE)
+    {
+        //TODO Set exception
+        LOG( "Creating field failed.\n" );
+        return;
+    }
+}
+
+void NAVI2PG::NAVILayerSimple::SetFields(OGRLayer* layerFrom, OGRFeature* featureTo)
+{
+    SetTypeField(layerFrom, featureTo);
+    SetNameEnField(layerFrom, featureTo);
+    SetNameRuField(layerFrom, featureTo);
+}
+
+void NAVI2PG::NAVILayerSimple::SetTypeField(OGRLayer* layerFrom, OGRFeature* featureTo)
+{
+    featureTo->SetField( "type",  layerFrom->GetName());
+}
+
+void NAVI2PG::NAVILayerSimple::SetNameRuField(OGRLayer* layerFrom, OGRFeature* featureTo)
+{
+
+}
+
+void NAVI2PG::NAVILayerSimple::SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureTo)
 {
     /*
     concat (
@@ -226,7 +243,7 @@ void NAVI2PG::LightsNAVILayer::doCreateNameEnField(OGRFeature *featureFrom, OGRF
         END
     )
      */
-
+    /*
     OGRFeatureDefn *poFDefn = poLayer->GetLayerDefn();
     int litchrInt = featureFrom->GetFieldAsInteger( poFDefn->GetFieldIndex("LITCHR") );
     CPLString litchrStr;
@@ -289,12 +306,8 @@ void NAVI2PG::LightsNAVILayer::doCreateNameEnField(OGRFeature *featureFrom, OGRF
 
     featureTo->SetField( "name_en",  nameEn.c_str());
     featureTo->SetField( "name_ru",  nameEn.c_str());
+    */
 }
-
-void NAVI2PG::LightsNAVILayer::doCreateNameRuField(OGRFeature *featureFrom, OGRFeature *featureTo)
-{
-}
-
 
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
 {
@@ -370,7 +383,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     /*
      *  For tests
      */
-
+    /*
     OGRLayer *poLayer = poSrcDatasource->GetLayerByName("LIGHTS");
     OGRFeatureDefn *poFDefn = poLayer->GetLayerDefn();
 
@@ -389,13 +402,24 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         std::cout <<   poFeature->GetFieldAsInteger( iField ) << "(" << poFDefn->GetFieldDefn(iField)->GetNameRef() << "), ";
     }
     std::cout << std::endl;
+    */
 
+
+    Navi2PGConfig config = configurate();
+
+
+    for(size_t iConfNode = 0; iConfNode < config.size(); ++iConfNode)
+    {
+
+        NAVI2PG::NAVILayerSimple naviLayer(
+                    config[iConfNode].layerName,
+                    config[iConfNode].geomType,
+                    poSrcDatasource,
+                    config[iConfNode].srcLayers);
+
+        naviLayer.CopyTo(poDstDatasource);
+    }
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );
-
-    createBeaconLayer(poSrcDatasource, poDstDatasource);
-    createAnchorParkingPlg(poSrcDatasource, poDstDatasource);
-    createAnchorParkingPt(poSrcDatasource, poDstDatasource);
-
 }
