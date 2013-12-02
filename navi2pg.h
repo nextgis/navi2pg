@@ -23,7 +23,7 @@ namespace NAVI2PG {
         bool checkSpatialReferences();
 
         virtual void InitFields(OGRLayer* poLayer) = 0;
-        virtual void SetFields(OGRLayer* layerFrom, OGRFeature* featureTo) = 0;
+        virtual void SetFields(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo) = 0;
 
     };
 
@@ -34,11 +34,31 @@ namespace NAVI2PG {
 
     private:
         void InitFields(OGRLayer* poLayer);
-        void SetFields(OGRLayer* layerFrom, OGRFeature* featureTo);
+        void SetFields(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo);
 
         virtual void SetTypeField(OGRLayer* layerFrom, OGRFeature* featureTo);
-        virtual void SetNameRuField(OGRLayer* layerFrom, OGRFeature* featureTo);
-        virtual void SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureTo);
+        virtual void SetNameRuField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo);
+        virtual void SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo);
+    };
+
+    class NAVILayerOBJNAMSignature: public NAVILayerSimple
+    {
+    public:
+        NAVILayerOBJNAMSignature(const CPLString& layerName, OGRwkbGeometryType geomType, OGRDataSource* poSrcDatasource, std::vector<CPLString> srcLayerNames)
+            :NAVILayerSimple(layerName, geomType, poSrcDatasource, srcLayerNames) {}
+
+    private:
+        virtual void SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo);
+    };
+
+    class NAVILayerBeacon: public NAVILayerSimple
+    {
+    public:
+        NAVILayerBeacon(const CPLString& layerName, OGRwkbGeometryType geomType, OGRDataSource* poSrcDatasource, std::vector<CPLString> srcLayerNames)
+            :NAVILayerSimple(layerName, geomType, poSrcDatasource, srcLayerNames) {}
+
+    private:
+        virtual void SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo);
     };
 
     void Import(const char* fromS57DataSource, const char* toPGConnectionString);

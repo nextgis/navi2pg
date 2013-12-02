@@ -8,8 +8,9 @@ namespace
     typedef struct
     {
         CPLString layerName;
-        std::vector<CPLString> srcLayers;
         OGRwkbGeometryType geomType;
+        bool hasSignature;
+        std::vector<CPLString> srcLayers;
 
     }NaviLayerConfuguration;
 
@@ -20,6 +21,8 @@ namespace
         Navi2PGConfig configuration;
 
         NaviLayerConfuguration layerConf;
+
+        layerConf.hasSignature = false;
 
         layerConf.srcLayers.push_back("BCNLAT");
         layerConf.srcLayers.push_back("BCNSPP");
@@ -107,6 +110,7 @@ namespace
 
         layerConf.layerName = "land_region_pt";
         layerConf.geomType = wkbPoint;
+        layerConf.hasSignature = true;
         layerConf.srcLayers.push_back("LNDARE");
         layerConf.srcLayers.push_back("LNDRGN");
         configuration.push_back(layerConf);
@@ -115,6 +119,7 @@ namespace
 
         layerConf.layerName = "landmark";
         layerConf.geomType = wkbPoint;
+        layerConf.hasSignature = false;
         layerConf.srcLayers.push_back("LNDMRK");
         configuration.push_back(layerConf);
 
@@ -200,6 +205,41 @@ namespace
 
         return configuration;
     }
+
+    Navi2PGConfig configurateWhithSign()
+    {
+        Navi2PGConfig configuration;
+
+        NaviLayerConfuguration layerConf;
+
+        layerConf.hasSignature = false;
+
+        layerConf.srcLayers.push_back("BCNLAT");
+        layerConf.srcLayers.push_back("BCNSPP");
+        layerConf.srcLayers.push_back("BOYCAR");
+        layerConf.srcLayers.push_back("BOYLAT");
+        layerConf.srcLayers.push_back("BOYSAW");
+        layerConf.srcLayers.push_back("LIGHTS");
+        layerConf.geomType = wkbPoint;
+        layerConf.layerName = "beacon";
+        configuration.push_back(layerConf);
+
+        layerConf.layerName = "landmark";
+        layerConf.geomType = wkbPoint;
+        layerConf.hasSignature = false;
+        layerConf.srcLayers.push_back("LNDMRK");
+        configuration.push_back(layerConf);
+
+        layerConf.layerName = "land_region_pt";
+        layerConf.geomType = wkbPoint;
+        layerConf.hasSignature = true;
+        layerConf.srcLayers.push_back("LNDARE");
+        layerConf.srcLayers.push_back("LNDRGN");
+        configuration.push_back(layerConf);
+
+
+        return configuration;
+    }
 }
 
 NAVI2PG::NAVILayer::NAVILayer(
@@ -213,7 +253,18 @@ NAVI2PG::NAVILayer::NAVILayer(
     for(size_t iLayerName = 0; iLayerName < srcLayerNames.size(); ++iLayerName)
     {
         //TODO Сheck for NULL layer
-        SrcLayers_.push_back(poSrcDatasource->GetLayerByName(srcLayerNames[iLayerName]));
+        OGRLayer *layer = poSrcDatasource->GetLayerByName(srcLayerNames[iLayerName]);
+
+        if(layer == NULL)
+        {
+            CPLString errMsg;
+            errMsg.Printf("Error. Layer with name %s not found", srcLayerNames[iLayerName].c_str());
+            LOG(errMsg);
+        }
+        else
+        {
+            SrcLayers_.push_back(poSrcDatasource->GetLayerByName(srcLayerNames[iLayerName]));
+        }
     }
 }
 
@@ -252,13 +303,13 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
             if( poGeometry == NULL
                 || wkbFlatten(poGeometry->getGeometryType()) != poLayer->GetLayerDefn()->GetGeomType() )
             {
-                LOG("Warrning. Feature hav bad GeometryType");
+                LOG("Warrning. Feature have bad GeometryType");
                 continue;
             }
 
             poFeatureTo->SetGeometry(poGeometry);
 
-            SetFields(poSrcLayer, poFeatureTo);
+            SetFields(poSrcLayer, poFeatureFrom, poFeatureTo);
 
             poLayer->CreateFeature(poFeatureTo);
 
@@ -312,11 +363,11 @@ void NAVI2PG::NAVILayerSimple::InitFields(OGRLayer *poLayer)
     }
 }
 
-void NAVI2PG::NAVILayerSimple::SetFields(OGRLayer* layerFrom, OGRFeature* featureTo)
+void NAVI2PG::NAVILayerSimple::SetFields(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo)
 {
     SetTypeField(layerFrom, featureTo);
-    SetNameEnField(layerFrom, featureTo);
-    SetNameRuField(layerFrom, featureTo);
+    SetNameEnField(layerFrom, featureFrom, featureTo);
+    SetNameRuField(layerFrom, featureFrom, featureTo);
 }
 
 void NAVI2PG::NAVILayerSimple::SetTypeField(OGRLayer* layerFrom, OGRFeature* featureTo)
@@ -324,12 +375,26 @@ void NAVI2PG::NAVILayerSimple::SetTypeField(OGRLayer* layerFrom, OGRFeature* fea
     featureTo->SetField( "type",  layerFrom->GetName());
 }
 
-void NAVI2PG::NAVILayerSimple::SetNameRuField(OGRLayer* layerFrom, OGRFeature* featureTo)
+void NAVI2PG::NAVILayerSimple::SetNameRuField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo)
 {
 
 }
 
-void NAVI2PG::NAVILayerSimple::SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureTo)
+void NAVI2PG::NAVILayerSimple::SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo)
+{
+
+}
+
+
+void NAVI2PG::NAVILayerOBJNAMSignature::SetNameEnField(OGRLayer *layerFrom, OGRFeature* featureFrom, OGRFeature *featureTo)
+{
+    CPLString objNam(featureFrom->GetFieldAsString( "OBJNAM" ));
+
+    featureTo->SetField( "name_en",  objNam.c_str());
+    featureTo->SetField( "name_ru",  objNam.c_str());
+}
+
+void NAVI2PG::NAVILayerBeacon::SetNameEnField(OGRLayer *layerFrom, OGRFeature* featureFrom, OGRFeature *featureTo)
 {
     /*
     concat (
@@ -363,9 +428,12 @@ void NAVI2PG::NAVILayerSimple::SetNameEnField(OGRLayer* layerFrom, OGRFeature* f
         END
     )
      */
-    /*
-    OGRFeatureDefn *poFDefn = poLayer->GetLayerDefn();
-    int litchrInt = featureFrom->GetFieldAsInteger( poFDefn->GetFieldIndex("LITCHR") );
+
+    LOG(layerFrom->GetName());
+    if(CPLString(layerFrom->GetName()).compare("LIGHTS"))
+        return;
+
+    int litchrInt = featureFrom->GetFieldAsInteger( "LITCHR" );
     CPLString litchrStr;
     switch(litchrInt)
     {
@@ -399,11 +467,16 @@ void NAVI2PG::NAVILayerSimple::SetNameEnField(OGRLayer* layerFrom, OGRFeature* f
             litchrStr.Printf("%s", "Q+LFI");
             break;
         }
+        default:
+        {
+            litchrStr="";
+            break;
+        }
     }
 
-    CPLString siggrpStr(featureFrom->GetFieldAsString( poFDefn->GetFieldIndex("SIGGRP") ) );
+    CPLString siggrpStr(featureFrom->GetFieldAsString( "SIGGRP" ) );
 
-    int colourInt = featureFrom->GetFieldAsInteger( poFDefn->GetFieldIndex("COLOUR") );
+    int colourInt = featureFrom->GetFieldAsInteger( "COLOUR" );
     CPLString colourStr;
     switch(colourInt)
     {
@@ -417,16 +490,29 @@ void NAVI2PG::NAVILayerSimple::SetNameEnField(OGRLayer* layerFrom, OGRFeature* f
             colourStr.Printf("%s", "R");
             break;
         }
+        default:
+        {
+            colourStr = "";
+        }
     }
 
-    //int sigperInt = featureFrom->GetFieldAsInteger( poFDefn->GetFieldIndex("SIGPER") );
+    CPLString sigperStr(featureFrom->GetFieldAsString( "SIGPER" ) );
+    if(sigperStr != "")
+        sigperStr.Printf("%ss",sigperStr.c_str());
+
+    CPLString heightStr(featureFrom->GetFieldAsString( "HEIGHT" ) );
+    if(heightStr != "")
+        heightStr.Printf("%sm",heightStr.c_str());
+
+    CPLString valnmrStr(featureFrom->GetFieldAsString( "VALNMR" ) );
+    if(valnmrStr != "")
+        valnmrStr.Printf("%sM",valnmrStr.c_str());
 
     CPLString nameEn;
-    nameEn.Printf("%s%s%s ",litchrStr.c_str(), siggrpStr.c_str(), colourStr.c_str());
+    nameEn.Printf("%s%s%s %s%s%s",litchrStr.c_str(), siggrpStr.c_str(), colourStr.c_str(), sigperStr.c_str(), heightStr.c_str(), valnmrStr.c_str());
 
     featureTo->SetField( "name_en",  nameEn.c_str());
     featureTo->SetField( "name_ru",  nameEn.c_str());
-    */
 }
 
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
@@ -439,6 +525,9 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     msg.Printf("pszPGConnectionString: %s", pszPGConnectionString);
     LOG(msg);
 
+    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=OFF,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=ON,RECODE_BY_DSSI=ON");
+    //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON");
+
     OGRRegisterAll();
 
     const char *pszSrcDriverName = "S57";
@@ -447,7 +536,6 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     OGRSFDriver *poSrcDriver = NULL;
     OGRSFDriver *poDstDriver = NULL;
 
-    OGRRegisterAll();
 
     poSrcDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName(
                 pszSrcDriverName );
@@ -463,7 +551,8 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     OGRDataSource *poSrcDatasource = NULL;
 
 
-    //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=OFF,RETURN_LINKAGES=OFF,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=OFF,RECODE_BY_DSSI=OFF");
+
+
 
     poSrcDatasource = poSrcDriver->Open(pszS57DataSource);
 
@@ -504,7 +593,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
      *  For tests
      */
     /*
-    OGRLayer *poLayer = poSrcDatasource->GetLayerByName("LIGHTS");
+    OGRLayer *poLayer = poSrcDatasource->GetLayerByName("LNDRGN");
     OGRFeatureDefn *poFDefn = poLayer->GetLayerDefn();
 
     OGRFeature *poFeature = poLayer->GetNextFeature();
@@ -529,12 +618,38 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
 
     for(size_t iConfNode = 0; iConfNode < config.size(); ++iConfNode)
     {
-        NAVI2PG::NAVILayerSimple naviLayer(
+        NAVI2PG::NAVILayer* naviLayer;
+
+        if(config[iConfNode].layerName == "land_region_pt" ||
+                config[iConfNode].layerName == "landmark")
+        {
+            naviLayer =
+                new NAVI2PG::NAVILayerOBJNAMSignature (
                     config[iConfNode].layerName,
                     config[iConfNode].geomType,
                     poSrcDatasource,
                     config[iConfNode].srcLayers);
-        naviLayer.CopyTo(poDstDatasource);
+        }
+        else if(config[iConfNode].layerName == "beacon")
+        {
+            naviLayer =
+                new NAVI2PG::NAVILayerBeacon (
+                    config[iConfNode].layerName,
+                    config[iConfNode].geomType,
+                    poSrcDatasource,
+                    config[iConfNode].srcLayers);
+        }
+        else
+        {
+            naviLayer =
+                new NAVI2PG::NAVILayerSimple (
+                    config[iConfNode].layerName,
+                    config[iConfNode].geomType,
+                    poSrcDatasource,
+                    config[iConfNode].srcLayers);
+        }
+
+        naviLayer->CopyTo(poDstDatasource);
     }
 
 
