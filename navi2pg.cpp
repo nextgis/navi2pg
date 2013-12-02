@@ -77,6 +77,126 @@ namespace
         layerConf.layerName = "depths_area_ln";
         configuration.push_back(layerConf);
 
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("DEPARE");
+        layerConf.srcLayers.push_back("DRGARE");
+        layerConf.geomType = wkbPolygon;
+        layerConf.layerName = "depths_area_plg";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("DMPGRD");
+        layerConf.geomType = wkbPolygon;
+        layerConf.layerName = "dump_plg";
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+        layerConf.srcLayers.push_back("SLOTOP");
+        layerConf.geomType = wkbLineString;
+        layerConf.layerName = "land_region_ln";
+        configuration.push_back(layerConf);
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "land_region_plg";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back("LNDARE");
+        layerConf.srcLayers.push_back("LNDRGN");
+        configuration.push_back(layerConf);
+        layerConf.srcLayers.clear();
+
+
+        layerConf.layerName = "land_region_pt";
+        layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back("LNDARE");
+        layerConf.srcLayers.push_back("LNDRGN");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "landmark";
+        layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back("LNDMRK");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "magnetic_declination";
+        layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back("MAGVAR");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "mark";
+        layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back("DAYMAR");
+        layerConf.srcLayers.push_back("SOUNDG");
+        layerConf.srcLayers.push_back("TOPMAR");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "obstacles_ln";
+        layerConf.geomType = wkbLineString;
+        layerConf.srcLayers.push_back("CBLSUB");
+        layerConf.srcLayers.push_back("FSHFAC");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "obstacles_plg";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back("OBSTRN");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "obstacles_pt";
+        layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back("OBSTRN");
+        layerConf.srcLayers.push_back("SBDARE");
+        layerConf.srcLayers.push_back("UWTROC");
+        layerConf.srcLayers.push_back("WRECKS");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "pile_pt";
+        layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back("PILPNT");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "rivers";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back("RIVERS");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "route_ln";
+        layerConf.geomType = wkbLineString;
+        layerConf.srcLayers.push_back("NAVLNE");
+        layerConf.srcLayers.push_back("RECTRC");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "route_plg";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back("CTNARE");
+        layerConf.srcLayers.push_back("FAIRWY");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "vegetation";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back("VEGATN");
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
 
         return configuration;
     }
@@ -343,7 +463,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     OGRDataSource *poSrcDatasource = NULL;
 
 
-    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=OFF,RETURN_LINKAGES=OFF,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=OFF,RECODE_BY_DSSI=OFF");
+    //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=OFF,RETURN_LINKAGES=OFF,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=OFF,RECODE_BY_DSSI=OFF");
 
     poSrcDatasource = poSrcDriver->Open(pszS57DataSource);
 
@@ -399,7 +519,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
 
     for( int iField = 0; iField < poFDefn->GetFieldCount(); iField++ )
     {
-        std::cout <<   poFeature->GetFieldAsInteger( iField ) << "(" << poFDefn->GetFieldDefn(iField)->GetNameRef() << "), ";
+        std::cout <<   poFeature->GetFieldAsString( iField ) << "(" << poFDefn->GetFieldDefn(iField)->GetNameRef() << "), ";
     }
     std::cout << std::endl;
     */
@@ -407,18 +527,16 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
 
     Navi2PGConfig config = configurate();
 
-
     for(size_t iConfNode = 0; iConfNode < config.size(); ++iConfNode)
     {
-
         NAVI2PG::NAVILayerSimple naviLayer(
                     config[iConfNode].layerName,
                     config[iConfNode].geomType,
                     poSrcDatasource,
                     config[iConfNode].srcLayers);
-
         naviLayer.CopyTo(poDstDatasource);
     }
+
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );
