@@ -5,18 +5,20 @@
 
 namespace
 {
+    using namespace NAVI2PG;
+
     typedef struct
     {
         CPLString layerName;
         OGRwkbGeometryType geomType;
         bool hasSignature;
-        std::vector<CPLString> srcLayers;
+        std::vector<NAVISRCLayer*> srcLayers;
 
     }NaviLayerConfuguration;
 
     typedef std::vector<NaviLayerConfuguration> Navi2PGConfig;
 
-    Navi2PGConfig configurate()
+    Navi2PGConfig configurate(OGRDataSource* srcDataSource)
     {
         Navi2PGConfig configuration;
 
@@ -24,95 +26,106 @@ namespace
 
         layerConf.hasSignature = false;
 
-        layerConf.srcLayers.push_back("BCNLAT");
-        layerConf.srcLayers.push_back("BCNSPP");
-        layerConf.srcLayers.push_back("BOYCAR");
-        layerConf.srcLayers.push_back("BOYLAT");
-        layerConf.srcLayers.push_back("BOYSAW");
-        layerConf.srcLayers.push_back("LIGHTS");
-        layerConf.geomType = wkbPoint;
         layerConf.layerName = "beacon";
-        configuration.push_back(layerConf);
-
-        layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("ACHARE");
-        layerConf.geomType = wkbPolygon;
-        layerConf.layerName = "anchor_parking_plg";
-        configuration.push_back(layerConf);
-
-        layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("ACHARE");
         layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BCNLAT")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("BCNSPP")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BOYCAR")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BOYLAT")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("BOYSAW")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayerLIGHTSSign(srcDataSource->GetLayerByName("LIGHTS")) );
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "anchor_parking_plg";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("ACHARE")) );
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
         layerConf.layerName = "anchor_parking_pt";
+        layerConf.geomType = wkbPoint;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("ACHARE")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("DYKCON");
-        layerConf.srcLayers.push_back("SLCONS");
-        layerConf.geomType = wkbLineString;
+
         layerConf.layerName = "building_ln";
+        layerConf.geomType = wkbLineString;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DYKCON")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("SLCONS")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("BUAARE");
-        layerConf.srcLayers.push_back("DOCARE");
-        layerConf.srcLayers.push_back("SLCONS");
-        layerConf.geomType = wkbPolygon;
+
         layerConf.layerName = "building_plg";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BUAARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DOCARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("SLCONS")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("SEAARE");
-        layerConf.geomType = wkbPolygon;
+
         layerConf.layerName = "called_sea_parts";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("SEAARE")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("COALNE");
-        layerConf.geomType = wkbLineString;
+
         layerConf.layerName = "coastline";
+        layerConf.geomType = wkbLineString;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("COALNE")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("DEPARE");
-        layerConf.srcLayers.push_back("DEPCNT");
-        layerConf.geomType = wkbLineString;
+
         layerConf.layerName = "depths_area_ln";
-        configuration.push_back(layerConf);
-
-        layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("DEPARE");
-        layerConf.srcLayers.push_back("DRGARE");
-        layerConf.geomType = wkbPolygon;
-        layerConf.layerName = "depths_area_plg";
-        configuration.push_back(layerConf);
-
-        layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("DMPGRD");
-        layerConf.geomType = wkbPolygon;
-        layerConf.layerName = "dump_plg";
-        configuration.push_back(layerConf);
-
-        layerConf.srcLayers.clear();
-        layerConf.srcLayers.push_back("SLOTOP");
         layerConf.geomType = wkbLineString;
-        layerConf.layerName = "land_region_ln";
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DEPARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DEPCNT")) );
         configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "depths_area_plg";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DEPARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DRGARE")) );
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "dump_plg";
+        layerConf.geomType = wkbPolygon;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DMPGRD")) );
+        configuration.push_back(layerConf);
+
+        layerConf.srcLayers.clear();
+
+        layerConf.layerName = "land_region_ln";
+        layerConf.geomType = wkbLineString;
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("SLOTOP")) );
+        configuration.push_back(layerConf);
+
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "land_region_plg";
         layerConf.geomType = wkbPolygon;
-        layerConf.srcLayers.push_back("LNDARE");
-        layerConf.srcLayers.push_back("LNDRGN");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("LNDARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("LNDRGN")) );
         configuration.push_back(layerConf);
-        layerConf.srcLayers.clear();
 
+        layerConf.srcLayers.clear();
 
         layerConf.layerName = "land_region_pt";
         layerConf.geomType = wkbPoint;
         layerConf.hasSignature = true;
-        layerConf.srcLayers.push_back("LNDARE");
-        layerConf.srcLayers.push_back("LNDRGN");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("LNDARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("LNDRGN")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
@@ -120,124 +133,88 @@ namespace
         layerConf.layerName = "landmark";
         layerConf.geomType = wkbPoint;
         layerConf.hasSignature = false;
-        layerConf.srcLayers.push_back("LNDMRK");
+        layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("LNDMRK")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "magnetic_declination";
         layerConf.geomType = wkbPoint;
-        layerConf.srcLayers.push_back("MAGVAR");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("MAGVAR")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "mark";
         layerConf.geomType = wkbPoint;
-        layerConf.srcLayers.push_back("DAYMAR");
-        layerConf.srcLayers.push_back("SOUNDG");
-        layerConf.srcLayers.push_back("TOPMAR");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DAYMAR")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("SOUNDG")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("TOPMAR")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "obstacles_ln";
         layerConf.geomType = wkbLineString;
-        layerConf.srcLayers.push_back("CBLSUB");
-        layerConf.srcLayers.push_back("FSHFAC");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("CBLSUB")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("FSHFAC")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "obstacles_plg";
         layerConf.geomType = wkbPolygon;
-        layerConf.srcLayers.push_back("OBSTRN");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("OBSTRN")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "obstacles_pt";
         layerConf.geomType = wkbPoint;
-        layerConf.srcLayers.push_back("OBSTRN");
-        layerConf.srcLayers.push_back("SBDARE");
-        layerConf.srcLayers.push_back("UWTROC");
-        layerConf.srcLayers.push_back("WRECKS");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("OBSTRN")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("SBDARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("UWTROC")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("WRECKS")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "pile_pt";
         layerConf.geomType = wkbPoint;
-        layerConf.srcLayers.push_back("PILPNT");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("PILPNT")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "rivers";
         layerConf.geomType = wkbPolygon;
-        layerConf.srcLayers.push_back("RIVERS");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("RIVERS")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "route_ln";
         layerConf.geomType = wkbLineString;
-        layerConf.srcLayers.push_back("NAVLNE");
-        layerConf.srcLayers.push_back("RECTRC");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("NAVLNE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("RECTRC")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "route_plg";
         layerConf.geomType = wkbPolygon;
-        layerConf.srcLayers.push_back("CTNARE");
-        layerConf.srcLayers.push_back("FAIRWY");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("CTNARE")) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("FAIRWY")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
 
         layerConf.layerName = "vegetation";
         layerConf.geomType = wkbPolygon;
-        layerConf.srcLayers.push_back("VEGATN");
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("VEGATN")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-
-        return configuration;
-    }
-
-    Navi2PGConfig configurateWhithSign()
-    {
-        Navi2PGConfig configuration;
-
-        NaviLayerConfuguration layerConf;
-
-        layerConf.hasSignature = false;
-
-        layerConf.srcLayers.push_back("BCNLAT");
-        layerConf.srcLayers.push_back("BCNSPP");
-        layerConf.srcLayers.push_back("BOYCAR");
-        layerConf.srcLayers.push_back("BOYLAT");
-        layerConf.srcLayers.push_back("BOYSAW");
-        layerConf.srcLayers.push_back("LIGHTS");
-        layerConf.geomType = wkbPoint;
-        layerConf.layerName = "beacon";
-        configuration.push_back(layerConf);
-
-        layerConf.layerName = "landmark";
-        layerConf.geomType = wkbPoint;
-        layerConf.hasSignature = false;
-        layerConf.srcLayers.push_back("LNDMRK");
-        configuration.push_back(layerConf);
-
-        layerConf.layerName = "land_region_pt";
-        layerConf.geomType = wkbPoint;
-        layerConf.hasSignature = true;
-        layerConf.srcLayers.push_back("LNDARE");
-        layerConf.srcLayers.push_back("LNDRGN");
-        configuration.push_back(layerConf);
-
-
         return configuration;
     }
 }
@@ -245,31 +222,24 @@ namespace
 NAVI2PG::NAVILayer::NAVILayer(
             const CPLString& layerName,
             OGRwkbGeometryType geomType,
-            OGRDataSource *poSrcDatasource,
-            std::vector<CPLString> srcLayerNames)
+            std::vector<NAVISRCLayer*> srcLayers)
     : LayerName_(layerName),
-      LayerGeometryType_(geomType)
+      LayerGeometryType_(geomType),
+      SrcLayers_(srcLayers)
 {
-    for(size_t iLayerName = 0; iLayerName < srcLayerNames.size(); ++iLayerName)
-    {
-        //TODO Сheck for NULL layer
-        OGRLayer *layer = poSrcDatasource->GetLayerByName(srcLayerNames[iLayerName]);
 
-        if(layer == NULL)
-        {
-            CPLString errMsg;
-            errMsg.Printf("Error. Layer with name %s not found", srcLayerNames[iLayerName].c_str());
-            LOG(errMsg);
-        }
-        else
-        {
-            SrcLayers_.push_back(poSrcDatasource->GetLayerByName(srcLayerNames[iLayerName]));
-        }
-    }
 }
 
 void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
 {
+    if(SrcLayers_.size() == 0)
+    {
+        CPLString errMsg;
+        errMsg.Printf("Warrning. %s layer not create. Source not found", LayerName_.c_str());
+        LOG(errMsg);
+        return;
+    }
+
     if( !checkSpatialReferences() )
     {
         //TODO set exception
@@ -281,13 +251,13 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
     }
 
     OGRLayer *poLayer =
-        poDstDatasource->CreateLayer( LayerName_.c_str(), SrcLayers_[0]->GetSpatialRef(), LayerGeometryType_, NULL );
+        poDstDatasource->CreateLayer( LayerName_.c_str(), SrcLayers_[0]->getOGRLayer()->GetSpatialRef(), LayerGeometryType_, NULL );
 
     InitFields(poLayer);
 
     for(size_t iLayer = 0; iLayer < SrcLayers_.size(); ++iLayer)
     {
-        OGRLayer *poSrcLayer = SrcLayers_[iLayer];
+        OGRLayer *poSrcLayer = SrcLayers_[iLayer]->getOGRLayer();
 
         poSrcLayer->ResetReading();
 
@@ -303,13 +273,13 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
             if( poGeometry == NULL
                 || wkbFlatten(poGeometry->getGeometryType()) != poLayer->GetLayerDefn()->GetGeomType() )
             {
-                LOG("Warrning. Feature have bad GeometryType");
+                //TODO Debug Info
                 continue;
             }
 
             poFeatureTo->SetGeometry(poGeometry);
 
-            SetFields(poSrcLayer, poFeatureFrom, poFeatureTo);
+            SetFields(SrcLayers_[iLayer], poFeatureFrom, poFeatureTo);
 
             poLayer->CreateFeature(poFeatureTo);
 
@@ -323,8 +293,8 @@ bool NAVI2PG::NAVILayer::checkSpatialReferences()
 {
     for(size_t iLayer = 1; iLayer < SrcLayers_.size(); ++iLayer)
     {
-        OGRSpatialReference *sr1 =  SrcLayers_[iLayer-1]->GetSpatialRef();
-        OGRSpatialReference *sr2 =  SrcLayers_[iLayer]->GetSpatialRef();
+        OGRSpatialReference *sr1 =  SrcLayers_[iLayer-1]->getOGRLayer()->GetSpatialRef();
+        OGRSpatialReference *sr2 =  SrcLayers_[iLayer]->getOGRLayer()->GetSpatialRef();
 
         if ( !sr1->IsSame(sr2))
             return false;
@@ -337,9 +307,8 @@ bool NAVI2PG::NAVILayer::checkSpatialReferences()
 NAVI2PG::NAVILayerSimple::NAVILayerSimple(
         const CPLString &layerName,
         OGRwkbGeometryType geomType,
-        OGRDataSource *poSrcDatasource,
-        std::vector<CPLString> srcLayerNames)
-    : NAVILayer(layerName, geomType, poSrcDatasource, srcLayerNames)
+        std::vector<NAVISRCLayer*> srcLayers)
+    : NAVILayer(layerName, geomType, srcLayers)
 {
 
 }
@@ -363,38 +332,57 @@ void NAVI2PG::NAVILayerSimple::InitFields(OGRLayer *poLayer)
     }
 }
 
-void NAVI2PG::NAVILayerSimple::SetFields(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo)
+void NAVI2PG::NAVILayerSimple::SetFields(NAVISRCLayer* srcLayer, OGRFeature* srcFeature, OGRFeature* dstFeature)
 {
-    SetTypeField(layerFrom, featureTo);
-    SetNameEnField(layerFrom, featureFrom, featureTo);
-    SetNameRuField(layerFrom, featureFrom, featureTo);
+    SetTypeField(srcLayer, dstFeature);
+    SetNameEnField(srcLayer, srcFeature, dstFeature);
+    SetNameRuField(srcLayer, srcFeature, dstFeature);
 }
 
-void NAVI2PG::NAVILayerSimple::SetTypeField(OGRLayer* layerFrom, OGRFeature* featureTo)
+void NAVI2PG::NAVILayerSimple::SetTypeField(NAVISRCLayer* srcLayer, OGRFeature* dstFeature)
 {
-    featureTo->SetField( "type",  layerFrom->GetName());
+    dstFeature->SetField( "type",  srcLayer->getOGRLayer()->GetName());
 }
 
-void NAVI2PG::NAVILayerSimple::SetNameRuField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo)
+void NAVI2PG::NAVILayerSimple::SetNameRuField(NAVISRCLayer* srcLayer, OGRFeature* srcFeature, OGRFeature* dstFeature)
+{
+    dstFeature->SetField( "name_en",  srcLayer->GetNameRuField(srcFeature));
+}
+
+void NAVI2PG::NAVILayerSimple::SetNameEnField(NAVISRCLayer* srcLayer, OGRFeature* srcFeature, OGRFeature* dstFeature)
+{
+    dstFeature->SetField( "name_en",  srcLayer->GetNameEnField(srcFeature));
+}
+
+NAVI2PG::NAVISRCLayer::NAVISRCLayer(OGRLayer* srcOGRLayer)
+    : poLayer(srcOGRLayer)
 {
 
 }
-
-void NAVI2PG::NAVILayerSimple::SetNameEnField(OGRLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo)
+OGRLayer* NAVI2PG::NAVISRCLayer::getOGRLayer()
 {
-
+    return poLayer;
 }
 
-
-void NAVI2PG::NAVILayerOBJNAMSignature::SetNameEnField(OGRLayer *layerFrom, OGRFeature* featureFrom, OGRFeature *featureTo)
+CPLString NAVI2PG::NAVISRCLayer::GetNameEnField(OGRFeature *srcFeature)
 {
-    CPLString objNam(featureFrom->GetFieldAsString( "OBJNAM" ));
-
-    featureTo->SetField( "name_en",  objNam.c_str());
-    featureTo->SetField( "name_ru",  objNam.c_str());
+    return CPLString("");
+}
+CPLString NAVI2PG::NAVISRCLayer::GetNameRuField(OGRFeature *srcFeature)
+{
+    return CPLString("");
 }
 
-void NAVI2PG::NAVILayerBeacon::SetNameEnField(OGRLayer *layerFrom, OGRFeature* featureFrom, OGRFeature *featureTo)
+CPLString NAVI2PG::NAVISRCLayerOBJNAMSign::GetNameEnField(OGRFeature *srcFeature)
+{
+    return CPLString(srcFeature->GetFieldAsString( "OBJNAM" ));
+}
+CPLString NAVI2PG::NAVISRCLayerOBJNAMSign::GetNameRuField(OGRFeature *srcFeature)
+{
+    return CPLString(srcFeature->GetFieldAsString( "OBJNAM" ));
+}
+
+CPLString NAVI2PG::NAVISRCLayerLIGHTSSign::GetNameEnField(OGRFeature *srcFeature)
 {
     /*
     concat (
@@ -429,11 +417,8 @@ void NAVI2PG::NAVILayerBeacon::SetNameEnField(OGRLayer *layerFrom, OGRFeature* f
     )
      */
 
-    LOG(layerFrom->GetName());
-    if(CPLString(layerFrom->GetName()).compare("LIGHTS"))
-        return;
 
-    int litchrInt = featureFrom->GetFieldAsInteger( "LITCHR" );
+    int litchrInt = srcFeature->GetFieldAsInteger( "LITCHR" );
     CPLString litchrStr;
     switch(litchrInt)
     {
@@ -474,9 +459,9 @@ void NAVI2PG::NAVILayerBeacon::SetNameEnField(OGRLayer *layerFrom, OGRFeature* f
         }
     }
 
-    CPLString siggrpStr(featureFrom->GetFieldAsString( "SIGGRP" ) );
+    CPLString siggrpStr(srcFeature->GetFieldAsString( "SIGGRP" ) );
 
-    int colourInt = featureFrom->GetFieldAsInteger( "COLOUR" );
+    int colourInt = srcFeature->GetFieldAsInteger( "COLOUR" );
     CPLString colourStr;
     switch(colourInt)
     {
@@ -496,23 +481,26 @@ void NAVI2PG::NAVILayerBeacon::SetNameEnField(OGRLayer *layerFrom, OGRFeature* f
         }
     }
 
-    CPLString sigperStr(featureFrom->GetFieldAsString( "SIGPER" ) );
+    CPLString sigperStr(srcFeature->GetFieldAsString( "SIGPER" ) );
     if(sigperStr != "")
         sigperStr.Printf("%ss",sigperStr.c_str());
 
-    CPLString heightStr(featureFrom->GetFieldAsString( "HEIGHT" ) );
+    CPLString heightStr(srcFeature->GetFieldAsString( "HEIGHT" ) );
     if(heightStr != "")
         heightStr.Printf("%sm",heightStr.c_str());
 
-    CPLString valnmrStr(featureFrom->GetFieldAsString( "VALNMR" ) );
+    CPLString valnmrStr(srcFeature->GetFieldAsString( "VALNMR" ) );
     if(valnmrStr != "")
         valnmrStr.Printf("%sM",valnmrStr.c_str());
 
     CPLString nameEn;
     nameEn.Printf("%s%s%s %s%s%s",litchrStr.c_str(), siggrpStr.c_str(), colourStr.c_str(), sigperStr.c_str(), heightStr.c_str(), valnmrStr.c_str());
 
-    featureTo->SetField( "name_en",  nameEn.c_str());
-    featureTo->SetField( "name_ru",  nameEn.c_str());
+    return nameEn;
+}
+CPLString NAVI2PG::NAVISRCLayerLIGHTSSign::GetNameRuField(OGRFeature *srcFeature)
+{
+    return GetNameEnField(srcFeature);
 }
 
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
@@ -614,40 +602,17 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     */
 
 
-    Navi2PGConfig config = configurate();
+    Navi2PGConfig config = configurate(poSrcDatasource);
 
     for(size_t iConfNode = 0; iConfNode < config.size(); ++iConfNode)
     {
         NAVI2PG::NAVILayer* naviLayer;
 
-        if(config[iConfNode].layerName == "land_region_pt" ||
-                config[iConfNode].layerName == "landmark")
-        {
-            naviLayer =
-                new NAVI2PG::NAVILayerOBJNAMSignature (
-                    config[iConfNode].layerName,
-                    config[iConfNode].geomType,
-                    poSrcDatasource,
-                    config[iConfNode].srcLayers);
-        }
-        else if(config[iConfNode].layerName == "beacon")
-        {
-            naviLayer =
-                new NAVI2PG::NAVILayerBeacon (
-                    config[iConfNode].layerName,
-                    config[iConfNode].geomType,
-                    poSrcDatasource,
-                    config[iConfNode].srcLayers);
-        }
-        else
-        {
-            naviLayer =
-                new NAVI2PG::NAVILayerSimple (
-                    config[iConfNode].layerName,
-                    config[iConfNode].geomType,
-                    poSrcDatasource,
-                    config[iConfNode].srcLayers);
-        }
+        naviLayer =
+            new NAVI2PG::NAVILayerSimple (
+                config[iConfNode].layerName,
+                config[iConfNode].geomType,
+                config[iConfNode].srcLayers);
 
         naviLayer->CopyTo(poDstDatasource);
     }
