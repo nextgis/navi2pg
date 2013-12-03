@@ -7,22 +7,12 @@ namespace
 {
     using namespace NAVI2PG;
 
-    typedef struct
-    {
-        CPLString layerName;
-        OGRwkbGeometryType geomType;
-        bool hasSignature;
-        std::vector<NAVISRCLayer*> srcLayers;
-
-    }NaviLayerConfuguration;
-
-    typedef std::vector<NaviLayerConfuguration> Navi2PGConfig;
-
     Navi2PGConfig configurate(OGRDataSource* srcDataSource)
     {
         Navi2PGConfig configuration;
 
         NaviLayerConfuguration layerConf;
+        FieldForCopy fieldForCopy;
 
         layerConf.hasSignature = false;
 
@@ -34,9 +24,13 @@ namespace
         layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BOYLAT")) );
         layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("BOYSAW")) );
         layerConf.srcLayers.push_back( new NAVISRCLayerLIGHTSSign(srcDataSource->GetLayerByName("LIGHTS")) );
+        fieldForCopy.fieldName = "COLOUR";
+        fieldForCopy.fieldType = OFTReal;
+        layerConf.fieldsForCopy.push_back(fieldForCopy);
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
+        layerConf.fieldsForCopy.clear();
 
         layerConf.layerName = "anchor_parking_plg";
         layerConf.geomType = wkbPolygon;
@@ -95,9 +89,13 @@ namespace
         layerConf.geomType = wkbPolygon;
         layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DEPARE")) );
         layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DRGARE")) );
+        fieldForCopy.fieldName = "DRVAL2";
+        fieldForCopy.fieldType = OFTInteger;
+        layerConf.fieldsForCopy.push_back(fieldForCopy);
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
+        layerConf.fieldsForCopy.clear();
 
         layerConf.layerName = "dump_plg";
         layerConf.geomType = wkbPolygon;
@@ -215,6 +213,7 @@ namespace
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
+
         return configuration;
     }
 }
@@ -222,10 +221,12 @@ namespace
 NAVI2PG::NAVILayer::NAVILayer(
             const CPLString& layerName,
             OGRwkbGeometryType geomType,
-            std::vector<NAVISRCLayer*> srcLayers)
+            std::vector<NAVISRCLayer*> srcLayers,
+            std::vector<FieldForCopy> fieldsToCopy)
     : LayerName_(layerName),
       LayerGeometryType_(geomType),
-      SrcLayers_(srcLayers)
+      SrcLayers_(srcLayers),
+      FieldsToCopy_(fieldsToCopy)
 {
 
 }
@@ -240,7 +241,7 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
         return;
     }
 
-    if( !checkSpatialReferences() )
+    if( !CheckSpatialReferences() )
     {
         //TODO set exception
         CPLString errMsg;
@@ -254,6 +255,7 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
         poDstDatasource->CreateLayer( LayerName_.c_str(), SrcLayers_[0]->getOGRLayer()->GetSpatialRef(), LayerGeometryType_, NULL );
 
     InitFields(poLayer);
+    AddFieldsForCopy(poLayer);
 
     for(size_t iLayer = 0; iLayer < SrcLayers_.size(); ++iLayer)
     {
@@ -279,6 +281,7 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
 
             poFeatureTo->SetGeometry(poGeometry);
 
+            CopyFields(poFeatureFrom, poFeatureTo);
             SetFields(SrcLayers_[iLayer], poFeatureFrom, poFeatureTo);
 
             poLayer->CreateFeature(poFeatureTo);
@@ -289,7 +292,7 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
     }
 }
 
-bool NAVI2PG::NAVILayer::checkSpatialReferences()
+bool NAVI2PG::NAVILayer::CheckSpatialReferences()
 {
     for(size_t iLayer = 1; iLayer < SrcLayers_.size(); ++iLayer)
     {
@@ -303,12 +306,36 @@ bool NAVI2PG::NAVILayer::checkSpatialReferences()
     return true;
 }
 
+void NAVI2PG::NAVILayer::AddFieldsForCopy(OGRLayer *poLayer)
+{
+    for(size_t iField = 0; iField< FieldsToCopy_.size(); ++iField)
+    {
+        OGRFieldDefn oFieldType( FieldsToCopy_[iField].fieldName, FieldsToCopy_[iField].fieldType );
+        oFieldType.SetWidth(32);
+
+        if( poLayer->CreateField( &oFieldType ) != OGRERR_NONE )
+        {
+            //TODO Set exception
+            LOG( "Creating field failed.\n" );
+            return;
+        }
+    }
+}
+
+void NAVI2PG::NAVILayer::CopyFields(OGRFeature* srcFeature, OGRFeature* dstFeature)
+{
+    for(size_t iField = 0; iField< FieldsToCopy_.size(); ++iField)
+    {
+        dstFeature->SetField( FieldsToCopy_[iField].fieldName,  srcFeature->GetFieldAsInteger(FieldsToCopy_[iField].fieldName));
+    }
+}
 
 NAVI2PG::NAVILayerSimple::NAVILayerSimple(
         const CPLString &layerName,
         OGRwkbGeometryType geomType,
-        std::vector<NAVISRCLayer*> srcLayers)
-    : NAVILayer(layerName, geomType, srcLayers)
+        std::vector<NAVISRCLayer*> srcLayers,
+        std::vector<FieldForCopy> fieldsToCopy)
+    : NAVILayer(layerName, geomType, srcLayers, fieldsToCopy)
 {
 
 }
@@ -612,7 +639,8 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
             new NAVI2PG::NAVILayerSimple (
                 config[iConfNode].layerName,
                 config[iConfNode].geomType,
-                config[iConfNode].srcLayers);
+                config[iConfNode].srcLayers,
+                config[iConfNode].fieldsForCopy);
 
         naviLayer->CopyTo(poDstDatasource);
     }
