@@ -14,9 +14,6 @@ int main(int nArgc, char ** papszArgv)
     const char  *pszPGConnectionString =
             valuesCollection[NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING].c_str();
 
-    const char  *rscFilename =
-            valuesCollection[NAVI2PG::CommandLineKeys::RSC_FILENAME].c_str();
-
     NAVI2PG::Import(pszS57DataSource, pszPGConnectionString);
 
     return 0;

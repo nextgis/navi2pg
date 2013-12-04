@@ -12,25 +12,28 @@ namespace
         Navi2PGConfig configuration;
 
         NaviLayerConfuguration layerConf;
+
         FieldForCopy fieldForCopy;
+        std::vector<FieldForCopy> fieldsForCopy;
 
         layerConf.hasSignature = false;
 
         layerConf.layerName = "beacon";
         layerConf.geomType = wkbPoint;
-        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BCNLAT")) );
-        layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("BCNSPP")) );
-        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BOYCAR")) );
-        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BOYLAT")) );
+
+        fieldForCopy.fieldName = "COLOUR";
+        fieldsForCopy.push_back(fieldForCopy);
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BCNLAT"), fieldsForCopy) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BOYLAT"), fieldsForCopy) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("BOYCAR"), fieldsForCopy) );
+        layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("BCNSPP"), fieldsForCopy) );
+
         layerConf.srcLayers.push_back( new NAVISRCLayerOBJNAMSign(srcDataSource->GetLayerByName("BOYSAW")) );
         layerConf.srcLayers.push_back( new NAVISRCLayerLIGHTSSign(srcDataSource->GetLayerByName("LIGHTS")) );
-        fieldForCopy.fieldName = "COLOUR";
-        fieldForCopy.fieldType = OFTReal;
-        layerConf.fieldsForCopy.push_back(fieldForCopy);
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-        layerConf.fieldsForCopy.clear();
+        fieldsForCopy.clear();
 
         layerConf.layerName = "anchor_parking_plg";
         layerConf.geomType = wkbPolygon;
@@ -87,15 +90,15 @@ namespace
 
         layerConf.layerName = "depths_area_plg";
         layerConf.geomType = wkbPolygon;
-        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DEPARE")) );
-        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DRGARE")) );
+
         fieldForCopy.fieldName = "DRVAL2";
-        fieldForCopy.fieldType = OFTInteger;
-        layerConf.fieldsForCopy.push_back(fieldForCopy);
+        fieldsForCopy.push_back(fieldForCopy);
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DEPARE"), fieldsForCopy) );
+        layerConf.srcLayers.push_back( new NAVISRCLayer(srcDataSource->GetLayerByName("DRGARE")) );
         configuration.push_back(layerConf);
 
         layerConf.srcLayers.clear();
-        layerConf.fieldsForCopy.clear();
+        fieldsForCopy.clear();
 
         layerConf.layerName = "dump_plg";
         layerConf.geomType = wkbPolygon;
@@ -221,12 +224,10 @@ namespace
 NAVI2PG::NAVILayer::NAVILayer(
             const CPLString& layerName,
             OGRwkbGeometryType geomType,
-            std::vector<NAVISRCLayer*> srcLayers,
-            std::vector<FieldForCopy> fieldsToCopy)
+            std::vector<NAVISRCLayer*> srcLayers)
     : LayerName_(layerName),
       LayerGeometryType_(geomType),
-      SrcLayers_(srcLayers),
-      FieldsToCopy_(fieldsToCopy)
+      SrcLayers_(srcLayers)
 {
 
 }
@@ -254,44 +255,17 @@ void NAVI2PG::NAVILayer::CopyTo(OGRDataSource *poDstDatasource)
     OGRLayer *poLayer =
         poDstDatasource->CreateLayer( LayerName_.c_str(), SrcLayers_[0]->getOGRLayer()->GetSpatialRef(), LayerGeometryType_, NULL );
 
-    InitFields(poLayer);
-    AddFieldsForCopy(poLayer);
+    for(size_t iLayer = 0; iLayer < SrcLayers_.size(); ++iLayer)
+    {
+        SrcLayers_[iLayer]->ImportFieldsDefns(poLayer);
+    }
 
     for(size_t iLayer = 0; iLayer < SrcLayers_.size(); ++iLayer)
     {
-        OGRLayer *poSrcLayer = SrcLayers_[iLayer]->getOGRLayer();
-
-        poSrcLayer->ResetReading();
-
-        OGRFeature *poFeatureFrom;
-        OGRFeature *poFeatureTo;
-
-        while( (poFeatureFrom = poSrcLayer->GetNextFeature()) != NULL )
-        {
-            poFeatureTo = OGRFeature::CreateFeature(poLayer->GetLayerDefn());
-
-            OGRGeometry *poGeometry = poFeatureFrom->GetGeometryRef();
-
-            if( poGeometry == NULL
-                || wkbFlatten(poGeometry->getGeometryType()) != poLayer->GetLayerDefn()->GetGeomType() )
-            {
-                //TODO Debug Info
-                continue;
-            }
-
-            poFeatureTo->SetGeometry(poGeometry);
-
-            CopyFields(poFeatureFrom, poFeatureTo);
-            SetFields(SrcLayers_[iLayer], poFeatureFrom, poFeatureTo);
-
-            poLayer->CreateFeature(poFeatureTo);
-
-            OGRFeature::DestroyFeature( poFeatureFrom );
-            OGRFeature::DestroyFeature( poFeatureTo );
-        }
+        SrcLayers_[iLayer]->ImportFeaturesTo(poLayer);
     }
-}
 
+}
 bool NAVI2PG::NAVILayer::CheckSpatialReferences()
 {
     for(size_t iLayer = 1; iLayer < SrcLayers_.size(); ++iLayer)
@@ -306,98 +280,129 @@ bool NAVI2PG::NAVILayer::CheckSpatialReferences()
     return true;
 }
 
-void NAVI2PG::NAVILayer::AddFieldsForCopy(OGRLayer *poLayer)
+NAVI2PG::NAVISRCLayer::NAVISRCLayer(OGRLayer* srcOGRLayer, std::vector<FieldForCopy> fieldsToCopy)
+    : poLayer(srcOGRLayer),
+      FieldsToCopy_(fieldsToCopy)
 {
+
+}
+
+NAVI2PG::NAVISRCLayer::NAVISRCLayer(OGRLayer* srcOGRLayer)
+    : poLayer(srcOGRLayer)
+{
+}
+
+OGRLayer* NAVI2PG::NAVISRCLayer::getOGRLayer()
+{
+    return poLayer;
+}
+
+void NAVI2PG::NAVISRCLayer::ImportFeaturesTo(OGRLayer* dstLayer)
+{
+    OGRFeature *poFeatureFrom;
+    OGRFeature *poFeatureTo;
+
+    while( (poFeatureFrom = poLayer->GetNextFeature()) != NULL )
+    {
+        poFeatureTo = OGRFeature::CreateFeature(dstLayer->GetLayerDefn());
+
+        OGRGeometry *poGeometry = poFeatureFrom->GetGeometryRef();
+
+        if( poGeometry == NULL
+            || wkbFlatten(poGeometry->getGeometryType()) != dstLayer->GetLayerDefn()->GetGeomType() )
+        {
+            //TODO Debug Info
+            continue;
+        }
+
+        poFeatureTo->SetGeometry(poGeometry);
+
+        for(size_t iField = 0; iField< FieldsToCopy_.size(); ++iField)
+        {
+            int fieldIndex = poLayer->GetLayerDefn()->GetFieldIndex(FieldsToCopy_[iField].fieldName);
+            OGRField* srcField = poFeatureFrom->GetRawFieldRef(fieldIndex);
+            poFeatureTo->SetField(FieldsToCopy_[iField].fieldName, srcField);
+        }
+
+        poFeatureTo->SetField( "type",  poLayer->GetName());
+        poFeatureTo->SetField( "name_en",  GetNameEnField(poFeatureFrom));
+        poFeatureTo->SetField( "name_ru",  GetNameRuField(poFeatureFrom));
+
+        dstLayer->CreateFeature(poFeatureTo);
+    }
+    
+    OGRFeature::DestroyFeature( poFeatureFrom );
+    OGRFeature::DestroyFeature( poFeatureTo );
+}
+
+void NAVI2PG::NAVISRCLayer::ImportFieldsDefns(OGRLayer* dstLayer)
+{
+    OGRFeatureDefn* dstOGRFeatrDefn = dstLayer->GetLayerDefn();
+
     for(size_t iField = 0; iField< FieldsToCopy_.size(); ++iField)
     {
-        OGRFieldDefn oFieldType( FieldsToCopy_[iField].fieldName, FieldsToCopy_[iField].fieldType );
-        oFieldType.SetWidth(32);
+        CPLString fieldName = FieldsToCopy_[iField].fieldName;
 
-        if( poLayer->CreateField( &oFieldType ) != OGRERR_NONE )
+        if( dstOGRFeatrDefn->GetFieldIndex(fieldName.c_str()) != -1)
+        {
+            continue;
+        }
+
+        OGRFeatureDefn* ogrFeatrDefn = poLayer->GetLayerDefn();
+        OGRFieldDefn* fieldDefn = ogrFeatrDefn->GetFieldDefn( ogrFeatrDefn->GetFieldIndex(fieldName.c_str()) );
+
+        if( dstLayer->CreateField( fieldDefn ) != OGRERR_NONE )
         {
             //TODO Set exception
             LOG( "Creating field failed.\n" );
             return;
         }
     }
-}
 
-void NAVI2PG::NAVILayer::CopyFields(OGRFeature* srcFeature, OGRFeature* dstFeature)
-{
-    for(size_t iField = 0; iField< FieldsToCopy_.size(); ++iField)
+    if (dstOGRFeatrDefn->GetFieldIndex("type") == -1)
     {
-        dstFeature->SetField( FieldsToCopy_[iField].fieldName,  srcFeature->GetFieldAsInteger(FieldsToCopy_[iField].fieldName));
+        OGRFieldDefn oFieldType( "type", OFTString );
+        oFieldType.SetWidth(32);
+        if( dstLayer->CreateField( &oFieldType ) != OGRERR_NONE)
+        {
+            //TODO Set exception
+            LOG( "Creating field \"type\" failed.\n" );
+            return;
+        }
     }
-}
 
-NAVI2PG::NAVILayerSimple::NAVILayerSimple(
-        const CPLString &layerName,
-        OGRwkbGeometryType geomType,
-        std::vector<NAVISRCLayer*> srcLayers,
-        std::vector<FieldForCopy> fieldsToCopy)
-    : NAVILayer(layerName, geomType, srcLayers, fieldsToCopy)
-{
-
-}
-
-void NAVI2PG::NAVILayerSimple::InitFields(OGRLayer *poLayer)
-{
-    OGRFieldDefn oFieldType( "type", OFTString );
-    oFieldType.SetWidth(32);
-    OGRFieldDefn oFieldNameEn( "name_en", OFTString );
-    oFieldType.SetWidth(32);
-    OGRFieldDefn oFieldNameRu( "name_ru", OFTString );
-    oFieldType.SetWidth(32);
-
-    if( poLayer->CreateField( &oFieldType ) != OGRERR_NONE ||
-            poLayer->CreateField( &oFieldNameEn ) != OGRERR_NONE ||
-            poLayer->CreateField( &oFieldNameRu ) != OGRERR_NONE)
+    if (dstOGRFeatrDefn->GetFieldIndex("name_en") == -1)
     {
-        //TODO Set exception
-        LOG( "Creating field failed.\n" );
-        return;
+        OGRFieldDefn oFieldNameEn( "name_en", OFTString );
+        oFieldNameEn.SetWidth(32);
+        if( dstLayer->CreateField( &oFieldNameEn ) != OGRERR_NONE)
+        {
+            //TODO Set exception
+            LOG( "Creating field \"name_en\" failed.\n" );
+            return;
+        }
     }
-}
 
-void NAVI2PG::NAVILayerSimple::SetFields(NAVISRCLayer* srcLayer, OGRFeature* srcFeature, OGRFeature* dstFeature)
-{
-    SetTypeField(srcLayer, dstFeature);
-    SetNameEnField(srcLayer, srcFeature, dstFeature);
-    SetNameRuField(srcLayer, srcFeature, dstFeature);
-}
-
-void NAVI2PG::NAVILayerSimple::SetTypeField(NAVISRCLayer* srcLayer, OGRFeature* dstFeature)
-{
-    dstFeature->SetField( "type",  srcLayer->getOGRLayer()->GetName());
-}
-
-void NAVI2PG::NAVILayerSimple::SetNameRuField(NAVISRCLayer* srcLayer, OGRFeature* srcFeature, OGRFeature* dstFeature)
-{
-    dstFeature->SetField( "name_en",  srcLayer->GetNameRuField(srcFeature));
-}
-
-void NAVI2PG::NAVILayerSimple::SetNameEnField(NAVISRCLayer* srcLayer, OGRFeature* srcFeature, OGRFeature* dstFeature)
-{
-    dstFeature->SetField( "name_en",  srcLayer->GetNameEnField(srcFeature));
-}
-
-NAVI2PG::NAVISRCLayer::NAVISRCLayer(OGRLayer* srcOGRLayer)
-    : poLayer(srcOGRLayer)
-{
-
-}
-OGRLayer* NAVI2PG::NAVISRCLayer::getOGRLayer()
-{
-    return poLayer;
+    if (dstOGRFeatrDefn->GetFieldIndex("name_ru") == -1)
+    {
+        OGRFieldDefn oFieldNameRu( "name_ru", OFTString );
+        oFieldNameRu.SetWidth(32);
+        if( dstLayer->CreateField( &oFieldNameRu ) != OGRERR_NONE)
+        {
+            //TODO Set exception
+            LOG( "Creating field \"name_ru\" failed.\n" );
+            return;
+        }
+    }
 }
 
 CPLString NAVI2PG::NAVISRCLayer::GetNameEnField(OGRFeature *srcFeature)
 {
-    return CPLString("");
+    return CPLString();
 }
 CPLString NAVI2PG::NAVISRCLayer::GetNameRuField(OGRFeature *srcFeature)
 {
-    return CPLString("");
+    return CPLString();
 }
 
 CPLString NAVI2PG::NAVISRCLayerOBJNAMSign::GetNameEnField(OGRFeature *srcFeature)
@@ -532,16 +537,8 @@ CPLString NAVI2PG::NAVISRCLayerLIGHTSSign::GetNameRuField(OGRFeature *srcFeature
 
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
 {
-    CPLString msg;
-
-    msg.Printf("pszS57DataSource: %s", pszS57DataSource);
-    LOG(msg);
-
-    msg.Printf("pszPGConnectionString: %s", pszPGConnectionString);
-    LOG(msg);
 
     CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=OFF,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=ON,RECODE_BY_DSSI=ON");
-    //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON");
 
     OGRRegisterAll();
 
@@ -550,7 +547,6 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
 
     OGRSFDriver *poSrcDriver = NULL;
     OGRSFDriver *poDstDriver = NULL;
-
 
     poSrcDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName(
                 pszSrcDriverName );
@@ -564,11 +560,6 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     }
 
     OGRDataSource *poSrcDatasource = NULL;
-
-
-
-
-
     poSrcDatasource = poSrcDriver->Open(pszS57DataSource);
 
     if( poSrcDatasource == NULL )
@@ -591,7 +582,6 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     }
 
     OGRDataSource *poDstDatasource = NULL;
-
     poDstDatasource = poDstDriver->Open(pszPGConnectionString);
 
 
@@ -636,11 +626,10 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         NAVI2PG::NAVILayer* naviLayer;
 
         naviLayer =
-            new NAVI2PG::NAVILayerSimple (
+            new NAVI2PG::NAVILayer(
                 config[iConfNode].layerName,
                 config[iConfNode].geomType,
-                config[iConfNode].srcLayers,
-                config[iConfNode].fieldsForCopy);
+                config[iConfNode].srcLayers);
 
         naviLayer->CopyTo(poDstDatasource);
     }

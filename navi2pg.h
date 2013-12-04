@@ -8,15 +8,25 @@
 
 namespace NAVI2PG {
 
+    typedef struct
+    {
+        CPLString fieldName;
+    }FieldForCopy;
 
     class NAVISRCLayer
     {
     protected:
         OGRLayer* poLayer;
+        std::vector<FieldForCopy> FieldsToCopy_;
+
     public:
         NAVISRCLayer(OGRLayer* layerFrom);
+        NAVISRCLayer(OGRLayer* layerFrom, std::vector<FieldForCopy> fieldsToCopy);
 
         OGRLayer* getOGRLayer();
+
+        void ImportFeaturesTo(OGRLayer* dstLayer);
+        void ImportFieldsDefns(OGRLayer* dstLayer);
 
         virtual CPLString GetNameRuField(OGRFeature *srcFeature);
         virtual CPLString GetNameEnField(OGRFeature *srcFeature);
@@ -26,6 +36,7 @@ namespace NAVI2PG {
     {
     public:
         NAVISRCLayerOBJNAMSign(OGRLayer* layerFrom):NAVISRCLayer(layerFrom){}
+        NAVISRCLayerOBJNAMSign(OGRLayer* layerFrom, std::vector<FieldForCopy> fieldsToCopy):NAVISRCLayer(layerFrom, fieldsToCopy){}
 
         CPLString GetNameRuField(OGRFeature *srcFeature);
         CPLString GetNameEnField(OGRFeature *srcFeature);
@@ -35,6 +46,7 @@ namespace NAVI2PG {
     {
     public:
         NAVISRCLayerLIGHTSSign(OGRLayer* layerFrom):NAVISRCLayer(layerFrom){}
+        NAVISRCLayerLIGHTSSign(OGRLayer* layerFrom, std::vector<FieldForCopy> fieldsToCopy):NAVISRCLayer(layerFrom, fieldsToCopy){}
 
         CPLString GetNameRuField(OGRFeature *srcFeature);
         CPLString GetNameEnField(OGRFeature *srcFeature);
@@ -42,17 +54,10 @@ namespace NAVI2PG {
 
     typedef struct
     {
-        CPLString fieldName;
-        OGRFieldType fieldType;
-    }FieldForCopy;
-
-    typedef struct
-    {
         CPLString layerName;
         OGRwkbGeometryType geomType;
         bool hasSignature;
         std::vector<NAVISRCLayer*> srcLayers;
-        std::vector<FieldForCopy> fieldsForCopy;
     }NaviLayerConfuguration;
 
     typedef std::vector<NaviLayerConfuguration> Navi2PGConfig;
@@ -63,34 +68,14 @@ namespace NAVI2PG {
         CPLString LayerName_;
         OGRwkbGeometryType LayerGeometryType_;
         std::vector<NAVISRCLayer*> SrcLayers_;
-        std::vector<FieldForCopy> FieldsToCopy_;
     public:
-        NAVILayer(const CPLString& layerName, OGRwkbGeometryType geomType, std::vector<NAVISRCLayer*> srcLayers, std::vector<FieldForCopy> fieldsToCopy);
+        NAVILayer(const CPLString& layerName, OGRwkbGeometryType geomType, std::vector<NAVISRCLayer*> srcLayers);
 
         void CopyTo(OGRDataSource* poDstDatasource);
 
     private:
         bool CheckSpatialReferences();
-        void AddFieldsForCopy(OGRLayer *poLayer);
-        void CopyFields(OGRFeature* srcFeature, OGRFeature* dstFeature);
 
-        virtual void InitFields(OGRLayer* poLayer) = 0;
-        virtual void SetFields(NAVISRCLayer* layerFrom, OGRFeature* srcFeature, OGRFeature* dstFeature) = 0;
-
-    };
-
-    class NAVILayerSimple: public NAVILayer
-    {
-    public:
-        NAVILayerSimple(const CPLString& layerName, OGRwkbGeometryType geomType, std::vector<NAVISRCLayer*> srcLayers, std::vector<FieldForCopy> fieldsToCopy);
-
-    private:
-        void InitFields(OGRLayer* poLayer);
-        void SetFields(NAVISRCLayer* layerFrom, OGRFeature* srcFeature, OGRFeature* dstFeature);
-
-        virtual void SetTypeField(NAVISRCLayer* layerFrom, OGRFeature* featureTo);
-        virtual void SetNameRuField(NAVISRCLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo);
-        virtual void SetNameEnField(NAVISRCLayer* layerFrom, OGRFeature* featureFrom, OGRFeature* featureTo);
     };
 
 
