@@ -299,8 +299,8 @@ OGRLayer* NAVI2PG::NAVISRCLayer::getOGRLayer()
 
 void NAVI2PG::NAVISRCLayer::ImportFeaturesTo(OGRLayer* dstLayer)
 {
-    OGRFeature *poFeatureFrom;
-    OGRFeature *poFeatureTo;
+    OGRFeature *poFeatureFrom = NULL;
+    OGRFeature *poFeatureTo = NULL;
 
     while( (poFeatureFrom = poLayer->GetNextFeature()) != NULL )
     {
@@ -538,7 +538,7 @@ CPLString NAVI2PG::NAVISRCLayerLIGHTSSign::GetNameRuField(OGRFeature *srcFeature
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
 {
 
-    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=OFF,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=ON,RECODE_BY_DSSI=ON");
+    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=ON,RECODE_BY_DSSI=ON");
 
     OGRRegisterAll();
 
