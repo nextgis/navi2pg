@@ -299,6 +299,8 @@ OGRLayer* NAVI2PG::NAVISRCLayer::getOGRLayer()
 
 void NAVI2PG::NAVISRCLayer::ImportFeaturesTo(OGRLayer* dstLayer)
 {
+    poLayer->ResetReading();
+
     OGRFeature *poFeatureFrom = NULL;
     OGRFeature *poFeatureTo = NULL;
 
