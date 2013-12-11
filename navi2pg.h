@@ -5,77 +5,124 @@
 
 #include "ogr_api.h"
 #include "ogrsf_frmts.h"
+#include "feature_creation_rules.h"
+
+#include "logger.h"
+
+#define TO_DEGREES 57.2957795130823208766
+#define TO_RADIANS 0.017453292519943295769
 
 namespace NAVI2PG {
 
-    typedef struct
+    class AddNewFieldStrategy
     {
-        CPLString fieldName;
-    }FieldForCopy;
+    public:
+        AddNewFieldStrategy(){}
 
-    class NAVISRCLayer
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature) = 0;
+        virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn() = 0;
+    };
+
+    class AddSignatures: public AddNewFieldStrategy
+    {
+    public:
+        AddSignatures(){}
+
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+        virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn();
+    };
+
+    class AddLightsSignatures: public AddSignatures
+    {
+    public:
+        AddLightsSignatures(){}
+        void Execute(OGRFeature* dstFeatures, OGRFeature* srcFeature);
+    };
+
+    class AddSoundgValues: public AddNewFieldStrategy
+    {
+    public:
+        AddSoundgValues(){}
+
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+        virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn();
+    };
+
+    class CreateLayerStrategy
     {
     protected:
-        OGRLayer* poLayer;
-        std::vector<FieldForCopy> FieldsToCopy_;
+        const CPLString LayerName_;
+        const OGRwkbGeometryType GeomType_;
+        OGRLayer* Layer_;
 
     public:
-        NAVISRCLayer(OGRLayer* layerFrom);
-        NAVISRCLayer(OGRLayer* layerFrom, std::vector<FieldForCopy> fieldsToCopy);
+        CreateLayerStrategy(const CPLString& layerName, OGRwkbGeometryType geomType)
+            : LayerName_(layerName),
+              GeomType_(geomType)
+        {
+        }
 
-        OGRLayer* getOGRLayer();
-
-        void ImportFeaturesTo(OGRLayer* dstLayer);
-        void ImportFieldsDefns(OGRLayer* dstLayer);
-
-        virtual CPLString GetNameRuField(OGRFeature *srcFeature);
-        virtual CPLString GetNameEnField(OGRFeature *srcFeature);
-    };
-
-    class NAVISRCLayerOBJNAMSign: public NAVISRCLayer
-    {
-    public:
-        NAVISRCLayerOBJNAMSign(OGRLayer* layerFrom):NAVISRCLayer(layerFrom){}
-        NAVISRCLayerOBJNAMSign(OGRLayer* layerFrom, std::vector<FieldForCopy> fieldsToCopy):NAVISRCLayer(layerFrom, fieldsToCopy){}
-
-        CPLString GetNameRuField(OGRFeature *srcFeature);
-        CPLString GetNameEnField(OGRFeature *srcFeature);
-    };
-
-    class NAVISRCLayerLIGHTSSign: public NAVISRCLayer
-    {
-    public:
-        NAVISRCLayerLIGHTSSign(OGRLayer* layerFrom):NAVISRCLayer(layerFrom){}
-        NAVISRCLayerLIGHTSSign(OGRLayer* layerFrom, std::vector<FieldForCopy> fieldsToCopy):NAVISRCLayer(layerFrom, fieldsToCopy){}
-
-        CPLString GetNameRuField(OGRFeature *srcFeature);
-        CPLString GetNameEnField(OGRFeature *srcFeature);
-    };
-
-    typedef struct
-    {
-        CPLString layerName;
-        OGRwkbGeometryType geomType;
-        bool hasSignature;
-        std::vector<NAVISRCLayer*> srcLayers;
-    }NaviLayerConfuguration;
-
-    typedef std::vector<NaviLayerConfuguration> Navi2PGConfig;
-
-    class NAVILayer
-    {
-    private:
-        CPLString LayerName_;
-        OGRwkbGeometryType LayerGeometryType_;
-        std::vector<NAVISRCLayer*> SrcLayers_;
-    public:
-        NAVILayer(const CPLString& layerName, OGRwkbGeometryType geomType, std::vector<NAVISRCLayer*> srcLayers);
-
-        void CopyTo(OGRDataSource* poDstDatasource);
+        void Create(OGRDataSource *poDstDatasource);
 
     private:
-        bool CheckSpatialReferences();
+        virtual void DoProcess() = 0;
+        virtual OGRSpatialReference* GetSpatialRef() = 0;
+        virtual bool LayerCreationPossibility() = 0;
+    };
 
+    struct LayerWithCopyRules
+    {
+        OGRLayer* SrcLayer_;
+        std::vector<AddNewFieldStrategy*> AddNewFieldStrategies_;
+        std::vector<CPLString> FieldsNamesForCopy_;
+    };
+    typedef std::vector<LayerWithCopyRules> LayersWithCopyRules;
+
+    class CopyFeaturesStrategy : public CreateLayerStrategy
+    {
+        LayersWithCopyRules SrcLayers_;
+        bool AddTypeFieldFlag_;
+    public:
+        CopyFeaturesStrategy(const CPLString& layerName, OGRwkbGeometryType geomType, LayersWithCopyRules srcLayersWithRules, bool addTypeField = true)
+            : CreateLayerStrategy(layerName, geomType),
+              AddTypeFieldFlag_(addTypeField)
+        {
+            for(size_t iSrcLayer = 0; iSrcLayer < srcLayersWithRules.size(); ++iSrcLayer)
+            {
+                OGRLayer* poLayer = srcLayersWithRules[iSrcLayer].SrcLayer_;
+                if(poLayer != NULL)
+                {
+                    SrcLayers_.push_back(srcLayersWithRules[iSrcLayer]);
+                }
+            }
+        }
+
+    private:
+        void DoProcess();
+        void ModifyLayerDefnForCopyFields();
+        void ModifyLayerDefnForAddNewFields();
+
+        OGRSpatialReference* GetSpatialRef();
+        bool LayerCreationPossibility();
+    };
+
+    class CreateLightsSectorsStrategy : public CreateLayerStrategy
+    {
+        OGRLayer* LightsLayer_;
+    public:
+        CreateLightsSectorsStrategy(const CPLString& layerName, OGRwkbGeometryType geomType, OGRLayer* lightsLayer)
+            : CreateLayerStrategy(layerName, geomType),
+              LightsLayer_(lightsLayer)
+        {
+
+        }
+
+    private:
+        void DoProcess();
+        void ModifyLayerDefnForAddNewFields();
+
+        OGRSpatialReference* GetSpatialRef();
+        bool LayerCreationPossibility();
     };
 
 
