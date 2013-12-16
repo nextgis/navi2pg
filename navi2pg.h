@@ -1,6 +1,7 @@
 #ifndef NAVI2PG_H
 #define NAVI2PG_H
 
+#include <map>
 #include <vector>
 
 #include "ogr_api.h"
@@ -39,6 +40,65 @@ namespace NAVI2PG {
         void Execute(OGRFeature* dstFeatures, OGRFeature* srcFeature);
     };
 
+    /*
+     *  ORIENT угол повораота в пространстве
+     */
+    class AddORIENTSignatures: public AddSignatures
+    {
+    public:
+        AddORIENTSignatures(){}
+
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
+    class AddNATSURSignatures: public AddSignatures
+    {
+        std::map<int, CPLString> SurfaceMaterial_;
+    public:
+        AddNATSURSignatures()
+        {
+            SurfaceMaterial_[1] = "ил";
+            SurfaceMaterial_[2] = "глина";
+            SurfaceMaterial_[3] = "силт";
+            SurfaceMaterial_[4] = "песок";
+            SurfaceMaterial_[5] = "камень";
+            SurfaceMaterial_[6] = "гравий";
+            SurfaceMaterial_[7] = "галька";
+            SurfaceMaterial_[8] = "булыжник";
+            SurfaceMaterial_[9] = "скала";
+            SurfaceMaterial_[11] = "лава";
+            SurfaceMaterial_[14] = "коралл";
+            SurfaceMaterial_[17] = "ракушки";
+            SurfaceMaterial_[18] = "валун";
+            SurfaceMaterial_[32000] = "нет значения";
+
+        }
+
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
+    /*
+     * VALSOU - значение глубины
+     */
+    class AddVALSOUSignatures: public AddSignatures
+    {
+    public:
+        AddVALSOUSignatures(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
+    class AddVALSOUasExtFields: public AddNewFieldStrategy
+    {
+    public:
+        AddVALSOUasExtFields(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+        virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn();
+    };
+
+
+    /*
+     *  Soundg - метка глубины
+     */
     class AddSoundgValues: public AddNewFieldStrategy
     {
     public:
@@ -126,7 +186,48 @@ namespace NAVI2PG {
     };
 
 
+    class CreateTSSLPTStrategy : public CreateLayerStrategy
+    {
+        OGRLayer* TSSLPTLayer_;
+    public:
+        CreateTSSLPTStrategy(const CPLString& layerName, OGRLayer* srcLayer)
+            : CreateLayerStrategy(layerName, wkbPoint),
+              TSSLPTLayer_(srcLayer)
+        {
+
+        }
+
+    private:
+        void DoProcess();
+        void ModifyLayerDefnForAddNewFields();
+
+        OGRSpatialReference* GetSpatialRef();
+        bool LayerCreationPossibility();
+    };
+
+    class CreateS57SignaturesStrategy : public CreateLayerStrategy
+    {
+        OGRLayer* IsolatedNodeLayer_;
+        OGRLayer* TextsLayer_;
+    public:
+        CreateS57SignaturesStrategy(const CPLString& layerName, OGRLayer* isolatedNodeLayer, OGRLayer* textsLayer)
+            : CreateLayerStrategy(layerName, wkbPoint),
+              IsolatedNodeLayer_(isolatedNodeLayer),
+              TextsLayer_(textsLayer)
+        {
+
+        }
+
+    private:
+        void DoProcess();
+        void ModifyLayerDefnForAddNewFields();
+
+        OGRSpatialReference* GetSpatialRef();
+        bool LayerCreationPossibility();
+    };
+
     void Import(const char* fromS57DataSource, const char* toPGConnectionString);
 
 }
 #endif // NAVI2PG_H
+
