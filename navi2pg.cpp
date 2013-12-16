@@ -1266,12 +1266,11 @@ bool NAVI2PG::CreateS57SignaturesStrategy::LayerCreationPossibility()
 
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
 {
-
-    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=ON,RECODE_BY_DSSI=ON");
+    //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=ON,RECODE_BY_DSSI=ON");
     //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,ADD_SOUNDG_DEPTH=ON" );
 
     OGRRegisterAll();
-
+    
     const char *pszSrcDriverName = "S57";
     const char *pszDstDriverName = "PostgreSQL";
 
@@ -1288,6 +1287,8 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         LOG(msg);
         exit( 1 );
     }
+
+    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,ADD_SOUNDG_DEPTH=ON");
 
     OGRDataSource *poSrcDatasource = NULL;
     poSrcDatasource = poSrcDriver->Open(pszS57DataSource);
