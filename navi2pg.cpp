@@ -1,4 +1,5 @@
 #include <map>
+#include <math.h>
 
 #include "cpl_vsi.h"
 #include "cpl_string.h"
@@ -147,6 +148,22 @@ namespace
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("ACHBRT");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("MORFAC");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+        configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
+        layersWithCopyRules.clear();
+
+
+        /*
+         * building_pt layer configuration
+         */
+        layerName = "building_pt";
+        geomType = wkbPoint;
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BUISGL");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
         layersWithCopyRules.clear();
 
@@ -206,7 +223,9 @@ namespace
         geomType = wkbLineString;
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("COALNE");
+            layerWithCopyRules.FieldsNamesForCopy_.push_back( "CATCOA");
             layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.FieldsNamesForCopy_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules, false));
         layersWithCopyRules.clear();
@@ -353,7 +372,9 @@ namespace
         geomType = wkbPoint;
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("MAGVAR");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new AddVALMAGSignatures());
             layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules, false));
         layersWithCopyRules.clear();
@@ -371,13 +392,11 @@ namespace
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TOPMAR");
             layerWithCopyRules.FieldsNamesForCopy_.push_back("TOPSHP");
             layersWithCopyRules.push_back(layerWithCopyRules);
-
             layerWithCopyRules.FieldsNamesForCopy_.clear();
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SOUNDG");
             layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSoundgValues());
             layersWithCopyRules.push_back(layerWithCopyRules);
-
             layerWithCopyRules.AddNewFieldStrategies_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
@@ -426,17 +445,18 @@ namespace
         geomType = wkbPoint;
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("OBSTRN");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddVALSOUSignatures() );
             layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SBDARE");
             layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddNATSURSignatures() );
             layersWithCopyRules.push_back(layerWithCopyRules);
             layerWithCopyRules.AddNewFieldStrategies_.clear();
 
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("UWTROC");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddVALSOUSignatures() );
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("UWTROC");            
             layersWithCopyRules.push_back(layerWithCopyRules);
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
+
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("WRECKS");
             layersWithCopyRules.push_back(layerWithCopyRules);
@@ -516,6 +536,7 @@ namespace
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("RECTRC");
             layerWithCopyRules.FieldsNamesForCopy_.push_back("TRAFIC");
+            layerWithCopyRules.FieldsNamesForCopy_.push_back("CATTRK");
             layerWithCopyRules.AddNewFieldStrategies_.push_back( new NAVI2PG::AddORIENTSignatures() );
             layersWithCopyRules.push_back(layerWithCopyRules);
 
@@ -553,13 +574,10 @@ namespace
         layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("CTNARE");
         layersWithCopyRules.push_back(layerWithCopyRules);
 
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("CTNARE");
-        layersWithCopyRules.push_back(layerWithCopyRules);
-
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TSSLPT");
-        layersWithCopyRules.push_back(layerWithCopyRules);
-
         layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TSEZNE");
+        layersWithCopyRules.push_back(layerWithCopyRules);
+
+        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("FAIRWY");
         layersWithCopyRules.push_back(layerWithCopyRules);
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
@@ -590,20 +608,9 @@ namespace
         configuration.push_back(new NAVI2PG::CreateS57SignaturesStrategy(layerName, isolatedNodeLayer, textsLayer));
 
         /*
-        geomType = wkbPoint;
-
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("IsolatedNode");
-        layersWithCopyRules.push_back(layerWithCopyRules);
-
-        configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules, false));
-        layersWithCopyRules.clear();
-        */
-
-
-        /*
          * lights_sectors_conf layer configuration
          */
-        layerName = "lights_sectors_conf";
+        layerName = "lights_sectors";
         geomType = wkbLineString;
 
         OGRLayer* lightsLayer = poSrcDatasource->GetLayerByName("LIGHTS");
@@ -716,6 +723,11 @@ void NAVI2PG::AddLightsSignatures::Execute(OGRFeature *dstFeatures, OGRFeature *
             colourStr.Printf("%s", "R");
             break;
         }
+        case(4):
+        {
+            colourStr.Printf("%s", "G");
+            break;
+        }
         default:
         {
             colourStr = "";
@@ -752,11 +764,16 @@ void NAVI2PG::AddORIENTSignatures::Execute(OGRFeature *dstFeature, OGRFeature *s
 
 void NAVI2PG::AddNATSURSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
 {
-   int natsur = srcFeature->GetFieldAsInteger( "NATSUR" );
+   //int natsur = srcFeature->GetFieldAsInteger( "NATSUR" );
+
+   char **natsurTokens = CSLTokenizeString2( srcFeature->GetFieldAsString( "NATSUR" ), ",", FALSE );
+   int nTokens = CSLCount(natsurTokens);
+   int natsur = atoi(natsurTokens[nTokens-1]);
 
    dstFeature->SetField( "name_en", SurfaceMaterial_[natsur].c_str() );
    dstFeature->SetField( "name_ru", SurfaceMaterial_[natsur].c_str() );
 
+   CSLDestroy( natsurTokens );
 }
 
 void NAVI2PG::AddVALSOUSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
@@ -808,7 +825,15 @@ void NAVI2PG::AddSoundgValues::Execute(OGRFeature *dstFeature, OGRFeature *srcFe
     point = (OGRPoint*)srcFeature->GetGeometryRef();
     z = point->getZ();
 
-    dstFeature->SetField( "depth_fractional", CPLString().Printf("%d", (int)( 10* (z - (int)z) ) ) );
+    dstFeature->SetField( "depth_fractional", CPLString().Printf("%d", (int)( 10* (z - (int)z + 0.05) ) ) );
+}
+
+void NAVI2PG::AddVALMAGSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
+{
+    double valmag = srcFeature->GetFieldAsDouble( "VALMAG" );
+
+    dstFeature->SetField( "name_en", CPLString().Printf("%.2f", valmag) );
+    dstFeature->SetField( "name_ru", CPLString().Printf("%.2f", valmag) );
 }
 
 std::vector<OGRFieldDefn*> NAVI2PG::AddSoundgValues::GetOGRFieldDefn()
@@ -1186,70 +1211,50 @@ void NAVI2PG::CreateS57SignaturesStrategy::DoProcess()
 {
     ModifyLayerDefnForAddNewFields();
 
-    IsolatedNodeLayer_->ResetReading();
     TextsLayer_->ResetReading();
 
-    //OGRFeatureDefn* defn = IsolatedNodeLayer_->GetLayerDefn();
-    OGRFeatureDefn* defn = TextsLayer_->GetLayerDefn();
+    OGRFeatureDefn* defnTexts = TextsLayer_->GetLayerDefn();
 
-    OGRFeature *poFeatureFrom = NULL;
-    //while( (poFeatureFrom = IsolatedNodeLayer_->GetNextFeature()) != NULL )
-    //{
-    for(int i = 0; i < 2; ++i)
+    OGRFeature *poFeatureFromTexts;
+    while( (poFeatureFromTexts = TextsLayer_->GetNextFeature()) != NULL )
     {
-    //poFeatureFrom = IsolatedNodeLayer_->GetNextFeature();
-        poFeatureFrom = TextsLayer_->GetNextFeature();
+        CPLString lable = CPLRecode(poFeatureFromTexts->GetFieldAsString("$TXSTR"), "CP1251", CPL_ENC_UTF8);
 
 
-        OGRFeature* poFeatureTo = OGRFeature::CreateFeature(Layer_->GetLayerDefn());
-        //OGRGeometry *poGeometry = poFeatureFrom->GetGeometryRef();
-        /*
-        if( poGeometry == NULL ||
-                wkbFlatten(poGeometry->getGeometryType()) != Layer_->GetLayerDefn()->GetGeomType() )
+        CPLString nameRCID = poFeatureFromTexts->GetFieldAsString("NAME_RCID");
+        size_t begin = nameRCID.find(":");
+        size_t end = nameRCID.find(")");
+        nameRCID = nameRCID.substr(begin+1, (end - begin - 1));
+        int externalRCID = atoi(nameRCID.c_str());
+
+        IsolatedNodeLayer_->ResetReading();
+
+        OGRFeature *poFeatureFromIsolatedNode;
+        while( (poFeatureFromIsolatedNode = IsolatedNodeLayer_->GetNextFeature()) != NULL )
         {
-            LOG(poGeometry);
-            //TODO Debug Info
-            continue;
-        }
-*/
+            int rcid =poFeatureFromIsolatedNode->GetFieldAsInteger("RCID");
 
+            if (externalRCID == rcid)
+            {
+                OGRFeature* poFeatureTo = OGRFeature::CreateFeature(Layer_->GetLayerDefn());
+                poFeatureTo->SetGeometry(poFeatureFromIsolatedNode->GetGeometryRef());
+                poFeatureTo->SetField("lable",  lable.c_str());
+                Layer_->CreateFeature(poFeatureTo);
 
-        //CPLString rcid = poFeatureTo->GetFieldAsString("RCID");
-        //int rcid = poFeatureTo->GetFieldAsInteger("RCID");
-        //LOG(rcid);
+                OGRFeature::DestroyFeature( poFeatureTo );
+            }
 
-
-
-        for(int i = 0; i < defn->GetFieldCount(); ++i)
-        {
-            //LOG(defn->GetFieldDefn(i)->GetNameRef());
-            std::cout << defn->GetFieldDefn(i)->GetNameRef() << ": " << poFeatureTo->GetFieldAsInteger(defn->GetFieldDefn(i)->GetNameRef()) << "; ";
-        }
-        std::cout << std::endl;
-
-
-        /*
-        OGRFeature *poFeatureFromText = NULL;
-        while( (poFeatureFromText = TextsLayer_->GetNextFeature()) != NULL )
-        {
-            CPLString rcid_name(poFeatureFromText->GetFieldAsString("NAME_RCID "));
-
-            LOG(rcid_name.c_str());
+            OGRFeature::DestroyFeature(poFeatureFromIsolatedNode);
         }
 
-
-        poFeatureTo->SetGeometry(poGeometry);
-
-        Layer_->CreateFeature(poFeatureTo);
-        */
+        OGRFeature::DestroyFeature(poFeatureFromTexts);
     }
-
 }
 void NAVI2PG::CreateS57SignaturesStrategy::ModifyLayerDefnForAddNewFields()
 {
-    OGRFieldDefn* oFieldAngleCW = new OGRFieldDefn( "lable", OFTInteger );
-    oFieldAngleCW->SetWidth(10);
-    Layer_->CreateField(oFieldAngleCW);
+    OGRFieldDefn oFieldAngleCW( "lable", OFTString );
+    oFieldAngleCW.SetWidth(32);
+    Layer_->CreateField(&oFieldAngleCW);
 }
 OGRSpatialReference* NAVI2PG::CreateS57SignaturesStrategy::GetSpatialRef()
 {
@@ -1257,7 +1262,7 @@ OGRSpatialReference* NAVI2PG::CreateS57SignaturesStrategy::GetSpatialRef()
 }
 bool NAVI2PG::CreateS57SignaturesStrategy::LayerCreationPossibility()
 {
-    if(IsolatedNodeLayer_ != NULL)
+    if(IsolatedNodeLayer_ != NULL && TextsLayer_ != NULL)
         return true;
 
     return false;
@@ -1266,9 +1271,6 @@ bool NAVI2PG::CreateS57SignaturesStrategy::LayerCreationPossibility()
 
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
 {
-    //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,SPLIT_MULTIPOINT=ON,ADD_SOUNDG_DEPTH=ON,RECODE_BY_DSSI=ON");
-    //CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,ADD_SOUNDG_DEPTH=ON" );
-
     OGRRegisterAll();
     
     const char *pszSrcDriverName = "S57";
@@ -1288,7 +1290,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         exit( 1 );
     }
 
-    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,ADD_SOUNDG_DEPTH=ON");
+    CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,ADD_SOUNDG_DEPTH=ON,SPLIT_MULTIPOINT=ON");
 
     OGRDataSource *poSrcDatasource = NULL;
     poSrcDatasource = poSrcDriver->Open(pszS57DataSource);
@@ -1325,8 +1327,10 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         exit( 1 );
     }
 
+
     std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
     //std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
+
 
 
     for(size_t i = 0; i < layersCreators.size(); ++i)
@@ -1334,14 +1338,6 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         CreateLayerStrategy* layersCreator = layersCreators[i];
         layersCreator->Create(poDstDatasource);
     }
-
-
-
-    //for(int i = 0; i < poSrcDatasource->GetLayerCount(); i++)
-    //{
-    //    LOG(poSrcDatasource->GetLayer(i)->GetName());
-    //}
-
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );

@@ -51,6 +51,9 @@ namespace NAVI2PG {
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
 
+    /*
+     * NATSUR - Материал поверхности
+     */
     class AddNATSURSignatures: public AddSignatures
     {
         std::map<int, CPLString> SurfaceMaterial_;
@@ -106,6 +109,16 @@ namespace NAVI2PG {
 
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
         virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn();
+    };
+
+    /*
+     * VALMAG - значение магнитного склонения
+     */
+    class AddVALMAGSignatures: public AddSignatures
+    {
+    public:
+        AddVALMAGSignatures(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
 
     class CreateLayerStrategy
