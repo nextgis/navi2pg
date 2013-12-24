@@ -108,14 +108,13 @@ namespace
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("RTPBCN");
             layersWithCopyRules.push_back(layerWithCopyRules);
-
             layerWithCopyRules.FieldsNamesForCopy_.clear();
             layerWithCopyRules.AddNewFieldStrategies_.clear();
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("LIGHTS");
             layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddLightsSignatures());
+            layerWithCopyRules.FieldsNamesForCopy_.push_back("CATLIT");
             layersWithCopyRules.push_back(layerWithCopyRules);
-
             layerWithCopyRules.FieldsNamesForCopy_.clear();
             layerWithCopyRules.AddNewFieldStrategies_.clear();
 
@@ -337,10 +336,12 @@ namespace
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("LNDARE");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("LNDELV");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("LNDRGN");
             layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
             layersWithCopyRules.push_back(layerWithCopyRules);
-
             layerWithCopyRules.AddNewFieldStrategies_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
@@ -456,7 +457,6 @@ namespace
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("UWTROC");            
             layersWithCopyRules.push_back(layerWithCopyRules);
-
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("WRECKS");
             layersWithCopyRules.push_back(layerWithCopyRules);
@@ -598,6 +598,19 @@ namespace
 
 
         /*
+         * vegetation_pt layer configuration
+         */
+        layerName = "vegetation_pt";
+        geomType = wkbPoint;
+
+        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("WEDKLP");
+        layersWithCopyRules.push_back(layerWithCopyRules);
+
+        configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules, false));
+        layersWithCopyRules.clear();
+
+
+        /*
          * labels layer configuration
          */
         layerName = "labels";
@@ -643,9 +656,13 @@ std::vector<OGRFieldDefn*> NAVI2PG::AddSignatures::GetOGRFieldDefn()
     return result;
 }
 
-void NAVI2PG::AddLightsSignatures::Execute(OGRFeature *dstFeatures, OGRFeature *srcFeature)
+CPLString NAVI2PG::AddLightsSignatures::GetFirstPartOfSig(OGRFeature *srcFeature, bool withSIGGRP = true)
 {
-    CPLString siggrpStr(srcFeature->GetFieldAsString( "SIGGRP" ) );
+    CPLString siggrpStr;
+    if(withSIGGRP == true)
+        siggrpStr = srcFeature->GetFieldAsString( "SIGGRP" );
+    else
+        siggrpStr = "";
 
     int litchrInt = srcFeature->GetFieldAsInteger( "LITCHR" );
     CPLString litchrStr;
@@ -678,7 +695,7 @@ void NAVI2PG::AddLightsSignatures::Execute(OGRFeature *dstFeatures, OGRFeature *
         }
         case(8):
         {
-            litchrStr.Printf("OcR%s", siggrpStr.c_str());
+            litchrStr.Printf("Oc%s", siggrpStr.c_str());
             break;
         }
         case(25):
@@ -734,9 +751,76 @@ void NAVI2PG::AddLightsSignatures::Execute(OGRFeature *dstFeatures, OGRFeature *
         }
     }
 
-    CPLString sigperStr(srcFeature->GetFieldAsString( "SIGPER" ) );
-    if(sigperStr != "")
-        sigperStr.Printf("%ss",sigperStr.c_str());
+    litchrStr.Printf("%s%s", litchrStr.c_str(), colourStr.c_str());
+
+    return litchrStr;
+}
+
+void NAVI2PG::AddLightsSignatures::Execute(OGRFeature *dstFeatures, OGRFeature *srcFeature)
+{
+    /*
+     * Если у огня есть сектор подпись не нужна - поведение Панорамы
+     */
+    CPLString s1 = srcFeature->GetFieldAsString( "SECTR1" );
+    CPLString s2 = srcFeature->GetFieldAsString( "SECTR2" );
+
+    if (s1 != "" || s2 != "")
+    {
+        return;
+    }
+
+    /*
+     *  CATLIT - категория тумана (список через запятую)
+     *  в ГИС "Панорама" учитывается только последний из списка категорий
+     */
+    int catlit;
+    char **catlitTokens = CSLTokenizeString2( srcFeature->GetFieldAsString( "CATLIT" ), ",", FALSE );
+    int nTokens = CSLCount(catlitTokens);
+    if (nTokens != 0)
+        catlit = atoi(catlitTokens[nTokens-1]);
+    else
+        catlit = -1;
+
+
+    CPLString signFirstPart;
+    switch(catlit)
+    {
+        case(-1):
+        {
+            signFirstPart = GetFirstPartOfSig(srcFeature);
+            break;
+        }
+        case(1):
+        {
+            signFirstPart = GetFirstPartOfSig(srcFeature);
+            signFirstPart.Printf("Dir%s", signFirstPart.c_str());
+            break;
+        }
+        case(6):
+        {
+            signFirstPart = GetFirstPartOfSig(srcFeature);
+            signFirstPart.Printf("Aero%s",signFirstPart.c_str());
+            break;
+        }
+        case(8):
+        {
+            return;
+        }
+        case(9):
+        {
+            return;
+        }
+        default:
+        {
+            signFirstPart = GetFirstPartOfSig(srcFeature, false);
+            signFirstPart.Printf("%s",signFirstPart.c_str());
+            break;
+        }
+    }
+
+    CPLString sigperStr;
+    int sigper = srcFeature->GetFieldAsInteger( "SIGPER" );
+    sigperStr.Printf("%ds",sigper);
 
     CPLString heightStr(srcFeature->GetFieldAsString( "HEIGHT" ) );
     if(heightStr != "")
@@ -747,7 +831,7 @@ void NAVI2PG::AddLightsSignatures::Execute(OGRFeature *dstFeatures, OGRFeature *
         valnmrStr.Printf("%sM",valnmrStr.c_str());
 
     CPLString nameEn;
-    nameEn.Printf("%s%s %s%s%s",litchrStr.c_str(), colourStr.c_str(), sigperStr.c_str(), heightStr.c_str(), valnmrStr.c_str());
+    nameEn.Printf("%s %s%s%s",signFirstPart.c_str(), sigperStr.c_str(), heightStr.c_str(), valnmrStr.c_str());
 
     dstFeatures->SetField( "name_en", nameEn.c_str() );
     dstFeatures->SetField( "name_ru", nameEn.c_str() );
@@ -764,14 +848,20 @@ void NAVI2PG::AddORIENTSignatures::Execute(OGRFeature *dstFeature, OGRFeature *s
 
 void NAVI2PG::AddNATSURSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
 {
-   //int natsur = srcFeature->GetFieldAsInteger( "NATSUR" );
-
+    /*
+     *  NATSUR - материал поверхности (список через запятую)
+     *  в ГИС "Панорама" учитывается только последний из списка материалов
+     */
    char **natsurTokens = CSLTokenizeString2( srcFeature->GetFieldAsString( "NATSUR" ), ",", FALSE );
    int nTokens = CSLCount(natsurTokens);
-   int natsur = atoi(natsurTokens[nTokens-1]);
 
-   dstFeature->SetField( "name_en", SurfaceMaterial_[natsur].c_str() );
-   dstFeature->SetField( "name_ru", SurfaceMaterial_[natsur].c_str() );
+   int natsur;
+   if (nTokens != 0)
+   {
+       natsur = atoi(natsurTokens[nTokens-1]);
+       dstFeature->SetField( "name_en", SurfaceMaterial_[natsur].c_str() );
+       dstFeature->SetField( "name_ru", SurfaceMaterial_[natsur].c_str() );
+   }
 
    CSLDestroy( natsurTokens );
 }

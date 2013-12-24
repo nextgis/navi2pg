@@ -38,6 +38,8 @@ namespace NAVI2PG {
     public:
         AddLightsSignatures(){}
         void Execute(OGRFeature* dstFeatures, OGRFeature* srcFeature);
+    private:
+        CPLString GetFirstPartOfSig(OGRFeature* srcFeature, bool withSIGGRP);
     };
 
     /*
