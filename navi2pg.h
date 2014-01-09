@@ -24,6 +24,34 @@ namespace NAVI2PG {
         virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn() = 0;
     };
 
+
+    /*
+     *  Type - спецификатор объекта
+     */
+    class ModifyTypeField: public AddNewFieldStrategy
+    {
+    public:
+        ModifyTypeField(){}
+
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature) = 0;
+        virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn();
+    };
+    class BOYSHPSpecify: public ModifyTypeField
+    {
+    public:
+        BOYSHPSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+    class BCNSHPSpecify: public ModifyTypeField
+    {
+    public:
+        BCNSHPSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
+    /*
+     * Добавление подписей
+     */
     class AddSignatures: public AddNewFieldStrategy
     {
     public:
@@ -122,6 +150,8 @@ namespace NAVI2PG {
         AddVALMAGSignatures(){}
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
+
+
 
     class CreateLayerStrategy
     {
