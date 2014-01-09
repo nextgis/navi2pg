@@ -25,9 +25,14 @@ if(GDAL_FOUND)
     include_directories(${GDAL_INCLUDE_DIR}/gcore)
     include_directories(${GDAL_INCLUDE_DIR}/alg)
     include_directories(${GDAL_INCLUDE_DIR}/frmts/vrt)
-    include_directories(${GDAL_INCLUDE_DIR}/build/port) #assume that out of source build was in build dir
 endif(GDAL_FOUND)
 
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${GDAL_LIBRARY})
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib)
+    
