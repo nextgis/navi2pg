@@ -40,7 +40,7 @@ namespace NAVI2PG {
     };
 
 /**
-* @brief Абстрактный класс представляющий интерфейс стратегии редактирования существующих полей в таблице.
+* @brief Абстрактный класс представляющий интерфейс стратегии редактирования поля "type".
 */
     class ModifyTypeField: public AddNewFieldStrategy
     {
@@ -75,6 +75,15 @@ namespace NAVI2PG {
         BCNSHPSpecify(){}
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
+/**
+* @brief Класс представляющий стратегию редактирования поля type на основании полей SECTR1 и SECTR1.
+*/
+        class SECTRSpecify: public ModifyTypeField
+        {
+        public:
+            SECTRSpecify(){}
+            virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+        };
 
 /**
 * @brief Класс-стратегия для добавления полей, содержащих подписи на английском и русском языках name_en и name_ru,
@@ -117,6 +126,18 @@ namespace NAVI2PG {
         AddORIENTSignatures(){}
 
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
+/**
+* @brief Класс-стратегия для добавления поля orient, содержащего угол поворота по часовой стрелке от направления на север.
+* На основе значения поля ORIENT - Ориентация
+*/
+    class AddORIENTasExtFields: public AddNewFieldStrategy
+    {
+    public:
+        AddORIENTasExtFields(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+        virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn();
     };
 
 /**
