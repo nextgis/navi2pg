@@ -28,8 +28,8 @@ namespace NAVI2PG {
         AddNewFieldStrategy(){}
 /**
 * @brief Абстрактный метод. Исполнение стратегии.
-* @param dstFeature Запись в которую производится добавление новоых полей
-* @param srcFeature Запись-источник данных на основании которых формируется значение новых полей
+* @param dstFeature Запись, в которую производится добавление новых полей
+* @param srcFeature Запись-источник данных, на основании которых формируется значение новых полей
 */
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature) = 0;
 /**
@@ -40,7 +40,7 @@ namespace NAVI2PG {
     };
 
 /**
-* @brief Абстрактный класс представляющий интерфейс стратегии редактирования поля "type".
+* @brief Абстрактный класс, представляющий интерфейс стратегии редактирования поля "type".
 */
     class ModifyTypeField: public AddNewFieldStrategy
     {
@@ -48,15 +48,15 @@ namespace NAVI2PG {
         ModifyTypeField(){}
 /**
 * @brief Абстрактный метод. Исполнение стратегии.
-* @param dstFeature Запись поле которого подвергается редактированию
-* @param srcFeature Запись-источник данных на основании которых редактируются значения полей
+* @param dstFeature Запись, поле которой подвергается редактированию
+* @param srcFeature Запись-источник, данных на основании которых редактируются значения полей
 */
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature) = 0;
         virtual std::vector<OGRFieldDefn*> GetOGRFieldDefn();
     };
 
 /**
-* @brief Класс представляющий стратегию редактирования поля type на основании данных поля BOYSHP.
+* @brief Класс, представляющий стратегию редактирования поля type на основании данных поля BOYSHP.
 * BOYSHP - форма буя
 */
     class BOYSHPSpecify: public ModifyTypeField
@@ -66,7 +66,7 @@ namespace NAVI2PG {
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
 /**
-* @brief Класс представляющий стратегию редактирования поля type на основании данных поля BCNSHP.
+* @brief Класс, представляющий стратегию редактирования поля type на основании данных поля BCNSHP.
 * BCNSHP - форма знака
 */
     class BCNSHPSpecify: public ModifyTypeField
@@ -76,7 +76,7 @@ namespace NAVI2PG {
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
 /**
-* @brief Класс представляющий стратегию редактирования поля type на основании полей SECTR1 и SECTR1.
+* @brief Класс, представляющий стратегию редактирования поля type на основании полей SECTR1 и SECTR1.
 */
         class SECTRSpecify: public ModifyTypeField
         {
@@ -218,7 +218,7 @@ namespace NAVI2PG {
     };
 
 /**
-* @brief Абстрактный класс представляющий интерфейс стратегии добавления нового слоя в БД.
+* @brief Абстрактный класс, представляющий интерфейс стратегии добавления нового слоя в БД.
 */
     class CreateLayerStrategy
     {
@@ -240,7 +240,7 @@ namespace NAVI2PG {
         }
 /**
 * @brief Создание нового слоя в БД.
-* @param poDstDatasource Источник данных где будет создан новый слой
+* @param poDstDatasource Источник данных, где будет создан новый слой
 */
         void Create(OGRDataSource *poDstDatasource);
 
@@ -269,7 +269,7 @@ namespace NAVI2PG {
     typedef std::vector<LayerWithCopyRules> LayersWithCopyRules;
 
 /**
-* @brief Класс-стратегия добавления нового слоя в БД, основаный на принципе копирования геометрий всех объектов из слоев-источников.
+* @brief Класс-стратегия добавления нового слоя в БД, основанный на принципе копирования геометрий всех объектов из слоев-источников.
 */
     class CopyFeaturesStrategy : public CreateLayerStrategy
     {
