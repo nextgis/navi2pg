@@ -4,6 +4,9 @@
 #include "navi2pg.h"
 #include "logger.h"
 
+/**
+ * @brief Чтение параметров командной строки, инициализация процедуры импорта данных из s57 в PostgresSQL
+ */
 int main(int nArgc, char ** papszArgv)
 {   
 

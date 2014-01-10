@@ -8,6 +8,9 @@
 
 namespace NAVI2PG
 {
+/**
+ * @brief Параметры командной строки
+ */
     namespace CommandLineKeys
     {
         const std::string PG_CONNECTION_STRING = "pg_connection_string";
@@ -17,6 +20,14 @@ namespace NAVI2PG
 
     typedef std::map<std::string, std::string> ValuesCollection;
 
+/**
+ * @brief Чтение параметров командной строки
+ *
+ * @param argc - количество параметров
+ * @param argv - массив параметров
+ *
+ * @return значения параметров запуска приложения
+ */
     ValuesCollection CommandLineParse(int argc, char* argv[]);
 }
 #endif // COMMAND_LINE_PARSER_H

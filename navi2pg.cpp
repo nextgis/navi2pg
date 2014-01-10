@@ -23,77 +23,31 @@ namespace
         OGRwkbGeometryType geomType;
 
         /*
-         * beacon layer configuration
+         * mark layer configuration
          */
-        layerName = "beacon";
+        layerName = "mark";
         geomType = wkbPoint;
 
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BCNLAT");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("COLOUR");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::BCNSHPSpecify());
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DAYMAR");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
-            layerWithCopyRules.FieldsNamesForCopy_.clear();
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BOYLAT");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("COLOUR");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TOPMAR");
+            layerWithCopyRules.FieldsNamesForCopy_.push_back("TOPSHP");
             layersWithCopyRules.push_back(layerWithCopyRules);
-
             layerWithCopyRules.FieldsNamesForCopy_.clear();
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BOYCAR");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("COLOUR");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::BOYSHPSpecify());
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SOUNDG");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSoundgValues());
             layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.FieldsNamesForCopy_.clear();
             layerWithCopyRules.AddNewFieldStrategies_.clear();
 
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BCNSPP");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("COLOUR");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::BCNSHPSpecify());
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.FieldsNamesForCopy_.clear();
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BOYSPP");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::BOYSHPSpecify());
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.FieldsNamesForCopy_.clear();
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
-
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BOYSAW");
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("LNDMRK");
+            layerWithCopyRules.FieldsNamesForCopy_.push_back("CATLMK");
             layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
             layersWithCopyRules.push_back(layerWithCopyRules);
 
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BOYISD");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("FOGSIG");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("RTPBCN");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-            layerWithCopyRules.FieldsNamesForCopy_.clear();
             layerWithCopyRules.AddNewFieldStrategies_.clear();
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("LIGHTS");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddLightsSignatures());
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("CATLIT");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("COLOUR");
-            layersWithCopyRules.push_back(layerWithCopyRules);
             layerWithCopyRules.FieldsNamesForCopy_.clear();
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
         layersWithCopyRules.clear();
@@ -1063,14 +1017,6 @@ void NAVI2PG::AddSoundgValues::Execute(OGRFeature *dstFeature, OGRFeature *srcFe
     dstFeature->SetField( "depth_fractional", CPLString().Printf("%d", (int)( 10* (z - (int)z + 0.05) ) ) );
 }
 
-void NAVI2PG::AddVALMAGSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
-{
-    double valmag = srcFeature->GetFieldAsDouble( "VALMAG" );
-
-    dstFeature->SetField( "name_en", CPLString().Printf("%.2f", valmag) );
-    dstFeature->SetField( "name_ru", CPLString().Printf("%.2f", valmag) );
-}
-
 std::vector<OGRFieldDefn*> NAVI2PG::AddSoundgValues::GetOGRFieldDefn()
 {
     std::vector<OGRFieldDefn*> result;
@@ -1084,6 +1030,14 @@ std::vector<OGRFieldDefn*> NAVI2PG::AddSoundgValues::GetOGRFieldDefn()
     result.push_back(oFieldNameRu);
 
     return result;
+}
+
+void NAVI2PG::AddVALMAGSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
+{
+    double valmag = srcFeature->GetFieldAsDouble( "VALMAG" );
+
+    dstFeature->SetField( "name_en", CPLString().Printf("%.2f", valmag) );
+    dstFeature->SetField( "name_ru", CPLString().Printf("%.2f", valmag) );
 }
 
 void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
@@ -1563,8 +1517,8 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     }
 
 
-    std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
-    //std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
+    //std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
+    std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
 
 
 
@@ -1573,6 +1527,10 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         CreateLayerStrategy* layersCreator = layersCreators[i];
         layersCreator->Create(poDstDatasource);
     }
+
+    //pszS57DataSource
+    VSILFILE *mapFile = VSIFOpenL("mapFile","w");
+    VSIFCloseL(mapFile);
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );
