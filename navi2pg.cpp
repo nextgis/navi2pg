@@ -1138,8 +1138,16 @@ void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
     char** papszLCO = NULL;
     papszLCO = CSLAddString(papszLCO, CPLString("OVERWRITE=yes").c_str() );
 
+    /*
+     * Создание слоя в источнике данных OGR
+     */
     Layer_ = poDstDatasource->CreateLayer( LayerName_.c_str(), GetSpatialRef(), GeomType_, papszLCO );
 
+    /*
+     * Добавление объектов в новый слой, определяется в классах-потомках.
+     * Это может быть обычное копирование обыъектов с добавлением вспомогательных полей,
+     * а может быть создание новых объектов на основе объектов из слоев источников.
+     */
     DoProcess();
 }
 
@@ -1478,8 +1486,6 @@ bool NAVI2PG::CreateTSSLPTStrategy::LayerCreationPossibility()
     return false;
 }
 
-
-
 void NAVI2PG::CreateS57SignaturesStrategy::DoProcess()
 {
     ModifyLayerDefnForAddNewFields();
@@ -1563,6 +1569,9 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         exit( 1 );
     }
 
+    /*
+     *  Установка переменных среды для корректного чтения файлов s57 драйвером s57 OGR
+     */
     CPLSetConfigOption("OGR_S57_OPTIONS", "RETURN_PRIMITIVES=ON,RETURN_LINKAGES=ON,LNAM_REFS=ON,ADD_SOUNDG_DEPTH=ON,SPLIT_MULTIPOINT=ON,RECODE_BY_DSSI=ON");
 
     OGRDataSource *poSrcDatasource = NULL;
@@ -1600,21 +1609,33 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         exit( 1 );
     }
 
-
+    /*
+     *  Конфигурация
+     */
     std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
     //std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
 
-
-
+    /*
+     *  Импорт данных в БД
+     */
     for(size_t i = 0; i < layersCreators.size(); ++i)
     {
         CreateLayerStrategy* layersCreator = layersCreators[i];
         layersCreator->Create(poDstDatasource);
     }
 
-    //pszS57DataSource
-    VSILFILE *mapFile = VSIFOpenL("mapFile","w");
+    /*
+     *  Cоздание файла конфигурации для mapserver
+     */
+    /*
+    CPLString mapConfigFilename(CPLResetExtension(pszS57DataSource, "map"));
+    VSILFILE *mapFile = VSIFOpenL(mapConfigFilename.c_str(),"w");
+
+    VSIFPrintfL(mapFile,
+            "MAP\n\tNAME \"%s\" \nEND",CPLGetBasename(pszS57DataSource));
+
     VSIFCloseL(mapFile);
+    */
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );

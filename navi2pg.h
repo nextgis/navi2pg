@@ -270,6 +270,23 @@ namespace NAVI2PG {
 
 /**
 * @brief Класс-стратегия добавления нового слоя в БД, основанный на принципе копирования геометрий всех объектов из слоев-источников.
+* @code
+    const char *pszDstDriverName = "PostgreSQL";
+    poDstDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName(
+                pszDstDriverName );
+
+    OGRDataSource *poDstDatasource = NULL;
+    poDstDatasource = poDstDriver->Open(PG:"dbname='dbname' user='postgres' password='tochange'");
+
+    layerName = "anchor_parking_plg";
+    geomType = wkbPolygon;
+
+    layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("ACHARE");
+    layersWithCopyRules.push_back(layerWithCopyRules);
+
+    NAVI2PG::CreateLayerStrategy* cfs = new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules, false);
+    cfs->Create(poDstDatasource)
+* @endcode
 */
     class CopyFeaturesStrategy : public CreateLayerStrategy
     {

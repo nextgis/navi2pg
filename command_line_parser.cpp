@@ -66,6 +66,10 @@ NAVI2PG::ValuesCollection NAVI2PG::CommandLineParse(int argc, char* argv[])
         {
             values[CommandLineKeys::S57_DATASOURCE_NAME] = std::string(argv[iArg]);
         }
+        else if( values.find(CommandLineKeys::MAPCONFIG_FILENAME) == values.end() )
+        {
+            values[CommandLineKeys::MAPCONFIG_FILENAME] = std::string(argv[iArg]);
+        }
     }
 
     return values;
