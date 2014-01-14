@@ -415,8 +415,12 @@ namespace NAVI2PG {
  * @param fromS57DataSource - полный путь до файла-источника данных s57
  * @param toPGConnectionString - строка подключения к БД PostgreSQL (http://www.gdal.org/ogr/drv_pg.html)
  */
-    void Import(const char* fromS57DataSource, const char* toPGConnectionString);
+    void Import(const char* fromS57DataSource, const char* toPGConnectionString, const char  *mapConfigTemplateFilename);
 
+    void CopyMapConfigFile(
+            const char  *mapConfigTemplateFilename,
+            const char  *mapConfigFilename,
+            OGREnvelope newExtent);
 }
 #endif // NAVI2PG_H
 

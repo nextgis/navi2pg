@@ -10,7 +10,8 @@ namespace
     {
         std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] ";
         std::cout << NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING << " ";
-        std::cout << NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME;
+        std::cout << NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME << " ";
+        std::cout << NAVI2PG::CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME;
         std::cout << std::endl;
 
         exit( 1 );
@@ -47,11 +48,6 @@ NAVI2PG::ValuesCollection NAVI2PG::CommandLineParse(int argc, char* argv[])
             Usage();
         }
 
-        else if( EQUAL(argv[iArg],"--rsc") )
-        {
-            values[CommandLineKeys::RSC_FILENAME] = std::string(argv[++iArg]);
-        }
-
         else if( argv[iArg][0] == '-' )
         {
             std::cout << "Unknown option name: " << argv[iArg] << std::endl;
@@ -66,9 +62,9 @@ NAVI2PG::ValuesCollection NAVI2PG::CommandLineParse(int argc, char* argv[])
         {
             values[CommandLineKeys::S57_DATASOURCE_NAME] = std::string(argv[iArg]);
         }
-        else if( values.find(CommandLineKeys::MAPCONFIG_FILENAME) == values.end() )
+        else if( values.find(CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME) == values.end() )
         {
-            values[CommandLineKeys::MAPCONFIG_FILENAME] = std::string(argv[iArg]);
+            values[CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME] = std::string(argv[iArg]);
         }
     }
 

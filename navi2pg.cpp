@@ -1,5 +1,9 @@
 #include <map>
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <set>
 
 #include "cpl_vsi.h"
 #include "cpl_string.h"
@@ -1126,17 +1130,19 @@ void NAVI2PG::AddVALMAGSignatures::Execute(OGRFeature *dstFeature, OGRFeature *s
 
 void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
 {
+    char** papszLCO = NULL;
+    papszLCO = CSLAddString(papszLCO, CPLString("OVERWRITE=yes").c_str() );
+
     if(LayerCreationPossibility() == false)
     {
         CPLString msg;
-        msg.Printf("Error. Layer %s cannot be created.", LayerName_.c_str());
+        msg.Printf("Warrning. Creation layer %s.", LayerName_.c_str());
         LOG(msg.c_str());
+
+        Layer_ = poDstDatasource->CreateLayer(LayerName_.c_str(), NULL, GeomType_, papszLCO );
 
         return;
     }
-
-    char** papszLCO = NULL;
-    papszLCO = CSLAddString(papszLCO, CPLString("OVERWRITE=yes").c_str() );
 
     /*
      * Создание слоя в источнике данных OGR
@@ -1548,7 +1554,7 @@ bool NAVI2PG::CreateS57SignaturesStrategy::LayerCreationPossibility()
 }
 
 
-void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
+void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString, const char  *mapConfigTemplateFilename)
 {
     OGRRegisterAll();
     
@@ -1627,16 +1633,73 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     /*
      *  Cоздание файла конфигурации для mapserver
      */
-    /*
-    CPLString mapConfigFilename(CPLResetExtension(pszS57DataSource, "map"));
-    VSILFILE *mapFile = VSIFOpenL(mapConfigFilename.c_str(),"w");
+    OGRLayer* layer = poSrcDatasource->GetLayer(0);
+    OGREnvelope envelope;
+    OGRErr err = layer->GetExtent(&envelope);
 
-    VSIFPrintfL(mapFile,
-            "MAP\n\tNAME \"%s\" \nEND",CPLGetBasename(pszS57DataSource));
+    OGRSpatialReference poSRSfrom;
+    poSRSfrom.importFromEPSG(4326);
 
-    VSIFCloseL(mapFile);
-    */
+    OGRSpatialReference poSRSto;
+    poSRSto.importFromEPSG(3857);
+
+    OGRPoint minExtentPoint(envelope.MinX, envelope.MinY);
+    minExtentPoint.assignSpatialReference(&poSRSfrom);
+    minExtentPoint.transformTo(&poSRSto);
+
+    OGRPoint maxExtentPoint(envelope.MaxX, envelope.MaxY);
+    maxExtentPoint.assignSpatialReference(&poSRSfrom);
+    maxExtentPoint.transformTo(&poSRSto);
+
+    OGREnvelope newExtent;
+    newExtent.MinX = minExtentPoint.getX();
+    newExtent.MinY = minExtentPoint.getY();
+    newExtent.MaxX = maxExtentPoint.getX();
+    newExtent.MaxY = maxExtentPoint.getY();
+
+    CopyMapConfigFile(mapConfigTemplateFilename, CPLResetExtension(pszS57DataSource, "map"), newExtent);
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );
+}
+
+
+void NAVI2PG::CopyMapConfigFile(
+        const char  *mapConfigTemplateFilename,
+        const char  *mapConfigFilename,
+        OGREnvelope newExtent)
+{
+    std::ifstream input;
+    input.open(mapConfigTemplateFilename, std::ios::in);
+
+    std::ofstream output;
+    output.open(mapConfigFilename, std::ios::out);
+
+    std::string line;
+
+    while (!input.eof())
+    {
+        std::getline(input,line);
+
+        if(line.find ("[S57_file_name]") != std::string::npos)
+        {
+            std::string newLine;
+            newLine.assign(line, 0, line.find("S57_file_name") - 1);
+            newLine.append(CPLGetBasename(mapConfigFilename));
+            newLine.append(line.substr(line.find("S57_file_name")+13 + 1, line.size() - line.find("S57_file_name")+13 ) );
+            output << newLine << "\n";
+        }
+        else if(line.find ("[S57_extent]") != std::string::npos)
+        {
+            std::string newLine;
+            newLine.assign(line, 0, line.find("S57_extent") - 1);
+            newLine.append(CPLString().Printf("%e %e %e %e", newExtent.MinX, newExtent.MinY, newExtent.MaxX, newExtent.MaxY).c_str()) ;
+            newLine.append(line.substr(line.find("S57_extent")+10 + 1, line.size() - line.find("S57_extent")+10) );
+            output << newLine << "\n";
+        }
+        else
+        {
+            output << line << "\n";
+        }
+    }
 }
