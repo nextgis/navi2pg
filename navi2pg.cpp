@@ -1624,6 +1624,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     /*
      *  Импорт данных в БД
      */
+    /*
     for(size_t i = 0; i < layersCreators.size(); ++i)
     {
         CreateLayerStrategy* layersCreator = layersCreators[i];
@@ -1663,12 +1664,14 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     OGRDataSource::DestroyDataSource( poDstDatasource );
 }
 
-
 void NAVI2PG::CopyMapConfigFile(
         const char  *mapConfigTemplateFilename,
         const char  *mapConfigFilename,
         OGREnvelope newExtent)
 {
+    std::string S57_FILENAME = "[S57_file_name]";
+    std::string S57_EXTENT = "[S57_extent]";
+
     std::ifstream input;
     input.open(mapConfigTemplateFilename, std::ios::in);
 
@@ -1681,20 +1684,22 @@ void NAVI2PG::CopyMapConfigFile(
     {
         std::getline(input,line);
 
-        if(line.find ("[S57_file_name]") != std::string::npos)
+        if(line.find (S57_FILENAME) != std::string::npos)
         {
             std::string newLine;
-            newLine.assign(line, 0, line.find("S57_file_name") - 1);
+            newLine.assign(line, 0, line.find(S57_FILENAME));
             newLine.append(CPLGetBasename(mapConfigFilename));
-            newLine.append(line.substr(line.find("S57_file_name")+13 + 1, line.size() - line.find("S57_file_name")+13 ) );
+            newLine.append(line.substr(line.find(S57_FILENAME)+ S57_FILENAME.size(), line.size() - line.find(S57_FILENAME) + S57_FILENAME.size() ) );
+
             output << newLine << "\n";
         }
-        else if(line.find ("[S57_extent]") != std::string::npos)
+        else if(line.find (S57_EXTENT) != std::string::npos)
         {
             std::string newLine;
-            newLine.assign(line, 0, line.find("S57_extent") - 1);
+            newLine.assign(line, 0, line.find(S57_EXTENT));
             newLine.append(CPLString().Printf("%e %e %e %e", newExtent.MinX, newExtent.MinY, newExtent.MaxX, newExtent.MaxY).c_str()) ;
-            newLine.append(line.substr(line.find("S57_extent")+10 + 1, line.size() - line.find("S57_extent")+10) );
+            newLine.append(line.substr(line.find(S57_EXTENT) + S57_EXTENT.size(), line.size() - line.find(S57_EXTENT)+ S57_EXTENT.size()) );
+
             output << newLine << "\n";
         }
         else

@@ -417,6 +417,13 @@ namespace NAVI2PG {
  */
     void Import(const char* fromS57DataSource, const char* toPGConnectionString, const char  *mapConfigTemplateFilename);
 
+/**
+ * @brief Копирование файла-шаблона конфигурации MapServer с установкой новых значений некоторых переменных
+ *
+ * @param mapConfigTemplateFilename - полный путь до файла-шаблона конфигурации MapServer
+ * @param mapConfigFilename - полный путь до нового файла конфигурации MapServer
+ * @param newExtent - экстент, который должен быть установлен в файле конфигурации MapServer
+ */
     void CopyMapConfigFile(
             const char  *mapConfigTemplateFilename,
             const char  *mapConfigFilename,
