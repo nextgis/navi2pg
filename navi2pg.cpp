@@ -1,3 +1,24 @@
+/******************************************************************************
+ * Project:  navi2pg
+ * Purpose:  tool to export s57 files into PstGIS and generate map file and mapnik xml
+ * Author:   Alexandr Lisovenko, alexander.lisovenko@gmail.com
+ ******************************************************************************
+*   Copyright (C) 2013-2014 NextGIS
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 2 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ****************************************************************************/
+ 
 #include <map>
 #include <math.h>
 #include <iostream>
@@ -27,7 +48,7 @@ namespace
         OGRwkbGeometryType geomType;
 
         /*
-         * beacon layer configuration
+         * конфигурация слоя beacon
          */
         layerName = "beacon";
         geomType = wkbPoint;
@@ -118,7 +139,7 @@ namespace
 
 
         /*
-         * beacon layer configuration
+         * конфигурация слоя beacon
          */
         layerName = "beacon";
         geomType = wkbPoint;
@@ -196,7 +217,7 @@ namespace
 
 
         /*
-         * anchor_parking_plg layer configuration
+         * конфигурация слоя anchor_parking_plg
          */
         layerName = "anchor_parking_plg";
         geomType = wkbPolygon;
@@ -209,7 +230,7 @@ namespace
 
 
         /*
-         * anchor_parking_pt layer configuration
+         * конфигурация слоя anchor_parking_pt
          */
         layerName = "anchor_parking_pt";
         geomType = wkbPoint;
@@ -228,7 +249,7 @@ namespace
 
 
         /*
-         * building_pt layer configuration
+         * конфигурация слоя building_pt
          */
         layerName = "building_pt";
         geomType = wkbPoint;
@@ -241,7 +262,7 @@ namespace
 
 
         /*
-         * building_ln layer configuration
+         * конфигурация слоя building_ln
          */
         layerName = "building_ln";
         geomType = wkbLineString;
@@ -257,7 +278,7 @@ namespace
 
 
         /*
-         * building_plg layer configuration
+         * конфигурация слоя building_plg
          */
         layerName = "building_plg";
         geomType = wkbPolygon;
@@ -276,7 +297,7 @@ namespace
 
 
         /*
-         * called_sea_parts layer configuration
+         * конфигурация слоя called_sea_parts
          */
         layerName = "called_sea_parts";
         geomType = wkbPolygon;
@@ -289,7 +310,7 @@ namespace
 
 
         /*
-         * coastline layer configuration
+         * конфигурация слоя coastline
          */
         layerName = "coastline";
         geomType = wkbLineString;
@@ -304,7 +325,7 @@ namespace
 
 
         /*
-         * depths_area_ln layer configuration
+         * конфигурация слоя depths_area_ln
          */
         layerName = "depths_area_ln";
         geomType = wkbLineString;
@@ -323,7 +344,7 @@ namespace
 
 
         /*
-         * depths_area_plg layer configuration
+         * конфигурация слоя depths_area_plg
          */
         layerName = "depths_area_plg";
         geomType = wkbPolygon;
@@ -343,7 +364,7 @@ namespace
 
 
         /*
-         * dump_plg layer configuration
+         * конфигурация слоя dump_plg
          */
         /*
         layerName = "dump_plg";
@@ -357,7 +378,7 @@ namespace
         */
 
         /*
-         * dump_pt layer configuration
+         * конфигурация слоя dump_pt
          */
         /*
         layerName = "dump_pt";
@@ -371,7 +392,7 @@ namespace
         */
 
         /*
-         * land_region_ln layer configuration
+         * конфигурация слоя land_region_ln
          */
         layerName = "land_region_ln";
         geomType = wkbLineString;
@@ -384,7 +405,7 @@ namespace
 
 
         /*
-         * land_region_plg layer configuration
+         * конфигурация слоя land_region_plg
          */
         layerName = "land_region_plg";
         geomType = wkbPolygon;
@@ -403,7 +424,7 @@ namespace
 
 
         /*
-         * land_region_pt layer configuration
+         * конфигурация слоя land_region_pt
          */
         layerName = "land_region_pt";
         geomType = wkbPoint;
@@ -424,7 +445,7 @@ namespace
 
 
         /*
-         * landmark layer configuration
+         * конфигурация слоя landmark
          */
         /*
         layerName = "landmark";
@@ -443,7 +464,7 @@ namespace
         */
 
         /*
-         * magnetic_declination layer configuration
+         * конфигурация слоя magnetic_declination
          */
         layerName = "magnetic_declination";
         geomType = wkbPoint;
@@ -458,7 +479,7 @@ namespace
 
 
         /*
-         * mark layer configuration
+         * конфигурация слоя mark
          */
         layerName = "mark";
         geomType = wkbPoint;
@@ -489,7 +510,7 @@ namespace
 
 
         /*
-         * obstacles_ln layer configuration
+         * конфигурация слоя obstacles_ln
          */
         layerName = "obstacles_ln";
         geomType = wkbLineString;
@@ -511,7 +532,7 @@ namespace
 
 
         /*
-         * obstacles_plg layer configuration
+         * конфигурация слоя obstacles_plg
          */
         layerName = "obstacles_plg";
         geomType = wkbPolygon;
@@ -527,7 +548,7 @@ namespace
 
 
         /*
-         * obstacles_pt layer configuration
+         * конфигурация слоя obstacles_pt
          */
         layerName = "obstacles_pt";
         geomType = wkbPoint;
@@ -559,7 +580,7 @@ namespace
 
 
         /*
-         * pile_pt layer configuration
+         * конфигурация слоя pile_pt
          */
         /*
         layerName = "pile_pt";
@@ -573,7 +594,7 @@ namespace
         */
 
         /*
-         * rivers layer configuration
+         * конфигурация слоя rivers
          */
         layerName = "rivers";
         geomType = wkbPolygon;
@@ -586,7 +607,7 @@ namespace
 
 
         /*
-         * route_pt layer configuration
+         * конфигурация слоя route_pt
          */
         layerName = "route_pt";
         geomType = wkbPoint;
@@ -607,7 +628,7 @@ namespace
         layersWithCopyRules.clear();
 
         /*
-         *
+         * конфигурация слоя tsslpt_pt
          */
         layerName = "tsslpt_pt";
         OGRLayer* TSSLPTLayer = poSrcDatasource->GetLayerByName("TSSLPT");
@@ -615,7 +636,7 @@ namespace
         configuration.push_back(new NAVI2PG::CreateTSSLPTStrategy(layerName, TSSLPTLayer));
 
         /*
-         * route_ln layer configuration
+         *  конфигурация слоя route_ln
          */
         layerName = "route_ln";
         geomType = wkbLineString;
@@ -660,7 +681,7 @@ namespace
 
 
         /*
-         * route_plg layer configuration
+         * конфигурация слоя route_plg
          */
         layerName = "route_plg";
         geomType = wkbPolygon;
@@ -679,7 +700,7 @@ namespace
 
 
         /*
-         * vegetation layer configuration
+         * конфигурация слоя vegetation
          */
         layerName = "vegetation";
         geomType = wkbPolygon;
@@ -692,7 +713,7 @@ namespace
 
 
         /*
-         * vegetation_pt layer configuration
+         * конфигурация слоя vegetation_pt
          */
         layerName = "vegetation_pt";
         geomType = wkbPoint;
@@ -705,7 +726,7 @@ namespace
 
 
         /*
-         * labels layer configuration
+         * конфигурация слоя labels
          */
         layerName = "labels";
 
@@ -715,7 +736,7 @@ namespace
         configuration.push_back(new NAVI2PG::CreateS57SignaturesStrategy(layerName, isolatedNodeLayer, textsLayer));
 
         /*
-         * lights_sectors_conf layer configuration
+         * конфигурация слоя lights_sectors_conf
          */
         layerName = "lights_sectors";
         geomType = wkbLineString;
