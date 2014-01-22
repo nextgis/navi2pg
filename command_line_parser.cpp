@@ -21,6 +21,7 @@
 #include<iostream>
 
 #include "ogr_p.h"
+#include "cpl_vsi.h"
 
 #include "command_line_parser.h"
 
@@ -28,7 +29,7 @@ namespace
 {
     void Usage()
     {
-        std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] ";
+        std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] [--sign_cp1251] ";
         std::cout << NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING << " ";
         std::cout << NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME << " ";
         std::cout << NAVI2PG::CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME;
@@ -66,6 +67,11 @@ NAVI2PG::ValuesCollection NAVI2PG::CommandLineParse(int argc, char* argv[])
                  EQUAL(argv[iArg],"-h"))
         {
             Usage();
+        }
+
+else if( EQUAL(argv[iArg], "--sign_cp1251" ) )
+        {
+            CPLSetConfigOption("NEED_CONVERT_SIGN_TO_CP1251","TRUE");
         }
 
         else if( argv[iArg][0] == '-' )

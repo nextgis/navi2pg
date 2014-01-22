@@ -96,14 +96,77 @@ namespace NAVI2PG {
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
 /**
-* @brief Класс, представляющий стратегию редактирования поля type на основании полей SECTR1 и SECTR1.
+* @brief Класс, представляющий стратегию редактирования поля type на основании полей SECTR1 и SECTR2.
 */
-        class SECTRSpecify: public ModifyTypeField
-        {
-        public:
-            SECTRSpecify(){}
-            virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
-        };
+    class SECTRSpecify: public ModifyTypeField
+    {
+    public:
+        SECTRSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля COLOUR.
+*/
+    class COLOURSpecify: public ModifyTypeField
+    {
+    public:
+        COLOURSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля наличия значения в поле ORIENT.
+*/
+    class ORIENTPresenceSpecify: public ModifyTypeField
+    {
+    public:
+        ORIENTPresenceSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля TOPSHP - форма топовой фигуры.
+*/
+    class TOPSHPSpecify: public ModifyTypeField
+    {
+    public:
+        TOPSHPSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля CONVIS - визуально приметный.
+*/
+    class CONVISSpecify: public ModifyTypeField
+    {
+    public:
+        CONVISSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля CATLMK - ктегория берегового ориентира.
+*/
+    class CATLMKSpecify: public ModifyTypeField
+    {
+    public:
+        CATLMKSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля CATNAV - ктегория навигационного створа.
+*/
+    class CATNAVSpecify: public ModifyTypeField
+    {
+    public:
+        CATNAVSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля TRAFIC - поток движения.
+*/
+    class TRAFICSpecify: public ModifyTypeField
+    {
+    public:
+        TRAFICSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
 
 /**
 * @brief Класс-стратегия для добавления полей, содержащих подписи на английском и русском языках name_en и name_ru,
@@ -322,16 +385,9 @@ namespace NAVI2PG {
 */
         CopyFeaturesStrategy(const CPLString& layerName, OGRwkbGeometryType geomType, LayersWithCopyRules srcLayersWithRules, bool addTypeField = true)
             : CreateLayerStrategy(layerName, geomType),
-              AddTypeFieldFlag_(addTypeField)
+              AddTypeFieldFlag_(addTypeField),
+              SrcLayers_(srcLayersWithRules)
         {
-            for(size_t iSrcLayer = 0; iSrcLayer < srcLayersWithRules.size(); ++iSrcLayer)
-            {
-                OGRLayer* poLayer = srcLayersWithRules[iSrcLayer].SrcLayer_;
-                if(poLayer != NULL)
-                {
-                    SrcLayers_.push_back(srcLayersWithRules[iSrcLayer]);
-                }
-            }
         }
 
     private:

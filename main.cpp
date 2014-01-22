@@ -45,7 +45,7 @@ void parseMapFile(std::ifstream& F)
  * @brief Чтение параметров командной строки, инициализация процедуры импорта данных из s57 в PostgresSQL
  *
  * Вызов
- *  navi2pg [-h] [--help] [-v] [--version] <pg_connection_string> <S57_datasource_name> <mapconfig_template_filename>
+ *  navi2pg [-h] [--help] [-v] [--version] [--sign_cp1251] <pg_connection_string> <S57_datasource_name> <mapconfig_template_filename>
  *
  * Описание
  *  Утилита производит импорт данных из файла формата S57 в БД PostgreSQL,
@@ -59,6 +59,9 @@ void parseMapFile(std::ifstream& F)
  *
  *  -v (или --version):
  *      Вывод версии утилиты на экран
+ *
+ **  --sign_cp1251:
+ *      Указать, если подписи в S57 находятся в кодировке CP1251
  *
  *  pg_connection_string:
  *      Источник данных PostgreSQL в формате поддерживаемом OGR
