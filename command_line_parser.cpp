@@ -32,7 +32,9 @@ namespace
         std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] [--sign_cp1251] ";
         std::cout << NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING << " ";
         std::cout << NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME << " ";
-        std::cout << NAVI2PG::CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME;
+        std::cout << NAVI2PG::CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME << " ";
+        std::cout << NAVI2PG::CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME << " ";
+        std::cout << NAVI2PG::CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME;
         std::cout << std::endl;
 
         exit( 1 );
@@ -88,9 +90,17 @@ else if( EQUAL(argv[iArg], "--sign_cp1251" ) )
         {
             values[CommandLineKeys::S57_DATASOURCE_NAME] = std::string(argv[iArg]);
         }
-        else if( values.find(CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME) == values.end() )
+        else if( CPLGetConfigOption(CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(), NULL) == NULL)
         {
-            values[CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME] = std::string(argv[iArg]);
+            CPLSetConfigOption(CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(), argv[iArg]);
+        }
+        else if( CPLGetConfigOption(CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(), NULL) == NULL)
+        {
+            CPLSetConfigOption(CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(), argv[iArg]);
+        }
+        else if( CPLGetConfigOption(CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(), NULL) == NULL)
+        {
+            CPLSetConfigOption(CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(), argv[iArg]);
         }
     }
 

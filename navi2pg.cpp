@@ -25,6 +25,8 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <string>
+#include <algorithm>
 
 #include "cpl_vsi.h"
 #include "cpl_string.h"
@@ -32,14 +34,66 @@
 #include "logger.h"
 #include "navi2pg.h"
 #include "feature_creation_rules.h"
+#include "command_line_parser.h"
 
 namespace
 {
+    std::string readFromDBConnectString(const std::string& connectionString, const std::string& paramName)
+    {
+        int pos = connectionString.find(paramName);
+
+        if(pos == std::string::npos)
+            return std::string();
+
+        int paramValueStart = connectionString.find("=",pos)+1;
+
+        int i = 0;
+        while(connectionString[paramValueStart+i] == ' ')
+        {
+            LOG(connectionString[paramValueStart+i]);
+            i++;
+            paramValueStart++;
+        }
+
+        int paramValueEnd = connectionString.find(" ",paramValueStart);
+
+        std::string paramValue(connectionString, paramValueStart, paramValueEnd - paramValueStart);
+        paramValue.erase(std::remove(paramValue.begin(), paramValue.end(), '\''), paramValue.end());
+
+        return paramValue;
+    }
+
     using namespace NAVI2PG;
 
     std::vector<CreateLayerStrategy*> configurateTest(OGRDataSource *poSrcDatasource)
     {
         std::vector<CreateLayerStrategy*> configuration;
+
+        LayersWithCopyRules layersWithCopyRules;
+        LayerWithCopyRules layerWithCopyRules;
+
+        CPLString layerName;
+        OGRwkbGeometryType geomType;
+
+        /*
+         * конфигурация слоя depths_area_plg
+         */
+        layerName = "depths_area_plg";
+        geomType = wkbPolygon;
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DRGARE");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DEPARE");
+            layerWithCopyRules.FieldsNamesForCopy_.push_back("DRVAL1");
+            layerWithCopyRules.FieldsNamesForCopy_.push_back("DRVAL2");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.FieldsNamesForCopy_.clear();
+
+        configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
+        layersWithCopyRules.clear();
+
         return configuration;
     }
 
@@ -1179,23 +1233,16 @@ void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
     char** papszLCO = NULL;
     papszLCO = CSLAddString(papszLCO, CPLString("OVERWRITE=yes").c_str() );
 
-
-    if(LayerCreationPossibility() == false)
-    {
-        CPLString msg;
-        msg.Printf("Warrning. Creation layer %s.", LayerName_.c_str());
-        LOG(msg.c_str());
-
-        //Layer_ = poDstDatasource->CreateLayer(LayerName_.c_str(), NULL, GeomType_, papszLCO );
-
-        //return;
-    }
-
     /*
      * Создание слоя в источнике данных OGR
      */
     Layer_ = poDstDatasource->CreateLayer( LayerName_.c_str(), GetSpatialRef(), GeomType_, papszLCO );
 
+    if (Layer_ == NULL)
+    {
+        LOG( CPLString().Printf("Error: Layer %s can not be created: %s", LayerName_.c_str(), CPLGetLastErrorMsg()) );
+        return;
+    }
     /*
      * Добавление объектов в новый слой, определяется в классах-потомках.
      * Это может быть обычное копирование обыъектов с добавлением вспомогательных полей,
@@ -1243,6 +1290,13 @@ void NAVI2PG::CopyFeaturesStrategy::DoProcess()
                     wkbFlatten(poGeometry->getGeometryType()) != Layer_->GetLayerDefn()->GetGeomType() )
             {
                 //TODO Debug Info
+                continue;
+            }
+
+            if(!poGeometry->IsValid())
+            {
+                LOG(CPLString().Printf("Error. The geometry is not valid (Layer: %s, RCID: %d)",
+                                       srcLayer->GetName(), poFeatureFrom->GetFieldAsInteger("RCID")));
                 continue;
             }
 
@@ -1341,12 +1395,13 @@ void NAVI2PG::CopyFeaturesStrategy::ModifyLayerDefnForAddNewFields()
 OGRSpatialReference* NAVI2PG::CopyFeaturesStrategy::GetSpatialRef()
 {
     OGRSpatialReference* sr = NULL;
-
     for(size_t iSrcLayer = 0; iSrcLayer < SrcLayers_.size(); ++iSrcLayer)
     {
-        OGRLayer* poLayer = SrcLayers_[0].SrcLayer_;
+        OGRLayer* poLayer = SrcLayers_[iSrcLayer].SrcLayer_;
         if(poLayer != NULL)
+        {
             sr = poLayer->GetSpatialRef();
+        }
     }
     return sr;
 }
@@ -1641,7 +1696,7 @@ bool NAVI2PG::CreateS57SignaturesStrategy::LayerCreationPossibility()
 }
 
 
-void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString, const char  *mapConfigTemplateFilename)
+void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
 {
     OGRRegisterAll();
 
@@ -1715,7 +1770,6 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     /*
      *  Импорт данных в БД
      */
-
     for(size_t i = 0; i < layersCreators.size(); ++i)
     {
         CreateLayerStrategy* layersCreator = layersCreators[i];
@@ -1749,19 +1803,68 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     newExtent.MaxX = maxExtentPoint.getX();
     newExtent.MaxY = maxExtentPoint.getY();
 
-    CopyMapConfigFile(mapConfigTemplateFilename, CPLResetExtension(pszS57DataSource, "map"), newExtent);
+    const char* mapserver_config_file = CPLGetConfigOption(CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(),NULL);
+    if(mapserver_config_file != NULL)
+    {
+        LOG("mapserver config creatinon");
+        CopyConfigFile(mapserver_config_file, CPLResetExtension(pszS57DataSource, "map"), newExtent, pszPGConnectionString);
+    }
+
+    const char* mapnik_config_file = CPLGetConfigOption(CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(),NULL);
+    if(mapnik_config_file != NULL)
+    {
+        LOG("mapnik config creatinon");
+        CopyConfigFile(mapnik_config_file, CPLResetExtension(pszS57DataSource, "mapnik.xml"), newExtent, pszPGConnectionString);
+    }
+
+    const char* mapnik_pyscript_file = CPLGetConfigOption(CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(),NULL);
+    if(mapnik_pyscript_file != NULL)
+    {
+        LOG("mapnik pyscript creatinon");
+        CopyConfigFile(mapnik_pyscript_file, CPLResetExtension(pszS57DataSource, "mapnik.py"), newExtent, pszPGConnectionString);
+    }
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );
 }
 
-void NAVI2PG::CopyMapConfigFile(
+void NAVI2PG::CopyConfigFile(
         const char  *mapConfigTemplateFilename,
         const char  *mapConfigFilename,
-        OGREnvelope newExtent)
+        OGREnvelope newExtent,
+        const char  *pszPGConnectionString)
 {
-    std::string S57_FILENAME = "[S57_file_name]";
-    std::string S57_EXTENT = "[S57_extent]";
+    std::string S57_FILENAME = "{S57_file_name}";
+    std::string S57_EXTENT_X_MIN = "{S57_extent_X_Min}";
+    std::string S57_EXTENT_Y_MIN = "{S57_extent_Y_Min}";
+    std::string S57_EXTENT_X_MAX = "{S57_extent_X_Max}";
+    std::string S57_EXTENT_Y_MAX = "{S57_extent_Y_Max}";
+    std::string PG_DBNAME = "{PG_DBNAME}";
+    std::string PG_USER = "{PG_USER}";
+    std::string PG_PASSWORD = "{PG_PASSWORD}";
+    std::string PG_HOST = "{PG_HOST}";
+    std::string PG_PORT = "{PG_PORT}";
+
+    /*
+     *  Парсим параметры подключения к БД
+     */
+    CPLString connectionString(pszPGConnectionString);
+
+    std::string dbname = readFromDBConnectString(connectionString, "dbname");
+    std::string user = readFromDBConnectString(connectionString, "user");
+    std::string password = readFromDBConnectString(connectionString, "password");
+    std::string host = readFromDBConnectString(connectionString, "host");
+    std::string port = readFromDBConnectString(connectionString, "port");
+
+    if (host=="")
+        host.assign("localhost");
+
+    if (port=="")
+        port.assign("5432");
+
+    /*
+     *  Копируем шаблон конфигурации с заменой переменных
+     */
 
     std::ifstream input;
     input.open(mapConfigTemplateFilename, std::ios::in);
@@ -1774,28 +1877,39 @@ void NAVI2PG::CopyMapConfigFile(
     while (!input.eof())
     {
         std::getline(input,line);
+        int pos = 0;
 
-        if(line.find (S57_FILENAME) != std::string::npos)
-        {
-            std::string newLine;
-            newLine.assign(line, 0, line.find(S57_FILENAME));
-            newLine.append(CPLGetBasename(mapConfigFilename));
-            newLine.append(line.substr(line.find(S57_FILENAME)+ S57_FILENAME.size(), line.size() - line.find(S57_FILENAME) + S57_FILENAME.size() ) );
 
-            output << newLine << "\n";
-        }
-        else if(line.find (S57_EXTENT) != std::string::npos)
-        {
-            std::string newLine;
-            newLine.assign(line, 0, line.find(S57_EXTENT));
-            newLine.append(CPLString().Printf("%e %e %e %e", newExtent.MinX, newExtent.MinY, newExtent.MaxX, newExtent.MaxY).c_str()) ;
-            newLine.append(line.substr(line.find(S57_EXTENT) + S57_EXTENT.size(), line.size() - line.find(S57_EXTENT)+ S57_EXTENT.size()) );
+        if( (pos = line.find(S57_FILENAME) ) != std::string::npos)
+            line.replace(pos, S57_FILENAME.size(), CPLGetBasename(mapConfigFilename) );
 
-            output << newLine << "\n";
-        }
-        else
-        {
-            output << line << "\n";
-        }
+        if( (pos = line.find(S57_EXTENT_X_MIN) ) != std::string::npos)
+            line.replace(pos, S57_EXTENT_X_MIN.size(), CPLString().Printf("%e", newExtent.MinX).c_str() );
+
+        if( (pos = line.find (S57_EXTENT_Y_MIN) ) != std::string::npos)
+            line.replace(pos, S57_EXTENT_Y_MIN.size(), CPLString().Printf("%e", newExtent.MinY).c_str() );
+
+        if( (pos = line.find (S57_EXTENT_X_MAX) ) != std::string::npos)
+            line.replace(pos, S57_EXTENT_X_MAX.size(), CPLString().Printf("%e", newExtent.MaxX).c_str() );
+
+        if( (pos = line.find (S57_EXTENT_Y_MAX) ) != std::string::npos)
+            line.replace(pos, S57_EXTENT_Y_MAX.size(), CPLString().Printf("%e", newExtent.MaxY).c_str() );
+
+        if( (pos = line.find (PG_DBNAME) ) != std::string::npos)
+            line.replace(pos, PG_DBNAME.size(), dbname.c_str() );
+
+        if( (pos = line.find (PG_USER) ) != std::string::npos)
+            line.replace(pos, PG_USER.size(), user.c_str() );
+
+        if( (pos = line.find (PG_PASSWORD) ) != std::string::npos)
+            line.replace(pos, PG_PASSWORD.size(), password.c_str() );
+
+        if( (pos = line.find (PG_HOST) ) != std::string::npos)
+            line.replace(pos, PG_HOST.size(),  host.c_str() );
+
+        if( (pos = line.find (PG_PORT) ) != std::string::npos)
+            line.replace(pos, PG_PORT.size(), port.c_str() );
+
+        output << line << "\n";
     }
 }

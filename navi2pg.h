@@ -491,7 +491,7 @@ namespace NAVI2PG {
  * @param fromS57DataSource - полный путь до файла-источника данных s57
  * @param toPGConnectionString - строка подключения к БД PostgreSQL (http://www.gdal.org/ogr/drv_pg.html)
  */
-    void Import(const char* fromS57DataSource, const char* toPGConnectionString, const char  *mapConfigTemplateFilename);
+    void Import(const char* fromS57DataSource, const char* toPGConnectionString);
 
 /**
  * @brief Копирование файла-шаблона конфигурации MapServer с установкой новых значений некоторых переменных
@@ -500,9 +500,10 @@ namespace NAVI2PG {
  * @param mapConfigFilename - полный путь до нового файла конфигурации MapServer
  * @param newExtent - экстент, который должен быть установлен в файле конфигурации MapServer
  */
-    void CopyMapConfigFile(
+    void CopyConfigFile(
             const char  *mapConfigTemplateFilename,
             const char  *mapConfigFilename,
-            OGREnvelope newExtent);
+            OGREnvelope newExtent,
+            const char  *pszPGConnectionString);
 }
 #endif // NAVI2PG_H

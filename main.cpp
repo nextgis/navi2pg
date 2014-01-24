@@ -45,7 +45,7 @@ void parseMapFile(std::ifstream& F)
  * @brief Чтение параметров командной строки, инициализация процедуры импорта данных из s57 в PostgresSQL
  *
  * Вызов
- *  navi2pg [-h] [--help] [-v] [--version] [--sign_cp1251] <pg_connection_string> <S57_datasource_name> <mapconfig_template_filename>
+ *  navi2pg [-h] [--help] [-v] [--version] [--sign_cp1251] <pg_connection_string> <S57_datasource_name> <mapserevr_config_template_filename> <mapnik_config_template_filename> <mapnik_pyscript_template_filename>
  *
  * Описание
  *  Утилита производит импорт данных из файла формата S57 в БД PostgreSQL,
@@ -69,13 +69,19 @@ void parseMapFile(std::ifstream& F)
  *  S57_datasource_name:
  *      Источник данных S57 в формате поддерживаемом OGR
  *
- *  mapconfig_template_filename
- *      Полный путь до файла-шаблона конфигурации MapServer
+ *  mapserevr_config_template_filename
+ *      Полный путь до файла-шаблона конфигурации (MapServer)
+ *
+ *  mapnik_config_template_filename
+ *      Полный путь до файла-шаблона конфигурации (mapnik)
+ *
+ *  mapnik_pyscript_template_filename
+ *      Полный путь до скрипта гененрации png (mapnik)
  *
  * Пример использования:
  *  1. Импорт данных из файла RU5NSKO0.000 в локальную БД с именем RU5NSKO0
  *
- *      navi2pg PG:"dbname='RU5NSKO0' user='postgres' password='tochange'" ..\S57\RU5NSKO0.000
+ *      navi2pg PG:"dbname='RU5NSKO0' user='postgres' password='tochange'" ..\S57\RU5NSKO0.000 ./mapserver.map.template ./mapnik.xml.template mapnik.py.template
  *
  *  2. Просмотр версии утилиты
  *
@@ -91,10 +97,8 @@ int main(int nArgc, char ** papszArgv)
             valuesCollection[NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME].c_str();
     const char  *pszPGConnectionString =
             valuesCollection[NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING].c_str();
-    const char  *mapConfigTemplateFilename =
-            valuesCollection[NAVI2PG::CommandLineKeys::MAPCONFIG_TEMPLATE_FILENAME].c_str();
 
-    NAVI2PG::Import(pszS57DataSource, pszPGConnectionString, mapConfigTemplateFilename);
+    NAVI2PG::Import(pszS57DataSource, pszPGConnectionString);
 
     return 0;
 }
