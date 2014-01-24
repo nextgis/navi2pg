@@ -1,0 +1,2095 @@
+# Шаблон конфигурационного файла MapServer.
+#
+# Этот файл необходимо передать утилите navi2pg для генерации полноценного конфигурационного файла MapServer
+# При редактировании этого шаблона не меняйте значения параметров в фигурных скобках (например, {Некоторая строка}), если хотите использовать этот файл для работы утилиты navi2pg
+# ,остальная информация может быть изменена.
+
+MAP
+
+    NAME "{S57_file_name}"
+    
+    SIZE 1280 1024
+    MAXSIZE 4096
+    UNITS meters
+    IMAGETYPE PNG
+    
+    EXTENT {S57_extent_X_Min} {S57_extent_Y_Min} {S57_extent_X_Max} {S57_extent_Y_Max}
+    
+    IMAGECOLOR 255 255 255  
+    SYMBOLSET "./symbols/symbols.sym"
+    FONTSET "./fonts/fonts.list"
+    WEB
+        TEMPLATE  "template.html"
+        IMAGEPATH "/usr/local/www/gis-lab/data/tmp/"
+        IMAGEURL  "/tmp/"
+        METADATA
+        
+            wms_title "{S57_file_name}"
+            wms_onlineresource "http://gis-lab.info/cgi-bin/mapserv?map=/usr/local/www/gis-lab/data/programs/mapserver/wmstest/{S57_file_name}.map&"
+            wms_getfeatureinfo "http://gis-lab.info/cgi-bin/mapserv?map=/usr/local/www/gis-lab/data/programs/mapserver/wmstest/{S57_file_name}.map&"
+            wms_featureinfoformat "text/plain"
+            wms_srs "EPSG:3857"                  
+            wms_enable_request "*"
+            wms_encoding "UTF8"
+        END
+    END
+    
+    PROJECTION
+      "init=epsg:3857"
+    END
+    
+#
+#   Область суши
+#    
+    LAYER         
+        NAME land_region_plg
+        TYPE POLYGON
+        DUMP true
+        TEMPLATE "dummy"
+        
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        
+        DATA "wkb_geometry from \"public\".\"land_region_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
+        METADATA
+            wms_title 'Область суши'
+        END
+        
+        PROJECTION
+            "init=epsg:4326"
+        END    
+        
+        STATUS ON
+        TRANSPARENCY 100
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            NAME "Местность"
+            EXPRESSION "LNDRGN"
+            STYLE
+                OUTLINECOLOR 204 212 207
+                OUTLINEWIDTH 1
+                PATTERN 10 10 END
+            END
+        END
+        CLASS
+            NAME "Область суши"
+            EXPRESSION "LNDARE"
+            STYLE
+                COLOR 238 230 197
+            END
+        END
+    END
+    
+    SCALEBAR
+        IMAGECOLOR 255 255 255
+        
+        LABEL
+            COLOR 0 0 0
+            SIZE TINY
+        END
+        
+        STYLE 1
+        SIZE 100 2
+        COLOR 0 0 0
+        UNITS METERS
+        INTERVALS 2
+        TRANSPARENT FALSE
+        STATUS ON
+    END
+#
+#   Сооружения (площадные)
+#
+    LAYER
+        NAME building_plg
+        METADATA
+            wms_title "Сооружения (площадные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from building_plg"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 500000
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            NAME "Район застройки"
+            EXPRESSION "BUAARE"
+            STYLE
+                COLOR  218 206 159
+                OUTLINECOLOR  175 141 80
+                WIDTH 1
+            END
+        END
+        CLASS
+            NAME "Район дока"
+            EXPRESSION "DOCARE"
+            STYLE
+                COLOR  145 202 243
+            END
+            STYLE
+                OUTLINEWIDTH  1
+                PATTERN 5 5 END
+                OUTLINECOLOR  0 0 0
+            END
+        END
+        CLASS
+            NAME "Береговое сооружение"
+            EXPRESSION "SLCONS"
+            STYLE
+                OUTLINECOLOR  107 113 110
+                WIDTH 1.5
+            END
+        END
+    END
+    
+#
+#   Глубины (площадные)
+#
+    LAYER
+        NAME depths_area_plg
+        METADATA
+            wms_title "Глубины (площадные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from depths_area_plg"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        CLASS
+            NAME "Область глубин 0 10"
+            EXPRESSION ( "[type]"="DEPARE" AND [drval2]<=10 )
+            STYLE
+                COLOR  200 228 249
+                WIDTH 1
+            END
+        END
+        CLASS
+            NAME "Область глубин 10 more"
+            EXPRESSION ( "[type]"="DEPARE" AND [drval2]>=10)
+            STYLE
+                COLOR  244 255 249
+                WIDTH 1
+            END
+        END
+        CLASS
+            NAME "Углубленный район"
+            EXPRESSION ( "[type]"="DRGARE")
+            STYLE
+                COLOR  234 255 243
+            END
+        END
+    END    
+    
+    
+#
+#   Реки
+#
+    LAYER
+        NAME rivers
+        METADATA
+            wms_title "Реки"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from rivers"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        
+        CLASS
+            STYLE
+                COLOR 200 228 249
+                OUTLINECOLOR 0 0 0
+                WIDTH 1
+            END
+        END        
+    END
+    
+
+#
+#   Препятствия (площадные)
+#
+    LAYER
+        NAME obstacles_plg
+        METADATA
+            wms_title "Препятствия"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from obstacles_plg"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            NAME "Опасность"
+            EXPRESSION "OBSTRN"
+            STYLE
+                OUTLINECOLOR 107 113 110
+                PATTERN 10 10 END
+            END
+        END   
+
+        CLASS
+            NAME "Район свалки"
+            EXPRESSION "DMPGRD"
+            STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 32
+                SYMBOL "oblast_svalki_centr"
+            END
+            STYLE
+                SYMBOL "element_oblasti"
+                OUTLINECOLOR 255 80 255
+                GAP -40
+                SIZE 5
+                angle 180
+            END
+        END   
+    END
+        
+
+#
+#   Навигация (площадные)
+#
+    LAYER
+        NAME route_plg
+        METADATA
+            wms_title "Навигация"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from route_plg"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            NAME "Зона разделения движения"
+            EXPRESSION "TSEZNE" 
+            STYLE
+                COLOR 255 80 255
+                OPACITY 80
+            END
+        END 
+        CLASS
+            NAME "Фарватер"
+            EXPRESSION "FAIRWY" 
+            STYLE
+                SYMBOL "element_oblasti"
+                WIDTH 1
+                SIZE 15
+                OUTLINECOLOR 173 180 176
+                GAP -40
+            END
+        END         
+    END
+
+    
+ 
+#
+#   Растительность
+#
+    LAYER
+        NAME vegetation
+        METADATA
+            wms_title "Растительность"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from vegetation"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+         
+        CLASS
+            STYLE
+                SYMBOL "rastitelnost"
+                GAP 40
+            END
+            STYLE
+                OUTLINECOLOR 172 135 76
+                PATTERN 10 10 END
+            END
+        END         
+    END 
+    
+#
+#   Якорные стоянки
+#
+    LAYER
+        NAME anchor_parking_plg
+        METADATA
+            wms_title "Якорные стоянки"
+            wms_abstract "Якорные стоянки"
+            wms_srs "EPSG:3857"
+            wms_include_items "all"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from anchor_parking_plg"
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        CLASS
+            STYLE
+                SYMBOL "element_oblasti"
+                OUTLINECOLOR 255 80 255
+                INITIALGAP 0
+                SIZE 5
+                GAP -80
+            END
+            STYLE
+                SYMBOL "element_oblasti"
+                OUTLINECOLOR 255 80 255
+                INITIALGAP 20
+                SIZE 5
+                GAP -80
+            END
+            STYLE
+                SYMBOL "yakornie_stoyanki_outline_2"
+                OUTLINECOLOR 255 80 255
+                INITIALGAP 40
+                GAP -80
+                ANGLE 180
+            END
+            STYLE
+                SYMBOL "element_oblasti"
+                OUTLINECOLOR 255 80 255
+                INITIALGAP 60
+                SIZE 5
+                GAP -80
+            END
+            
+            STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 64
+                SYMBOL 'yakornaie_stoyanki_centr'
+            END
+        END
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+
+    
+#
+#   Контур глубин
+#     
+    LAYER
+        NAME 'depths_area_ln'
+        TYPE LINE
+        DUMP true
+        TEMPLATE 'dummy'
+        
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+
+        DATA 'wkb_geometry from "public"."depths_area_ln" USING UNIQUE ogc_fid USING USING srid=4326'
+        METADATA
+            'wms_title' 'Контур глубин'
+        END
+       
+        PROJECTION
+            "init=epsg:4326"
+        END
+        
+        STATUS       ON
+        TRANSPARENCY 100
+ 
+        CLASS
+          COLOR 0 0 0
+          SIZE 1
+        END
+
+    END  
+    
+    
+#
+#   Часть полосы сист.раздел.движ
+#
+    LAYER
+        NAME tsslpt_pt
+
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        DATA 'wkb_geometry from "public"."tsslpt_pt" USING UNIQUE ogc_fid USING USING srid=4326'
+        METADATA
+            'wms_title' 'Часть полосы сист.раздел.движ'
+        END
+        
+        PROJECTION
+          "init=epsg:4326"
+        END
+
+        STATUS       ON
+
+        CLASS
+           STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 32
+                SYMBOL "chast_syst_razdel_dvizh"
+                ANGLE [angle_ccw]
+           END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+    
+    
+    
+#
+#   Подписи
+#
+    LAYER
+        NAME labels
+
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        TYPE POINT
+        TEMPLATE     "dummy"
+        LABELITEM   "lable"
+        
+        DATA 'wkb_geometry from "public"."labels" USING UNIQUE ogc_fid USING USING srid=4326'
+        METADATA
+            'wms_title' 'Подписи'
+        END
+        
+        PROJECTION
+          "init=epsg:4326"
+        END
+
+        STATUS       ON
+
+        CLASS
+            NAME       "Lables"
+            STYLE
+                COLOR        12 12 12
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END  
+        END
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+    
+#
+#    Знаки
+#
+
+    LAYER
+        NAME beacon
+        
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        DATA "wkb_geometry from beacon"
+        METADATA
+            'wms_title' 'Знаки'
+        END
+        
+        STATUS ON
+        TRANSPARENCY 100
+        
+        PROJECTION
+           "init=epsg:4326"
+        END 
+        
+        MINSCALE 1
+        MAXSCALE 500000
+        
+        LABELITEM "name_ru"
+        LABELMAXSCALEDENOM 500000
+        LABELMINSCALEDENOM 1
+        
+        CLASS
+          NAME "прочие" 
+          EXPRESSION ("[type]"="")
+           STYLE
+             SYMBOL "circle" 
+             SIZE 7.0 
+             OUTLINECOLOR 0 0 0
+             COLOR 213 72 185
+           END
+        END
+        
+        #
+        #   Знаки BCN
+        #
+        CLASS
+           NAME "Знак спец.назначения."  
+           EXPRESSION ("[type]"="BCNSPP_unknown")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_spec.naznacheniya(obshii)'
+                OFFSET 0 -10
+            END
+        END
+        CLASS
+            NAME "Знак спец.назначения. Маяк."  
+            EXPRESSION ("[type]"="BCNSPP_mayak")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_spec.naznacheniya(mayak)'
+                OFFSET 0 -10
+            END
+            
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END 
+        END 
+        CLASS
+            NAME "Знак спец.назначения. Констр." 
+            EXPRESSION ("[type]"="BCNSPP_konstr")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_spec.naznacheniya(konstr)'
+                OFFSET 0 -10
+            END
+        END
+        CLASS
+            NAME "Знак спец.назначения. Вышка."  
+            EXPRESSION ("[type]"="BCNSPP_vishka")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_spec.znak_spec.naznacheniya(vishka)'
+                OFFSET 0 -10
+            END
+        END
+
+        CLASS
+            NAME "Знак латеральный. Маяк."  
+            EXPRESSION ("[type]"="BCNLAT_mayak")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_spec.naznacheniya(mayak)'
+                OFFSET 0 -10
+            END
+            
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END 
+        END 
+        CLASS
+            NAME "Знак латеральный. Констр." 
+            EXPRESSION ("[type]"="BCNLAT_konstr")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_spec.naznacheniya(konstr)'
+                OFFSET 0 -10
+            END
+        END
+        
+        #
+        #   Буи BOY
+        #
+        CLASS
+            NAME "Буй кардинальный"  
+            EXPRESSION ("[type]"="BOYCAR_unknown")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui_lateralnii'
+                OFFSET 0 -10
+            END
+        END 
+        CLASS
+            NAME "Буй кардинальный. Веха" 
+            EXPRESSION ("[type]"="BOYCAR_veha")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(veha)'
+                OFFSET 0 -10
+            END
+        END 
+        CLASS
+            NAME "Буй кардинальный. Конический" 
+            EXPRESSION ("[type]"="BOYCAR_konicheskii")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(konicheskii)'
+                OFFSET 0 -10
+            END
+        END 
+        CLASS
+          NAME "Буй кардинальный. Столб" 
+          EXPRESSION ("[type]"="BOYCAR_stolb")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui_kardinalnii(stolb)'
+                OFFSET 0 -10
+            END
+        END
+        
+        CLASS
+            NAME "Буй отд.опасности (веха)"
+            EXPRESSION ("[type]"="BOYISD")
+            STYLE
+              MAXSIZE 32
+              SYMBOL 'bui(veha)'
+              OFFSET 0 -10
+          END
+        END
+        
+        CLASS
+            NAME "Буй чистой воды (сферический)"         
+            EXPRESSION ("[type]"="BOYSAW")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui_chistoi_vodi(sphericheskii)'
+                OFFSET 0 -10
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END 
+
+        END
+        
+        CLASS
+            NAME "Буй специального назначения. Веха"
+            EXPRESSION ("[type]"="BOYSPP_veha")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(veha)'
+                OFFSET 0 -10
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        CLASS
+            NAME "Буй специального назначения. Конический"
+            EXPRESSION ("[type]"="BOYSPP_konicheskii")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(konicheskii)'
+                OFFSET 0 -10
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        CLASS
+            NAME "Буй латеральный."         
+            EXPRESSION ("[type]"="BOYLAT")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui_lateralnii'
+                OFFSET 0 -10
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 10
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        
+        CLASS
+            NAME "Радиолокационный маяк ответчик"
+            EXPRESSION ("[type]"="RTPBCN")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'radiolokacionnii_mayak_otvetchik'
+            END
+        END
+        
+        CLASS
+        NAME "Туманный сигнал"
+        EXPRESSION ("[type]"="FOGSIG")       
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'tumanii_signal'
+                OFFSET -16 16
+            END
+        END
+        
+        CLASS
+            NAME "Огни (зеленые)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_orient_G")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_G"
+                ANGLE [orient_ccw]
+            END
+        END
+       
+        CLASS
+            NAME "Огни (красные)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_orient_R")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_R"
+                ANGLE [orient_ccw]
+            END
+        END   
+        CLASS
+            NAME "Огни (белый/желтый)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_orient_W")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_Y"
+                ANGLE [orient_ccw]
+            END
+        END
+        CLASS
+            NAME "Огни (желтый)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_orient_Y")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_Y"
+                ANGLE [orient_ccw]
+            END
+        END
+        
+        CLASS
+            NAME "Огни (зеленые)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_not_orient_G")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_G"
+                ANGLE 45
+            END
+        END
+       
+        CLASS
+            NAME "Огни (красные)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_not_orient_R")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_R"
+                ANGLE 45
+            END
+        END   
+        CLASS
+            NAME "Огни (белый)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_not_orient_W")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_Y"
+                ANGLE 45
+            END
+        END
+        CLASS
+            NAME "Огни (желтый)"
+            EXPRESSION ("[type]"="LIGHTS_without_sector_not_orient_Y")
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                OFFSET 16 0
+            END
+            
+            STYLE
+                SYMBOL "lights_without_sector_Y"
+                ANGLE 45
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+    
+#   
+# Причалы
+#
+    LAYER
+        NAME anchor_parking_pt
+        METADATA
+            wms_title "Причалы"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from anchor_parking_pt"
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 500000
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            NAME "Район якорной стоянки"
+            EXPRESSION "ACHARE"
+            STYLE
+                SYMBOL 'rayon_yakornoy_stoyanki'
+            END
+        END
+        
+        CLASS
+            NAME "Якорная стоянка"
+            EXPRESSION "ACHBRT"
+            STYLE
+                SYMBOL 'yakornaya_stoyanka'
+            END
+        END
+        
+        CLASS
+            NAME "Шварт.-верт.обор.подвижный пал (причальные струтуры)"
+            EXPRESSION "MORFAC"
+            STYLE
+                SYMBOL 'shvart.-vert.obor.podvizhnii_pal'
+                MAXSIZE 32
+            END
+            
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+
+#
+#   Огни (сектора)
+#
+    LAYER
+        NAME lights_sectors
+        METADATA
+            wms_title "Огни (сектора)"
+            wms_abstract "Огни (сектора)"
+            wms_srs "EPSG:3857"
+            wms_include_items "all"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from lights_sectors"
+        STATUS       ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        CLASS
+            EXPRESSION ("[type]"="rays") 
+            STYLE
+                COLOR 0 0 0
+            END
+        END
+        
+        CLASS
+            MINSCALE 500000
+            MAXSCALE 1000000
+            
+            EXPRESSION ("[type]"="sector" and [colour]=1 and [radius]=9000) 
+            STYLE
+                COLOR 255 255 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 200000
+            MAXSCALE 500000
+            EXPRESSION ("[type]"="sector" and [colour]=1 and [radius]=3000) 
+            STYLE
+                COLOR 255 255 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 1
+            MAXSCALE 200000
+            EXPRESSION ("[type]"="sector" and [colour]=1 and [radius]=1000) 
+            STYLE
+                COLOR 255 255 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 500000
+            MAXSCALE 1000000
+            EXPRESSION ("[type]"="sector" and [colour]=3 and [radius]=9000) 
+            STYLE
+                COLOR 255 0 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 200000
+            MAXSCALE 500000
+            EXPRESSION ("[type]"="sector" and [colour]=3 and [radius]=3000) 
+            STYLE
+                COLOR 255 0 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 1
+            MAXSCALE 200000
+            EXPRESSION ("[type]"="sector" and [colour]=3 and [radius]=1000) 
+            STYLE
+                COLOR 255 0 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 500000
+            MAXSCALE 1000000
+            EXPRESSION ("[type]"="sector" and [colour]=4 and [radius]=9000) 
+            STYLE
+                COLOR 0 255 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 200000
+            MAXSCALE 500000
+            EXPRESSION ("[type]"="sector" and [colour]=4 and [radius]=3000) 
+            STYLE
+                COLOR 0 255 0
+                WIDTH 2
+            END
+        END
+        
+        CLASS
+            MINSCALE 1
+            MAXSCALE 200000
+            EXPRESSION ("[type]"="sector" and [colour]=4 and [radius]=1000) 
+            STYLE
+                COLOR 0 255 0
+                WIDTH 2
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+
+    
+#
+#   ОТД.Строения
+#
+    LAYER
+        NAME building_pt
+        METADATA
+            wms_title "ОТД.Строения"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from building_pt"
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        SYMBOLSCALEDENOM 500000
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            EXPRESSION  "BUISGL"
+            NAME "(Церкви) (Вид.рад)"
+            STYLE
+                SYMBOL 'otd.stroeniya(cerkvi)(vid.rad)'
+                MAXSIZE 32
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END  
+
+    
+#
+#   Водоросли
+#
+    LAYER
+        NAME vegetation_pt
+        METADATA
+            wms_title "Водоросли"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from vegetation_pt"
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        SYMBOLSCALEDENOM 500000
+        
+        CLASS
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'vodorosli'
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END    
+    
+#
+#   Область суши
+#
+    LAYER
+        NAME land_region_pt
+        METADATA
+            wms_title "Область суши"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from land_region_pt"
+        
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 100000
+        
+        CLASSITEM 'type'
+        LABELITEM "name_ru"
+        
+        CLASS
+            NAME "Остров"
+            EXPRESSION  "LNDARE"
+            STYLE
+                SYMBOL 'ostrov'
+            END
+        END
+        
+        CLASS
+            NAME "Местность"
+            EXPRESSION  "LNDRGN"
+            STYLE
+                SYMBOL 'LNDRGN_point'
+                COLOR 0 0 0
+                SIZE 10.0
+                WIDTH 4.0
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 15
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END 
+    
+    
+#
+#   Отметки (mark)
+#
+    LAYER
+        NAME mark
+        METADATA
+            wms_title "Отметки (mark)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from mark"
+        
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 100000
+        
+        CLASSITEM 'type'
+            
+        CLASS       
+            NAME "Отметки глубин"
+            EXPRESSION  "SOUNDG"
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 5
+                ANTIALIAS TRUE
+                POSITION LR
+                PARTIALS TRUE
+                MINDISTANCE 0
+                ENCODING UTF-8
+                OFFSET 5 2
+                TEXT ('[depth_fractional]')
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION LR
+                PARTIALS TRUE
+                MINDISTANCE 0
+                ENCODING UTF-8
+                OFFSET -5 -5
+                TEXT "1"
+                TEXT ('[depth_whole]')
+            END
+        END     
+        
+        
+        CLASS # шар
+            EXPRESSION ('[type]'='TOPMAR_shar')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(shar)'
+                OFFSET 16 -16
+            END
+        END
+        CLASS # 2 шара
+            EXPRESSION ('[type]'='TOPMAR_2_shara')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(2_shara)'
+                OFFSET 16 -16
+            END
+        END
+        CLASS # 2 кон.верш.вместе
+            EXPRESSION ('[type]'='TOPMAR_2_kon_versh_vmeste')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(2_kon_versh_vmeste)'
+                OFFSET 16 -16
+            END
+        END
+        CLASS # 2 кон.верш.вверх
+            EXPRESSION ('[type]'='TOPMAR_2_kon_versh_vverh')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(2_kon_versh_vverh)'
+                OFFSET 16 -16
+            END
+        END
+        CLASS # 2 кон.верш.врозь
+            EXPRESSION ('[type]'='TOPMAR_2_kon_versh_vroz')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(2_kon_versh_vroz)'
+                OFFSET 16 -16
+            END
+        END
+        CLASS # 2 кон.верш.вниз
+            EXPRESSION ('[type]'='TOPMAR_2_kon_versh_vniz')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(2_kon_versh_vniz)'
+                OFFSET 16 -16
+            END
+        END
+        CLASS # кон.верш.вверх
+            EXPRESSION ('[type]'='TOPMAR_kon_versh_vverh')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(kon_versh_vverh)'
+                OFFSET 16 -16
+            END
+        END
+        CLASS # цилиндр
+            EXPRESSION ('[type]'='TOPMAR_cilindr')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'topovaya_figura(cilindr)'
+                OFFSET 16 -16
+            END
+        END
+        
+        CLASS # Дневной ориентир (несветящий) 1
+            EXPRESSION ('[type]'='DAYMAR')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'daymark(nesvetyashii)'
+                OFFSET 0 -10
+            END
+        END
+        
+        CLASS
+            NAME "Ландмарк. Видимый. Башня"
+            EXPRESSION ('[type]'='LNDMRK_visible_tower')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'landmark(bashnya)'
+                OFFSET 0 -10
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+                TEXT ('[name_en]')
+            END
+        END
+        CLASS
+            NAME "Ландмарк. Ориентир"
+            EXPRESSION ('[type]'='LNDMRK_unknown_unknown')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'landmark'
+                OFFSET 0 -10
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+    
+#
+#   Препятствия (точечные)
+#
+    LAYER
+        NAME obstacles_pt
+        METADATA
+            wms_title "Препятствия (точечные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from obstacles_pt"
+        LABELITEM   "name_en"
+        
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 100000
+        
+        CLASSITEM 'type'
+    
+        CLASS
+            NAME "Подводная осыхающая скала (без подписи)"
+            EXPRESSION "OBSTRN"
+            STYLE
+                SYMBOL 'podvodnaya_osihaushaya_skala_without_sign'
+            END
+        END
+        CLASS
+            NAME "Подводная осыхающая скала (с подписью)"
+            EXPRESSION "UWTROC"
+            STYLE
+                SYMBOL 'podvodnaya_osihaushaya_skala_with_sign'
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION UR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END
+        END
+        CLASS
+            NAME "Характеристика морского дна"
+            EXPRESSION "SBDARE"
+            STYLE
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 14
+                ANTIALIAS TRUE
+                POSITION UR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END
+        END
+        
+        CLASS
+            NAME "Затонувшее судно"
+            EXPRESSION "WRECKS"
+            STYLE
+                SYMBOL 'zatonuvshee_sudno'
+                MAXSIZE 32
+            END
+        END
+        
+        CLASS
+            NAME "Район свалки"
+            EXPRESSION "DMPGRD"
+            STYLE
+                SYMBOL 'rayon_svalki'
+            END
+        END
+        
+        CLASS
+            NAME "Сваи"
+            EXPRESSION "PILPNT"
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'PILPNT'
+                COLOR 0 0 0
+                SIZE 10.0
+                WIDTH 4.0
+            END
+        END
+    END
+    
+    
+#
+#   Навигация (точечные)
+#
+    LAYER
+        NAME route_pt
+        METADATA
+            wms_title "Навигация (точечные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from route_pt"
+        
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 100000
+        
+        CLASSITEM 'type'
+
+        CLASS
+            NAME "Район действия предупреждения (Запретная зона)"
+            EXPRESSION "CTNARE"
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'preduprezhdenie'
+            END
+        END
+        
+        CLASS
+            NAME "Район повышеной осторожности"
+            EXPRESSION "PRCARE"
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'rayon_povishenoi_ostorozhnosti'
+            END
+        END
+        
+        CLASS
+            NAME "Контрольная точка передачи (1 путь)"
+            EXPRESSION "RDOCAL"
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'kontrolnaya_tochka_peredachi(1_put)'
+            END
+        END
+        
+        CLASS
+            NAME "Место встречи лоцмана"
+            EXPRESSION "PILBOP"
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'mesto_vstrechi_locmana'
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END
+    
+#
+#   Магнитное склонение
+#
+    LAYER
+        NAME magnetic_declination
+        METADATA
+            wms_title "Магнитное склонение"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from magnetic_declination"
+        LABELITEM   "name_en"
+        
+        STATUS       ON
+        TYPE POINT
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 100000
+
+        CLASS
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'magnitnoe_sklonenie'
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 14
+                ANTIALIAS TRUE
+                POSITION UR
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END
+        END
+        
+        PROCESSING "CLOSE_CONNECTION=DEFER" 
+    END 
+    
+    
+#
+#   Сооружения (линейные)
+#
+    LAYER
+        NAME building_ln
+        METADATA
+            wms_title "Сооружения (линейные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from building_ln"
+        
+        STATUS       ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 500000
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            NAME "Береговое сооружение"
+            EXPRESSION "SLCONS"
+            STYLE
+                WIDTH 2
+                COLOR 107 113 110
+            END
+        END
+        CLASS
+            NAME "Дамбы"
+            EXPRESSION "DYKCON"
+            STYLE
+                WIDTH 2
+                COLOR 0 0 0
+            END
+        END
+    END
+    
+    
+#
+#   Береговая линия
+#
+    LAYER
+        NAME coastline
+        METADATA
+            wms_title "Береговая линия"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from coastline"
+        
+        STATUS       ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        CLASSITEM 'catcoa'
+        
+        CLASS
+            EXPRESSION  ""
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110
+                PATTERN 5 5 END
+            END
+        END
+        CLASS
+            EXPRESSION  "8"
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110
+                PATTERN 5 5 END
+            END
+        END
+        
+    END
+    
+
+#
+#   Именованные части моря
+#
+    LAYER
+        NAME called_sea_parts
+        METADATA
+            wms_title "Именованные части моря"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from called_sea_parts"
+        
+        STATUS       ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        CLASS
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110
+                PATTERN 15 15 END
+            END
+        END
+        
+    END
+
+
+#
+#   Область суши (линейные)
+#
+    LAYER
+        NAME land_region_ln
+        METADATA
+            wms_title "Область суши (линейные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from land_region_ln"
+        
+        STATUS       ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        CLASS
+            NAME "Верхняя кромка склона"
+            STYLE
+                WIDTH 1
+                COLOR 175 140 82
+            END
+        END
+        
+    END
+    
+    
+    
+#
+#   Препятствия (линейные)
+#
+    LAYER
+        NAME obstacles_ln
+        METADATA
+            wms_title "Препятствия (линейные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from obstacles_ln"
+        
+        STATUS       ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        CLASSITEM 'type'
+        
+        CLASS
+            NAME "Препятствия (Опасность)"
+            EXPRESSION "OBSTRN"
+            STYLE
+                WIDTH 2
+                COLOR 0 0 0 
+                PATTERN 3 5 END
+            END
+            
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 10
+                ANTIALIAS TRUE
+                POSITION LR
+                PARTIALS TRUE
+                MINDISTANCE 0
+                ENCODING UTF-8
+                OFFSET 0 0
+                ANGLE auto
+                TEXT ('[depth_whole]')
+            END
+            
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 5
+                ANTIALIAS TRUE
+                POSITION LR
+                PARTIALS TRUE
+                MINDISTANCE 0
+                ENCODING UTF-8
+                OFFSET 5 2
+                ANGLE auto
+                TEXT ('[depth_fractional]')
+            END
+            
+        END
+        CLASS
+            NAME "Кабель подводный"
+            EXPRESSION  "CBLSUB"
+            STYLE
+                SYMBOL "kabel_podvodnii"
+            END
+        END
+        CLASS
+            NAME "Рыболовные снасти (сети)"
+            EXPRESSION  "FSHFAC"
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110
+            END
+            STYLE
+                WIDTH 1
+                SYMBOL "line4FSHFAC"
+                COLOR 107 113 110
+                GAP -10
+            END
+            
+        END
+    END
+    
+
+#
+#   Навигация (линейные)
+#
+    LAYER
+        NAME route_ln
+        METADATA
+            wms_title "Навигация (линейные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from route_ln"
+        
+        STATUS       ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        CLASS
+            NAME "Линия навигации (с подписью)"
+            EXPRESSION ("[type]"="NAVLNE_limiting")
+            
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110 
+                PATTERN 5 2 END
+            END            
+            
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 5
+                ANTIALIAS TRUE
+                POSITION ur
+                PARTIALS TRUE
+                MINDISTANCE 0
+                ENCODING UTF-8
+                OFFSET 5 2
+                ANGLE auto
+                TEXT ('[name_en]')
+            END
+        END
+        
+        CLASS
+            NAME "Линия навигации (без подписи)"
+            EXPRESSION ("[type]"="NAVLNE_recomend_path" OR "[type]"="NAVLNE_unknown")
+            
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110 
+                PATTERN 5 2 END
+            END            
+        END
+        
+        
+        CLASS
+            NAME "Рекомендованый курс (двусторонний поток)"
+            EXPRESSION ("[type]"="RECTRC_bothway")
+            
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110
+            END
+            STYLE
+                SYMBOL 'teg(in)'
+                INITIALGAP 0
+                GAP -60
+                ANGLE 0
+            END
+            STYLE
+                SYMBOL 'teg(out)'
+                INITIALGAP 20
+                GAP -60
+                ANGLE 0
+            END
+        END
+        
+        
+        CLASS
+            NAME "Рекомендованый курс (поток не задан)"
+            EXPRESSION ("[type]"="RECTRC_noteset")
+            
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110
+                PATTERN 8 15 END
+            END
+            
+            STYLE
+                SYMBOL 'teg(in)'
+                INITIALGAP 0
+                GAP -60
+                ANGLE 0
+            END
+            STYLE
+                SYMBOL 'simbol_?'
+                INITIALGAP 10
+                GAP -60
+                COLOR 107 113 110
+                ANGLE 180
+                SIZE 16
+            END
+            STYLE
+                SYMBOL 'teg(out)'
+                INITIALGAP 20
+                GAP -60
+                ANGLE 0
+            END
+        END
+        
+        CLASS
+            NAME "Центр рекомендованного пути"
+            EXPRESSION ("[type]"="RCRTCL_noteset")
+            
+            STYLE
+                SYMBOL 'centr_recomendovan_puty'
+                INITIALGAP 0
+                GAP -80
+                ANGLE 0
+            END
+        END
+        
+        CLASS
+            NAME "Центр рекомендованного пути (2 пути)"
+            EXPRESSION ("[type]"="RCRTCL_bothway")
+            
+            STYLE
+                WIDTH 1
+                COLOR 222 75 201
+                PATTERN 10 10 END
+            END
+            
+            STYLE
+                SYMBOL 'centr_recomendovan_puty(2_puty)'
+                INITIALGAP 0
+                GAP -80
+                ANGLE 0
+            END
+        END
+        
+        CLASS
+            NAME "Прямая исходная линия"
+            EXPRESSION ("[type]"="STSLNE")
+            
+            STYLE
+                WIDTH 1
+                COLOR 107 113 110
+                PATTERN 10 10 END
+            END
+            
+        END
+        
+        CLASS
+            NAME "Линия разделения движения"
+            EXPRESSION ("[type]"="TSELNE")
+            
+            STYLE
+                WIDTH 5
+                COLOR 222 75 201
+                OPACITY 50
+            END
+            
+        END
+        
+        CLASS
+            NAME "Граница системы разделен.движения"
+            EXPRESSION ("[type]"="TSSBND")
+            
+            STYLE
+                WIDTH 5
+                COLOR 222 75 201
+                PATTERN 10 10 END
+            END
+            
+        END
+        
+    END    
+
+   
+END

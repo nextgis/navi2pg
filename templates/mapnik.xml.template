@@ -1,0 +1,938 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Map srs="+init=epsg:3857" background-color="rgb(255,255,255)" >
+    
+    
+    <Style name="land_region_plg">
+        <Rule name="Область суши">
+            <Filter>[type] = 'LNDARE'</Filter>
+            <PolygonSymbolizer fill="rgb(238,230,197)"/>
+        </Rule>
+        <Rule name="Местность" >
+            <Filter>[type] = 'LNDRGN'</Filter> 
+            <LineSymbolizer stroke="rgb(204, 212, 207) " stroke-width="1" stroke-dasharray="10.0,10.0"/>
+        </Rule>
+    </Style>
+    <Layer name="Область суши" srs="+init=epsg:4326">
+        <StyleName>land_region_plg</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">land_region_plg</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    <Style name="building_plg">
+        <Rule name="Район застройки">
+            <Filter>[type] = 'BUAARE'</Filter> 
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PolygonSymbolizer fill="rgb(218, 206, 159) "/>
+            <LineSymbolizer stroke="rgb(175, 141, 80) " stroke-width="1"/>
+        </Rule>
+        <Rule name="Район дока">
+            <Filter>[type] = 'DOCARE'</Filter> 
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PolygonSymbolizer fill="rgb(145, 202, 243)"/>
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1" stroke-dasharray="5.0,5.0"/>
+        </Rule>
+        <Rule name="Береговое сооружение">
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <Filter>[type] = 'SLCONS'</Filter> 
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1.5"/>
+        </Rule>
+    </Style>
+    <Layer name="Сооружения (площадные)" srs="+init=epsg:4326">
+        <StyleName>building_plg</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">building_plg</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    <Style name="depths_area_plg">
+        <Rule name="Область глубин 0 10">
+            <Filter>[type] = 'DEPARE' and [drval2] &lt;= 10 </Filter>  <!-- FilteError -->
+            <PolygonSymbolizer fill="rgb(200, 228, 249) "/>
+        </Rule>
+        <Rule name="Область глубин 10 more">
+            <Filter>[type] = 'DEPARE' and [drval2] &gt; 10</Filter> 
+            <PolygonSymbolizer fill="rgb(244, 255, 249)"/>
+        </Rule>
+        <Rule name="Углубленный район">
+            <Filter>[type] = 'DRGARE'</Filter> 
+            <LineSymbolizer stroke="rgb(234, 255, 243) " stroke-width="1.5"/>
+        </Rule>
+    </Style>
+    <Layer name="Глубины (площадные)" srs="+init=epsg:4326">
+        <StyleName>depths_area_plg</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">depths_area_plg</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    <Style name="rivers">
+        <Rule>
+            <PolygonSymbolizer fill="rgb(200, 228, 249) "/>
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1.0"/>
+        </Rule>
+    </Style>
+    <Layer name="Реки" srs="+init=epsg:4326">
+        <StyleName>rivers</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">rivers</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="obstacles_plg">
+        <Rule name="Опасность">
+            <Filter>[type] = 'OBSTRN'</Filter> 
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1.0" stroke-dasharray="10.0,10.0"/>
+        </Rule>
+        <Rule name="Район свалки">
+            <Filter>[type] = 'DMPGRD'</Filter>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/oblast_svalki_centr.png" orientation="180"/>
+            <LinePatternSymbolizer file="images/element_oblasti.png"/>
+        </Rule>
+    </Style>
+    <Layer name="Препятствия (площадные)" srs="+init=epsg:4326">
+        <StyleName>obstacles_plg</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">obstacles_plg</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="route_plg">
+        <Rule name="Зона разделения движения">
+            <Filter>[type] = 'TSEZNE'</Filter> 
+            <PolygonSymbolizer fill="rgb(255, 80, 255)" fill-opacity="0.8"/>
+        </Rule>
+        <Rule name="Фарватер"> <!-- unsatisfactorily -->
+            <Filter>[type] = 'FAIRWY'</Filter>
+            <LinePatternSymbolizer file="images/element_oblasti.png"/>
+        </Rule>
+    </Style>
+    <Layer name="Навигация (площадные)" srs="+init=epsg:4326">
+        <StyleName>route_plg</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">route_plg</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="vegetation">
+        <Rule> <!-- unsatisfactorily Нет интервала между иконками-->
+            <LineSymbolizer stroke="rgb(172, 135, 76) " stroke-width="1.0" stroke-dasharray="10.0,10.0"/>
+            <!-- <PolygonPatternSymbolizer file="images/rastitelnost.png"/> -->
+            <MarkersSymbolizer spacing="40" file="images/rastitelnost.png" placement="interior"/>
+        </Rule>
+    </Style>
+    <Layer name="Растительность" srs="+init=epsg:4326">
+        <StyleName>vegetation</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">vegetation</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="anchor_parking_plg">
+        <Rule>
+            <MaxScaleDenominator>50000</MaxScaleDenominator>
+            <LinePatternSymbolizer file="images/yakornaie_stoyanki_perim.png"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/yakornaie_stoyanki_centr.png"/>
+        </Rule>
+    </Style>
+    <Layer name="Якорные стоянки" srs="+init=epsg:4326">
+        <StyleName>anchor_parking_plg</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">anchor_parking_plg</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="depths_area_ln">
+        <Rule> 
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1" />
+        </Rule>
+    </Style>
+    <Layer name="Контур глубин" srs="+init=epsg:4326">
+        <StyleName>depths_area_ln</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">depths_area_ln</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="tsslpt_pt">
+        <Rule>
+            <PointSymbolizer file="images/chast_syst_razdel_dvizh.png" allow-overlap="true" transform="rotate([angle_cw])"/>
+        </Rule>
+    </Style>
+    <Layer name="Часть полосы сист.раздел.движ" srs="+init=epsg:4326">
+        <StyleName>tsslpt_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">tsslpt_pt</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="labels">
+        <Rule>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" fill="black" halo-fill= "white" halo-radius="1" placement="point" allow-overlap="false"> [lable] </TextSymbolizer>
+        </Rule>
+    </Style>
+    <Layer name="Подписи" srs="+init=epsg:4326">
+        <StyleName>labels</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">labels</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="beacon">
+        <Rule name="прочие"> 
+            <Filter>[type] = ''</Filter>
+            <PointSymbolizer/>              
+        </Rule>
+        <Rule name="Знак спец.назначения.">
+            <Filter>[type] = 'BCNSPP_unknown'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(obshii).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Знак спец.назначения. Маяк.">
+            <Filter>[type] = 'BCNSPP_mayak'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(mayak).png" allow-overlap="true" transform="translate(0 -10)" />
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Знак спец.назначения. Констр.">
+            <Filter>[type] = 'BCNSPP_konstr'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(konstr).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Знак спец.назначения. Вышка.">
+            <Filter>[type] = 'BCNSPP_vishka'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(vishka).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Знак латеральный. Маяк.">
+            <Filter>[type] = 'BCNLAT_mayak'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(mayak).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Знак латеральный. Констр.">
+            <Filter>[type] = 'BCNLAT_konstr'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(konstr).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Буй кардинальный">
+            <Filter>[type] = 'BOYCAR_unknown'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_lateralnii.png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Буй кардинальный. Веха">
+            <Filter>[type] = 'BOYCAR_veha'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Буй кардинальный. Конический">
+            <Filter>[type] = 'BOYCAR_konicheskii'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(konicheskii).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Буй кардинальный. Столб">
+            <Filter>[type] = 'BOYCAR_stolb'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_kardinalnii(stolb).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Буй отд.опасности (веха)">
+            <Filter>[type] = 'BOYISD'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Буй чистой воды (сферический)">
+            <Filter>[type] = 'BOYSAW'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_chistoi_vodi(sphericheskii).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй специального назначения. Веха">
+            <Filter>[type] = 'BOYSPP_veha'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй специального назначения. Конический">
+            <Filter>[type] = 'BOYSPP_konicheskii'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(konicheskii).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй латеральный.">
+            <Filter>[type] = 'BOYLAT'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_lateralnii.png" allow-overlap="true" transform="translate(0 -10)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Радиолокационный маяк ответчик">
+            <Filter>[type] = 'RTPBCN'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/radiolokacionnii_mayak_otvetchik.png" allow-overlap="true" transform="translate(0 -10)"/>
+        </Rule>
+        <Rule name="Туманный сигнал">
+            <Filter>[type] = 'FOGSIG'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/tumanii_signal.png" allow-overlap="true" transform="translate(-16 10)"/>
+        </Rule>
+        <Rule name="Огни (зеленые)">
+            <Filter>[type] = 'LIGHTS_without_sector_orient_G'</Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_G.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Огни (красные)">
+            <Filter>[type] = 'LIGHTS_without_sector_orient_R'</Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_R.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Огни (белый)">
+            <Filter>[type] = 'LIGHTS_without_sector_orient_W'</Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Огни (желтый)">
+            <Filter>[type] = 'LIGHTS_without_sector_orient_Y'</Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Огни (зеленые)">
+            <Filter>[type] = 'LIGHTS_without_sector_not_orient_G' </Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_G.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Огни (красные)">
+            <Filter>[type] = 'LIGHTS_without_sector_not_orient_R' </Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_R.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Огни (белый)">
+            <Filter>[type] = 'LIGHTS_without_sector_not_orient_W' </Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Огни (желтый)">
+            <Filter>[type] = 'LIGHTS_without_sector_not_orient_Y' </Filter>
+			<MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+    </Style>
+    <Layer name="Знаки" srs="+init=epsg:4326">
+        <StyleName>beacon</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">beacon</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="anchor_parking_pt">
+        <Rule name="Район якорной стоянки">
+            <Filter>[type] = 'ACHARE'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/rayon_yakornoy_stoyanki.png" allow-overlap="true"/>
+        </Rule>
+        <Rule name="Якорная стоянка">
+            <Filter>[type] = 'ACHBRT'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/yakornaya_stoyanka.png" allow-overlap="true"/>
+        </Rule>
+        <Rule name="Шварт.-верт.обор.подвижный пал (причальные струтуры)">
+            <Filter>[type] = 'MORFAC'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/shvart.-vert.obor.podvizhnii_pal.png" allow-overlap="true"/>
+        </Rule>
+    </Style>
+    <Layer name="Причалы" srs="+init=epsg:4326">
+        <StyleName>anchor_parking_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">anchor_parking_pt</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    <Style name="lights_sectors"> <!-- unsatisfactorily Масштабы-->
+        <Rule>
+            <Filter>[type] = 'rays'</Filter>
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1" />
+        </Rule>
+        <!-- первый радиус -->
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=1 and [radius]=9000</Filter>  <!-- Ошибки нет т.к. 100 эти атрибуты будут в наличие если будет хоть один объект -->
+            <MinScaleDenominator>500001</MinScaleDenominator>
+            <LineSymbolizer stroke="rgb(255, 255, 0) " stroke-width="1" />
+        </Rule>
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=3 and [radius]=9000</Filter>
+            <MinScaleDenominator>500001</MinScaleDenominator>
+            <LineSymbolizer stroke="rgb(255, 0, 0) " stroke-width="1" />
+        </Rule>
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=4 and [radius]=9000</Filter>
+            <MinScaleDenominator>500001</MinScaleDenominator>
+            <LineSymbolizer stroke="rgb(0, 255, 0) " stroke-width="1" />
+        </Rule>
+        <!-- второй радиус -->
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=1 and [radius]=3000</Filter>  <!-- Ошибки нет т.к. 100 эти атрибуты будут в наличие если будет хоть один объект -->
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <MinScaleDenominator>200001</MinScaleDenominator>
+            <LineSymbolizer stroke="rgb(255, 255, 0) " stroke-width="1" />
+        </Rule>
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=3 and [radius]=3000</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <MinScaleDenominator>200001</MinScaleDenominator>
+            <LineSymbolizer stroke="rgb(255, 0, 0) " stroke-width="1" />
+        </Rule>
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=4 and [radius]=3000</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <MinScaleDenominator>200001</MinScaleDenominator>
+            <LineSymbolizer stroke="rgb(0, 255, 0) " stroke-width="1" />
+        </Rule>
+        <!-- третий радиус -->
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=1 and [radius]=1000</Filter>  <!-- Ошибки нет т.к. 100 эти атрибуты будут в наличие если будет хоть один объект -->
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(255, 255, 0) " stroke-width="1" />
+        </Rule>
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=3 and [radius]=1000</Filter>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(255, 0, 0) " stroke-width="1" />
+        </Rule>
+        <Rule>
+            <Filter>[type] = 'sector' and [colour]=4 and [radius]=1000</Filter>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(0, 255, 0) " stroke-width="1" />
+        </Rule>
+        
+    </Style>
+    <Layer name="Огни (сектора)" srs="+init=epsg:4326">
+        <StyleName>lights_sectors</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">lights_sectors</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+
+    
+    <Style name="building_pt">
+        <Rule name="(Церкви) (Вид.рад)">
+            <Filter>[type] = 'BUISGL'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/otd.stroeniya(cerkvi)(vid.rad).png" allow-overlap="true"/>
+        </Rule>
+    </Style>
+    <Layer name="ОТД.Строения" srs="+init=epsg:4326">
+        <StyleName>building_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">building_pt</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="vegetation_pt">
+        <Rule>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/vodorosli.png" allow-overlap="true"/>
+        </Rule>
+    </Style>
+    <Layer name="Водоросли" srs="+init=epsg:4326">
+        <StyleName>vegetation_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">vegetation_pt</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="land_region_pt">
+        <Rule name="Остров">
+            <Filter>[type] = 'LNDARE'</Filter>
+            <MaxScaleDenominator>25000</MaxScaleDenominator>
+            <PointSymbolizer file="images/ostrov.png" allow-overlap="true"/>
+        </Rule>
+        <Rule name="Местность">
+            <Filter>[type] = 'LNDRGN'</Filter>
+            <MaxScaleDenominator>25000</MaxScaleDenominator>
+            <MarkersSymbolizer fill="orange" width="5" height="5" stroke="black" stroke-width="2"  placement="point" marker-type="ellipse" allow-overlap="true"/> 
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="10" dy="5"> [name_ru]  </TextSymbolizer>
+        </Rule>
+    </Style>
+    <Layer name="Область суши" srs="+init=epsg:4326">
+        <StyleName>land_region_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">land_region_pt</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="mark">
+        <Rule name="Отметки глубин">
+            <Filter>[type] = 'SOUNDG'</Filter>
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="8" allow-overlap="true" dx="1" dy="1"> [depth_fractional] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="-1" dy="-1"> [depth_whole] </TextSymbolizer>
+        </Rule>
+        <Rule name="шар">
+            <Filter>[type] = 'TOPMAR_shar'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(shar).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="2 шара">
+            <Filter>[type] = 'TOPMAR_2_shara'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(2_shara).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="2 кон.верш.вместе">
+            <Filter>[type] = 'TOPMAR_2_kon_versh_vmeste'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(2_kon_versh_vmeste).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="2 кон.верш.вверх">
+            <Filter>[type] = 'TOPMAR_2_kon_versh_vverh'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(2_kon_versh_vverh).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="2 кон.верш.врозь">
+            <Filter>[type] = 'TOPMAR_2_kon_versh_vroz'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(2_kon_versh_vroz).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="2 кон.верш.вниз">
+            <Filter>[type] = 'TOPMAR_2_kon_versh_vniz'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(2_kon_versh_vniz).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="кон.верш.вверх">
+            <Filter>[type] = 'TOPMAR_kon_versh_vverh'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(kon_versh_vverh).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="цилиндр">
+            <Filter>[type] = 'TOPMAR_cilindr'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/topovaya_figura(cilindr).png" allow-overlap="true" transform="translate(10, -30)" />
+        </Rule>
+        <Rule name="Дневной ориентир (несветящий) 1">
+            <Filter>[type] = 'DAYMAR'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/daymark(nesvetyashii).png" allow-overlap="true" transform="translate(0, -10)" />
+        </Rule>
+        <Rule name="Ландмарк. Видимый. Башня.">
+            <Filter>[type] = 'LNDMRK_visible_tower'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/landmark(bashnya).png" allow-overlap="true" transform="translate(0, -10)" />
+            <TextSymbolizer face-name="DejaVu Sans Book" size="8" allow-overlap="true" dx="10" dy="10"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule name="Ландмарк. Ориентир">
+            <Filter>[type] = 'LNDMRK_unknown_unknown'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/landmark.png" allow-overlap="true" transform="translate(0, -10)" />
+        </Rule>
+    </Style>
+    <Layer name="Отметки (mark)" srs="+init=epsg:4326">
+        <StyleName>mark</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">mark</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+
+    
+    <Style name="obstacles_pt">
+        <Rule name="Подводная осыхающая скала (без подписи)">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'OBSTRN'</Filter>
+            <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_without_sign.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Подводная осыхающая скала (с подписью)">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'UWTROC'</Filter>
+            <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_with_sign.png" allow-overlap="true" />
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="5" dy="-5"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule name="Характеристика морского дна">
+            <MaxScaleDenominator>50000</MaxScaleDenominator>
+            <Filter>[type] = 'SBDARE'</Filter>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule name="Затонувшее судно">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'WRECKS'</Filter>
+            <PointSymbolizer file="images/zatonuvshee_sudno.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Район свалки">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'DMPGRD'</Filter>
+            <PointSymbolizer file="images/rayon_svalki.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Сваи">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'PILPNT'</Filter>
+            <MarkersSymbolizer fill="black" width="3" height="3" stroke-width="0"  placement="point" marker-type="ellipse" allow-overlap="true"/>
+        </Rule>
+    </Style>
+    <Layer name="Препятствия (точечные)" srs="+init=epsg:4326" minzoom="10">
+        <StyleName>obstacles_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">obstacles_pt</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="route_pt">
+        <Rule name="Район действия предупреждения (Запретная зона)">
+            <Filter>[type] = 'CTNARE'</Filter>
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/preduprezhdenie.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Район повышеной осторожности">
+            <Filter>[type] = 'PRCARE'</Filter>
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/rayon_povishenoi_ostorozhnosti.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Контрольная точка передачи (1 путь)">
+            <Filter>[type] = 'RDOCAL'</Filter>
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/kontrolnaya_tochka_peredachi(1_put).png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Место встречи лоцмана">
+            <Filter>[type] = 'PILBOP'</Filter>
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/mesto_vstrechi_locmana.png" allow-overlap="true" />
+        </Rule>
+    </Style>
+    <Layer name="Навигация (точечные)" srs="+init=epsg:4326">
+        <StyleName>route_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">route_pt</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="magnetic_declination">
+        <Rule name="Район действия предупреждения (Запретная зона)">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/magnitnoe_sklonenie.png" allow-overlap="true" />
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="5" horizontal-alignment="right"> [name_en] </TextSymbolizer>
+        </Rule>
+    </Style>
+    <Layer name="Магнитное склонение" srs="+init=epsg:4326">
+        <StyleName>magnetic_declination</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">magnetic_declination</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+
+    
+    <Style name="building_ln">
+        <Rule name="Береговое сооружение">
+            <Filter>[type] = 'SLCONS'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="2"/>
+        </Rule>
+        <Rule name="Дамбы">
+            <Filter>[type] = 'DYKCON'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="2"/>
+        </Rule>
+    </Style>
+    <Layer name="Сооружения (линейные)" srs="+init=epsg:4326">
+        <StyleName>building_ln</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">building_ln</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="coastline">
+        <Rule>
+            <Filter>[catcoa]=null or [catcoa]=8</Filter> <!-- Ошибки нет т.к. тут все объекты - береговые линии -->
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1" stroke-dasharray="5.0,5.0"/>
+        </Rule>
+        <Rule>
+            <ElseFilter />
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1"/>
+        </Rule>
+    </Style>
+    <Layer name="Береговая линия" srs="+init=epsg:4326">
+        <StyleName>coastline</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">coastline</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="called_sea_parts">
+        <Rule>
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1" stroke-dasharray="15.0,15.0"/>
+        </Rule>
+    </Style>
+    <Layer name="Именованные части моря" srs="+init=epsg:4326">
+        <StyleName>called_sea_parts</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">called_sea_parts</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="land_region_ln">
+        <Rule name="Верхняя кромка склона">
+            <LineSymbolizer stroke="rgb(175, 140, 82) " stroke-width="1"/>
+        </Rule>
+    </Style>
+    <Layer name="Область суши (линейные)" srs="+init=epsg:4326">
+        <StyleName>land_region_ln</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">land_region_ln</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="obstacles_ln">
+        <Rule name="Препятствия (Опасность)">
+            <Filter>[type] = 'OBSTRN'</Filter>
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="2" stroke-dasharray="3.0,5.0"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true"> [depth_whole] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="5" allow-overlap="true" dx="5" dy="2"> [depth_fractional] </TextSymbolizer>
+        </Rule>
+        <Rule name="Кабель подводный">
+            <Filter>[type] = 'CBLSUB'</Filter>
+            <LinePatternSymbolizer file="images/kabel_podvodnii.png"/>
+        </Rule>
+        <Rule name="Рыболовные снасти (сети)">
+            <Filter>[type] = 'FSHFAC'</Filter>
+            <LinePatternSymbolizer file="images/ribolovnie_seti.png"/>
+        </Rule>
+    </Style>
+    <Layer name="Препятствия (линейные)" srs="+init=epsg:4326">
+        <StyleName>obstacles_ln</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">obstacles_ln</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+    
+    
+    <Style name="route_ln">
+        <Rule name="Линия навигации (с подписью)">
+            <Filter>[type] = 'NAVLNE_limiting'</Filter>
+            <LineSymbolizer stroke="rgb(107, 113, 110 ) " stroke-width="1" stroke-dasharray="5.0,2.0"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="5" allow-overlap="true" dx="5"  dy="-2" horizontal-alignment="right"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule name="Линия навигации (без подписи)">
+            <Filter>[type] = 'NAVLNE_recomend_path' or [type] = 'NAVLNE_unknown'</Filter>
+            <LineSymbolizer stroke="rgb(107, 113, 110 ) " stroke-width="1" stroke-dasharray="5.0,2.0"/>
+        </Rule>
+        <Rule name="Рекомендованый курс (двусторонний поток)">
+            <Filter>[type] = 'RECTRC_bothway'</Filter>
+            <LineSymbolizer stroke="rgb(107, 113, 110 ) " stroke-width="1"/>
+            <MarkersSymbolizer placement="line" spacing="60" file="images/teg(in).png" transform="translate(-10 0)" allow-overlap="true"/>
+            <MarkersSymbolizer placement="line" spacing="60" file="images/teg(out).png" transform="translate(10 0)" allow-overlap="true"/>
+        </Rule>
+        <Rule name="Рекомендованый курс (поток не задан)">
+            <Filter>[type] = 'RECTRC_noteset'</Filter>
+            <LinePatternSymbolizer file="images/rekomendovanii_kurs(potok_ne_zadan).png"/>
+        </Rule>
+        <Rule name="Центр рекомендованного пути (поток не задан)">
+            <Filter>[type] = 'RCRTCL_noteset'</Filter>
+            <MarkersSymbolizer placement="line" spacing="80" file="images/centr_recomendovan_puty.png" transform="translate(10 0)" allow-overlap="true"/>
+        </Rule>
+        <Rule name="Центр рекомендованного пути (2 пути)">
+            <Filter>[type] = 'RCRTCL_bothway'</Filter>
+            <LineSymbolizer stroke="rgb(222, 75, 201) " stroke-width="1" stroke-dasharray="10.0,10.0"/>
+            <MarkersSymbolizer placement="line" spacing="80" file="images/centr_recomendovan_puty(2_puty).png" transform="translate(10 0)" allow-overlap="true"/>
+        </Rule>
+        <Rule name="Прямая исходная линия">
+            <Filter>[type] = 'STSLNE'</Filter>
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1" stroke-dasharray="10.0,10.0"/>
+        </Rule>
+        <Rule name="Линия разделения движения">
+            <Filter>[type] = 'TSELNE'</Filter>
+            <LineSymbolizer stroke="rgb(222, 75, 201) " stroke-width="5" stroke-opacity="0.5"/>
+        </Rule>
+        <Rule name="Граница системы разделен.движения">
+            <Filter>[type] = 'TSSBND'</Filter>
+            <LineSymbolizer stroke="rgb(222, 75, 201) " stroke-width="5" stroke-dasharray="10.0,10.0"/>
+        </Rule>
+    </Style>
+    <Layer name="Навигация (линейные)" srs="+init=epsg:4326">
+        <StyleName>route_ln</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">route_ln</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
+</Map>

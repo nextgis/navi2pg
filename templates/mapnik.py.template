@@ -1,0 +1,12 @@
+import mapnik
+
+m = mapnik.Map(10240,7680)
+m.background = mapnik.Color('steelblue')
+mapnik.load_map(m, '{S57_file_name}.xml')
+
+extent = mapnik.Box2d({S57_extent_X_Min}, {S57_extent_Y_Min}, {S57_extent_X_Max}, {S57_extent_Y_Max})
+
+m.zoom_to_box(extent)
+
+mapnik.render_to_file(m,'{S57_file_name}.png', 'png')
+print "rendered image to '{S57_file_name}.png'"
