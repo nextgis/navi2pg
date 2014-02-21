@@ -26,7 +26,6 @@
 
 #include "ogr_api.h"
 #include "ogrsf_frmts.h"
-#include "feature_creation_rules.h"
 
 #include "logger.h"
 

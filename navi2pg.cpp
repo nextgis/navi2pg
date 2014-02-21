@@ -33,7 +33,6 @@
 
 #include "logger.h"
 #include "navi2pg.h"
-#include "feature_creation_rules.h"
 #include "command_line_parser.h"
 
 namespace
