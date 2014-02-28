@@ -1857,6 +1857,7 @@ void NAVI2PG::CopyConfigFile(
     std::string PG_PASSWORD = "{PG_PASSWORD}";
     std::string PG_HOST = "{PG_HOST}";
     std::string PG_PORT = "{PG_PORT}";
+    std::string PG_SCHEME = "{PG_SCHEME}";
 
     /*
      *  Парсим параметры подключения к БД
@@ -1874,6 +1875,8 @@ void NAVI2PG::CopyConfigFile(
 
     if (port=="")
         port.assign("5432");
+
+    const char* scheme = CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), "public");
 
     /*
      *  Копируем шаблон конфигурации с заменой переменных
@@ -1922,6 +1925,9 @@ void NAVI2PG::CopyConfigFile(
 
         if( (pos = line.find (PG_PORT) ) != std::string::npos)
             line.replace(pos, PG_PORT.size(), port.c_str() );
+
+        if( (pos = line.find (PG_SCHEME) ) != std::string::npos)
+            line.replace(pos, PG_SCHEME.size(), scheme);
 
         output << line << "\n";
     }

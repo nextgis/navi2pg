@@ -49,8 +49,7 @@ MAP
         
         CONNECTIONTYPE postgis
         CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        
-        DATA "wkb_geometry from \"public\".\"land_region_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
+                DATA "wkb_geometry from \"{PG_SCHEME}\".\"land_region_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
         METADATA
             wms_title 'Область суши'
         END
@@ -77,7 +76,7 @@ MAP
             NAME "Область суши"
             EXPRESSION "LNDARE"
             STYLE
-                COLOR 238 230 197
+                COLOR 222 205 139
             END
         END
     END
@@ -110,8 +109,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from building_plg"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"building_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POLYGON
@@ -126,8 +124,7 @@ MAP
             NAME "Район застройки"
             EXPRESSION "BUAARE"
             STYLE
-                COLOR  218 206 159
-                OUTLINECOLOR  175 141 80
+                COLOR  182 157 64                OUTLINECOLOR  163 123 57
                 WIDTH 1
             END
         END
@@ -165,8 +162,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from depths_area_plg"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"depths_area_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POLYGON
@@ -176,7 +172,7 @@ MAP
             NAME "Область глубин 0 10"
             EXPRESSION ( "[type]"="DEPARE" AND [drval2]<=10 )
             STYLE
-                COLOR  200 228 249
+                COLOR  145 202 243
                 WIDTH 1
             END
         END
@@ -184,7 +180,7 @@ MAP
             NAME "Область глубин 10 more"
             EXPRESSION ( "[type]"="DEPARE" AND [drval2]>=10)
             STYLE
-                COLOR  244 255 249
+                COLOR  234 255 243
                 WIDTH 1
             END
         END
@@ -210,8 +206,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from rivers"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"rivers\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POLYGON
@@ -240,8 +235,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from obstacles_plg"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"obstacles_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POLYGON
@@ -289,8 +283,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from route_plg"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"route_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POLYGON
@@ -333,8 +326,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from vegetation"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"vegetation\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POLYGON
@@ -367,8 +359,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from anchor_parking_plg"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"anchor_parking_plg\" USING UNIQUE ogc_fid USING USING srid=4326"        
         STATUS       ON
         TYPE POLYGON
         TEMPLATE     "dummy"
@@ -423,9 +414,7 @@ MAP
         TEMPLATE 'dummy'
         
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-
-        DATA 'wkb_geometry from "public"."depths_area_ln" USING UNIQUE ogc_fid USING USING srid=4326'
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"depths_area_ln\" USING UNIQUE ogc_fid USING USING srid=4326"        
         METADATA
             'wms_title' 'Контур глубин'
         END
@@ -438,7 +427,7 @@ MAP
         TRANSPARENCY 100
  
         CLASS
-          COLOR 0 0 0
+          COLOR 150 159 153
           SIZE 1
         END
 
@@ -454,9 +443,7 @@ MAP
         CONNECTIONTYPE postgis
         CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
         TYPE POINT
-        TEMPLATE     "dummy"
-        
-        DATA 'wkb_geometry from "public"."tsslpt_pt" USING UNIQUE ogc_fid USING USING srid=4326'
+        TEMPLATE     "dummy"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"tsslpt_pt\" USING UNIQUE ogc_fid USING USING srid=4326"        
         METADATA
             'wms_title' 'Часть полосы сист.раздел.движ'
         END
@@ -491,9 +478,7 @@ MAP
         CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
         TYPE POINT
         TEMPLATE     "dummy"
-        LABELITEM   "lable"
-        
-        DATA 'wkb_geometry from "public"."labels" USING UNIQUE ogc_fid USING USING srid=4326'
+        LABELITEM   "lable"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"labels\" USING UNIQUE ogc_fid USING USING srid=4326"        
         METADATA
             'wms_title' 'Подписи'
         END
@@ -536,8 +521,7 @@ MAP
         CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
         TYPE POINT
         TEMPLATE     "dummy"
-        
-        DATA "wkb_geometry from beacon"
+                DATA "wkb_geometry from \"{PG_SCHEME}\".\"beacon\" USING UNIQUE ogc_fid USING USING srid=4326"        
         METADATA
             'wms_title' 'Знаки'
         END
@@ -1015,8 +999,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from anchor_parking_pt"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"anchor_parking_pt\" USING UNIQUE ogc_fid USING USING srid=4326"        
         STATUS       ON
         TYPE POINT
         TEMPLATE     "dummy"
@@ -1070,8 +1053,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from lights_sectors"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"lights_sectors\" USING UNIQUE ogc_fid USING USING srid=4326"        
         STATUS       ON
         TYPE LINE
         TEMPLATE     "dummy"
@@ -1190,8 +1172,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from building_pt"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"building_pt\" USING UNIQUE ogc_fid USING USING srid=4326"        
         STATUS       ON
         TYPE POINT
         TEMPLATE     "dummy"
@@ -1225,8 +1206,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from vegetation_pt"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"vegetation_pt\" USING UNIQUE ogc_fid USING USING srid=4326"        
         STATUS       ON
         TYPE POINT
         TEMPLATE     "dummy"
@@ -1255,8 +1235,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from land_region_pt"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"land_region_pt\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POINT
@@ -1315,8 +1294,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from mark"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"mark\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POINT
@@ -1482,8 +1460,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from obstacles_pt"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"obstacles_pt\" USING UNIQUE ogc_fid USING USING srid=4326"        
         LABELITEM   "name_en"
         
         STATUS       ON
@@ -1583,8 +1560,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from route_pt"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"route_pt\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE POINT
@@ -1646,8 +1622,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from magnetic_declination"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"magnetic_declination\" USING UNIQUE ogc_fid USING USING srid=4326"        
         LABELITEM   "name_en"
         
         STATUS       ON
@@ -1692,8 +1667,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from building_ln"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"building_ln\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE LINE
@@ -1735,8 +1709,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from coastline"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"coastline\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE LINE
@@ -1749,7 +1722,7 @@ MAP
             STYLE
                 WIDTH 1
                 COLOR 107 113 110
-                PATTERN 5 5 END
+                PATTERN 20 15 END
             END
         END
         CLASS
@@ -1757,7 +1730,7 @@ MAP
             STYLE
                 WIDTH 1
                 COLOR 107 113 110
-                PATTERN 5 5 END
+                PATTERN 20 15 END
             END
         END
         
@@ -1776,8 +1749,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from called_sea_parts"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"called_sea_parts\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE LINE
@@ -1806,8 +1778,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from land_region_ln"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"land_region_ln\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE LINE
@@ -1837,8 +1808,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from obstacles_ln"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"obstacles_ln\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE LINE
@@ -1923,8 +1893,7 @@ MAP
             "init=epsg:4326"
         END
         CONNECTIONTYPE postgis
-        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
-        DATA "wkb_geometry from route_ln"
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"route_ln\" USING UNIQUE ogc_fid USING USING srid=4326"
         
         STATUS       ON
         TYPE LINE

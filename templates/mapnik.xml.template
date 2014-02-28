@@ -5,7 +5,7 @@
     <Style name="land_region_plg">
         <Rule name="Область суши">
             <Filter>[type] = 'LNDARE'</Filter>
-            <PolygonSymbolizer fill="rgb(238,230,197)"/>
+            <PolygonSymbolizer fill="rgb(222,205,139)"/>
         </Rule>
         <Rule name="Местность" >
             <Filter>[type] = 'LNDRGN'</Filter> 
@@ -19,7 +19,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">land_region_plg</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."land_region_plg"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -29,8 +29,8 @@
         <Rule name="Район застройки">
             <Filter>[type] = 'BUAARE'</Filter> 
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <PolygonSymbolizer fill="rgb(218, 206, 159) "/>
-            <LineSymbolizer stroke="rgb(175, 141, 80) " stroke-width="1"/>
+            <PolygonSymbolizer fill="rgb(182, 157, 64) "/>
+            <LineSymbolizer stroke="rgb(163, 123, 57) " stroke-width="1"/>
         </Rule>
         <Rule name="Район дока">
             <Filter>[type] = 'DOCARE'</Filter> 
@@ -51,7 +51,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">building_plg</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."building_plg"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -60,11 +60,11 @@
     <Style name="depths_area_plg">
         <Rule name="Область глубин 0 10">
             <Filter>[type] = 'DEPARE' and [drval2] &lt;= 10 </Filter>  <!-- FilteError -->
-            <PolygonSymbolizer fill="rgb(200, 228, 249) "/>
+            <PolygonSymbolizer fill="rgb(145, 202, 243) "/>
         </Rule>
         <Rule name="Область глубин 10 more">
             <Filter>[type] = 'DEPARE' and [drval2] &gt; 10</Filter> 
-            <PolygonSymbolizer fill="rgb(244, 255, 249)"/>
+            <PolygonSymbolizer fill="rgb(234, 255, 243)"/>
         </Rule>
         <Rule name="Углубленный район">
             <Filter>[type] = 'DRGARE'</Filter> 
@@ -78,7 +78,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">depths_area_plg</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."depths_area_plg"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -97,7 +97,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">rivers</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."rivers"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -122,7 +122,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">obstacles_plg</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."obstacles_plg"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -146,7 +146,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">route_plg</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."route_plg"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -167,7 +167,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">vegetation</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."vegetation"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -188,7 +188,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">anchor_parking_plg</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."anchor_parking_plg"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -197,7 +197,7 @@
     
     <Style name="depths_area_ln">
         <Rule> 
-            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1" />
+            <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="1" />
         </Rule>
     </Style>
     <Layer name="Контур глубин" srs="+init=epsg:4326">
@@ -207,7 +207,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">depths_area_ln</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."depths_area_ln"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -226,7 +226,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">tsslpt_pt</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."tsslpt_pt"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -245,7 +245,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">labels</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."labels"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -404,7 +404,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">beacon</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."beacon"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -435,7 +435,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">anchor_parking_pt</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."anchor_parking_pt"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -506,7 +506,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">lights_sectors</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."lights_sectors"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -527,7 +527,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">building_pt</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."building_pt"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -547,7 +547,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">vegetation_pt</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."vegetation_pt"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -574,7 +574,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">land_region_pt</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."land_region_pt"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -652,7 +652,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">mark</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."mark"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -699,7 +699,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">obstacles_pt</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."obstacles_pt"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -735,7 +735,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">route_pt</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."route_pt"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -756,7 +756,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">magnetic_declination</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."magnetic_declination"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -782,7 +782,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">building_ln</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."building_ln"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -792,7 +792,7 @@
     <Style name="coastline">
         <Rule>
             <Filter>[catcoa]=null or [catcoa]=8</Filter> <!-- Ошибки нет т.к. тут все объекты - береговые линии -->
-            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1" stroke-dasharray="5.0,5.0"/>
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1" stroke-dasharray="20.0,115.0"/>
         </Rule>
         <Rule>
             <ElseFilter />
@@ -806,7 +806,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">coastline</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."coastline"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -825,7 +825,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">called_sea_parts</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."called_sea_parts"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -844,7 +844,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">land_region_ln</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."land_region_ln"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -874,7 +874,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">obstacles_ln</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."obstacles_ln"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -930,7 +930,7 @@
             <Parameter name="geometry_field">wkb_geometry</Parameter>
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">route_ln</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."route_ln"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
