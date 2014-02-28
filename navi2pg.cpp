@@ -1232,10 +1232,19 @@ void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
     char** papszLCO = NULL;
     papszLCO = CSLAddString(papszLCO, CPLString("OVERWRITE=yes").c_str() );
 
+    const char* scheme = CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), NULL);
+    if( scheme == NULL)
+    {
+        LOG( CPLString().Printf("Error: Layer %s can not be created: The scheme isn't defined" ) );
+        return;
+    }
+
     /*
      * Создание слоя в источнике данных OGR
      */
-    Layer_ = poDstDatasource->CreateLayer( LayerName_.c_str(), GetSpatialRef(), GeomType_, papszLCO );
+    CPLString fullLayerName(scheme);
+    fullLayerName.append(".");
+    Layer_ = poDstDatasource->CreateLayer( fullLayerName.append(LayerName_.c_str()).c_str(), GetSpatialRef(), GeomType_, papszLCO );
 
     if (Layer_ == NULL)
     {
@@ -1736,6 +1745,11 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
         exit( 1 );
     }
 
+    if( CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), NULL) == NULL)
+    {
+        CPLSetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), CPLGetBasename(pszS57DataSource));
+    }
+
     poDstDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName(
                 pszDstDriverName );
 
@@ -1805,21 +1819,21 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     const char* mapserver_config_file = CPLGetConfigOption(CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(),NULL);
     if(mapserver_config_file != NULL)
     {
-        LOG("mapserver config creatinon");
+        //LOG("mapserver config creatinon");
         CopyConfigFile(mapserver_config_file, CPLResetExtension(pszS57DataSource, "map"), newExtent, pszPGConnectionString);
     }
 
     const char* mapnik_config_file = CPLGetConfigOption(CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(),NULL);
     if(mapnik_config_file != NULL)
     {
-        LOG("mapnik config creatinon");
+        //LOG("mapnik config creatinon");
         CopyConfigFile(mapnik_config_file, CPLResetExtension(pszS57DataSource, "mapnik.xml"), newExtent, pszPGConnectionString);
     }
 
     const char* mapnik_pyscript_file = CPLGetConfigOption(CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(),NULL);
     if(mapnik_pyscript_file != NULL)
     {
-        LOG("mapnik pyscript creatinon");
+        //LOG("mapnik pyscript creatinon");
         CopyConfigFile(mapnik_pyscript_file, CPLResetExtension(pszS57DataSource, "mapnik.py"), newExtent, pszPGConnectionString);
     }
 

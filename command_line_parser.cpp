@@ -30,6 +30,7 @@ namespace
     void Usage()
     {
         std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] [--sign_cp1251] ";
+        std::cout << "[--scheme <scheme_name>]" << " ";
         std::cout << NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING << " ";
         std::cout << NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME << " ";
         std::cout << NAVI2PG::CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME << " ";
@@ -71,11 +72,15 @@ NAVI2PG::ValuesCollection NAVI2PG::CommandLineParse(int argc, char* argv[])
             Usage();
         }
 
-else if( EQUAL(argv[iArg], "--sign_cp1251" ) )
+        else if( EQUAL(argv[iArg], "--sign_cp1251" ) )
         {
             CPLSetConfigOption("NEED_CONVERT_SIGN_TO_CP1251","TRUE");
         }
 
+        else if( EQUAL(argv[iArg], "--scheme" ) )
+        {
+            CPLSetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), argv[++iArg]);
+        }
         else if( argv[iArg][0] == '-' )
         {
             std::cout << "Unknown option name: " << argv[iArg] << std::endl;
