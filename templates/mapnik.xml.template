@@ -59,7 +59,7 @@
     
     <Style name="depths_area_plg">
         <Rule name="Область глубин 0 0">
-            <Filter>[type] = 'DEPARE' and [drval2] = 0 </Filter>  <!-- FilteError -->
+            <Filter>[type] = 'DEPARE' and ([drval2] = 0 or [drval2] = null) </Filter>  <!-- FilteError -->
             <PolygonSymbolizer fill="rgb(155, 200, 163) "/>
         </Rule>
         <Rule name="Область глубин 0 10">

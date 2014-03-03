@@ -1420,7 +1420,16 @@ MAP
                 MAXSIZE 16
                 TEXT ('[name_en]')
             END
-        END        CLASS            NAME "Ландмарк. Труба"            EXPRESSION ('[type]'='LNDMRK_unknown_pipe')            STYLE                MAXSIZE 32                SYMBOL 'landmark(truba)'                OFFSET 0 -10            END        END
+        END
+        CLASS
+            NAME "Ландмарк. Труба"
+            EXPRESSION ('[type]'='LNDMRK_unknown_pipe')
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'landmark(truba)'
+                OFFSET 0 -10
+            END
+        END
         CLASS
             NAME "Ландмарк. Ориентир"
             EXPRESSION ('[type]'='LNDMRK_unknown_unknown')
