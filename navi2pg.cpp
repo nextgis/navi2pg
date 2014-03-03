@@ -75,20 +75,34 @@ namespace
         OGRwkbGeometryType geomType;
 
         /*
-         * конфигурация слоя depths_area_plg
+         * конфигурация слоя mark
          */
-        layerName = "depths_area_plg";
-        geomType = wkbPolygon;
+        layerName = "mark";
+        geomType = wkbPoint;
 
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DRGARE");
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DAYMAR");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
             layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DEPARE");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("DRVAL1");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("DRVAL2");
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TOPMAR");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::TOPSHPSpecify());
             layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
-            layerWithCopyRules.FieldsNamesForCopy_.clear();
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SOUNDG");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSoundgValues());
+            layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("LNDMRK");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::CONVISSpecify());
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::CATLMKSpecify());
+            layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
         layersWithCopyRules.clear();
@@ -853,6 +867,10 @@ void NAVI2PG::CATLMKSpecify::Execute(OGRFeature *dstFeature, OGRFeature *srcFeat
     if (catlmk == 17)
     {
         dstFeature->SetField( "type", CPLString().Printf("%s_tower", oldValue.c_str() ) );
+    }
+    else if (catlmk == 3)
+    {
+        dstFeature->SetField( "type", CPLString().Printf("%s_pipe", oldValue.c_str() ) );
     }
     else
     {

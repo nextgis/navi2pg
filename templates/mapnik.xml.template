@@ -58,6 +58,10 @@
     </Layer>
     
     <Style name="depths_area_plg">
+        <Rule name="Область глубин 0 0">
+            <Filter>[type] = 'DEPARE' and [drval2] = 0 </Filter>  <!-- FilteError -->
+            <PolygonSymbolizer fill="rgb(155, 200, 163) "/>
+        </Rule>
         <Rule name="Область глубин 0 10">
             <Filter>[type] = 'DEPARE' and [drval2] &lt;= 10 </Filter>  <!-- FilteError -->
             <PolygonSymbolizer fill="rgb(145, 202, 243) "/>
@@ -86,7 +90,7 @@
     
     <Style name="rivers">
         <Rule>
-            <PolygonSymbolizer fill="rgb(200, 228, 249) "/>
+            <PolygonSymbolizer fill="rgb(145, 202, 243) "/>
             <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1.0"/>
         </Rule>
     </Style>
@@ -132,7 +136,7 @@
     <Style name="route_plg">
         <Rule name="Зона разделения движения">
             <Filter>[type] = 'TSEZNE'</Filter> 
-            <PolygonSymbolizer fill="rgb(255, 80, 255)" fill-opacity="0.8"/>
+            <PolygonSymbolizer fill="rgb(238, 226, 243)" fill-opacity="1.0"/>
         </Rule>
         <Rule name="Фарватер"> <!-- unsatisfactorily -->
             <Filter>[type] = 'FAIRWY'</Filter>
@@ -261,6 +265,7 @@
             <Filter>[type] = 'BCNSPP_unknown'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
             <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(obshii).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
         <Rule name="Знак спец.назначения. Маяк.">
             <Filter>[type] = 'BCNSPP_mayak'</Filter>
@@ -277,6 +282,7 @@
             <Filter>[type] = 'BCNSPP_vishka'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
             <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(vishka).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
         <Rule name="Знак латеральный. Маяк.">
             <Filter>[type] = 'BCNLAT_mayak'</Filter>
@@ -444,7 +450,7 @@
     <Style name="lights_sectors"> <!-- unsatisfactorily Масштабы-->
         <Rule>
             <Filter>[type] = 'rays'</Filter>
-            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1" />
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="0.3" stroke-dasharray="10.0,5.0" stroke-opacity="0.7"/>
         </Rule>
         <!-- первый радиус -->
         <Rule>
@@ -638,6 +644,11 @@
 			<MaxScaleDenominator>100000</MaxScaleDenominator>
             <PointSymbolizer file="images/landmark(bashnya).png" allow-overlap="true" transform="translate(0, -10)" />
             <TextSymbolizer face-name="DejaVu Sans Book" size="8" allow-overlap="true" dx="10" dy="10"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule name="Ландмарк. Видимый. Труба.">
+            <Filter>[type] = 'LNDMRK_unknown_pipe'</Filter>
+			<MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/landmark(truba).png" allow-overlap="true" transform="translate(0, -10)" />
         </Rule>
         <Rule name="Ландмарк. Ориентир">
             <Filter>[type] = 'LNDMRK_unknown_unknown'</Filter>
@@ -916,11 +927,11 @@
         </Rule>
         <Rule name="Линия разделения движения">
             <Filter>[type] = 'TSELNE'</Filter>
-            <LineSymbolizer stroke="rgb(222, 75, 201) " stroke-width="5" stroke-opacity="0.5"/>
+            <LineSymbolizer stroke="rgb(235, 183, 237) " stroke-width="2"/>
         </Rule>
         <Rule name="Граница системы разделен.движения">
             <Filter>[type] = 'TSSBND'</Filter>
-            <LineSymbolizer stroke="rgb(222, 75, 201) " stroke-width="5" stroke-dasharray="10.0,10.0"/>
+            <LineSymbolizer stroke="rgb(222, 75, 201) " stroke-width="2" stroke-dasharray="20.0,10.0"/>
         </Rule>
     </Style>
     <Layer name="Навигация (линейные)" srs="+init=epsg:4326">

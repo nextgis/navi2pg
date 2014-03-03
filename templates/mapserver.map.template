@@ -167,7 +167,7 @@ MAP
         STATUS       ON
         TYPE POLYGON
         TEMPLATE     "dummy"
-        
+                CLASS            NAME "Область глубин 0 0"            EXPRESSION ( "[type]"="DEPARE" AND [drval2]=0)            STYLE                COLOR  155 200 163                WIDTH 1            END        END
         CLASS
             NAME "Область глубин 0 10"
             EXPRESSION ( "[type]"="DEPARE" AND [drval2]<=10 )
@@ -215,7 +215,7 @@ MAP
         
         CLASS
             STYLE
-                COLOR 200 228 249
+                COLOR 145 202 243
                 OUTLINECOLOR 0 0 0
                 WIDTH 1
             END
@@ -295,8 +295,7 @@ MAP
             NAME "Зона разделения движения"
             EXPRESSION "TSEZNE" 
             STYLE
-                COLOR 255 80 255
-                OPACITY 80
+                COLOR 238 226 243                OPACITY 100
             END
         END 
         CLASS
@@ -561,7 +560,7 @@ MAP
                 MAXSIZE 32
                 SYMBOL 'znak_spec.naznacheniya(obshii)'
                 OFFSET 0 -10
-            END
+            END            LABEL                COLOR 0 0 0                TYPE TRUETYPE                FONT arial                SIZE 7                ANTIALIAS TRUE                POSITION UL                PARTIALS FALSE                MINDISTANCE 0                BUFFER 3                ENCODING UTF-8            END 
         END
         CLASS
             NAME "Знак спец.назначения. Маяк."  
@@ -601,7 +600,7 @@ MAP
                 MAXSIZE 32
                 SYMBOL 'znak_spec.znak_spec.naznacheniya(vishka)'
                 OFFSET 0 -10
-            END
+            END            LABEL                COLOR 0 0 0                TYPE TRUETYPE                FONT arial                SIZE 7                ANTIALIAS TRUE                POSITION UL                PARTIALS FALSE                MINDISTANCE 0                BUFFER 3                ENCODING UTF-8            END 
         END
 
         CLASS
@@ -1060,9 +1059,7 @@ MAP
         
         CLASS
             EXPRESSION ("[type]"="rays") 
-            STYLE
-                COLOR 0 0 0
-            END
+            STYLE                COLOR 0 0 0                PATTERN 10 5 END                WIDTH 0.3                OPACITY  70            END
         END
         
         CLASS
@@ -1264,18 +1261,7 @@ MAP
                 SIZE 10.0
                 WIDTH 4.0
             END
-            LABEL
-                COLOR 0 0 0
-                TYPE TRUETYPE
-                FONT arial
-                SIZE 15
-                ANTIALIAS TRUE
-                POSITION CL
-                PARTIALS FALSE
-                MINDISTANCE 0
-                BUFFER 3
-                ENCODING UTF-8
-            END
+            LABEL                COLOR 0 0 0                TYPE TRUETYPE                FONT arial                SIZE 15                ANTIALIAS TRUE                POSITION UL                PARTIALS FALSE                MINDISTANCE 0                ENCODING UTF-8            END
         END
         
         PROCESSING "CLOSE_CONNECTION=DEFER" 
@@ -1434,7 +1420,7 @@ MAP
                 MAXSIZE 16
                 TEXT ('[name_en]')
             END
-        END
+        END        CLASS            NAME "Ландмарк. Труба"            EXPRESSION ('[type]'='LNDMRK_unknown_pipe')            STYLE                MAXSIZE 32                SYMBOL 'landmark(truba)'                OFFSET 0 -10            END        END
         CLASS
             NAME "Ландмарк. Ориентир"
             EXPRESSION ('[type]'='LNDMRK_unknown_unknown')
@@ -2039,9 +2025,8 @@ MAP
             EXPRESSION ("[type]"="TSELNE")
             
             STYLE
-                WIDTH 5
-                COLOR 222 75 201
-                OPACITY 50
+                WIDTH 2
+                COLOR 235 183 237
             END
             
         END
@@ -2050,11 +2035,7 @@ MAP
             NAME "Граница системы разделен.движения"
             EXPRESSION ("[type]"="TSSBND")
             
-            STYLE
-                WIDTH 5
-                COLOR 222 75 201
-                PATTERN 10 10 END
-            END
+            STYLE                WIDTH 2                COLOR 222 75 201                PATTERN 20 10 END            END
             
         END
         

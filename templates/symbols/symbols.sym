@@ -1,0 +1,403 @@
+SYMBOLSET 
+    SYMBOL
+        NAME "rayon_yakornoy_stoyanki"
+        TYPE pixmap
+        IMAGE "../images/rayon_yakornoy_stoyanki.png"
+    END
+    
+    SYMBOL
+        NAME "yakornaya_stoyanka"
+        TYPE pixmap
+        IMAGE "../images/yakornaya_stoyanka.png"
+    END
+    
+    SYMBOL
+        NAME "yakornie_stoyanki"
+        TYPE pixmap
+        IMAGE "../images/yakornaya_stoyanka.png"
+    END # SYMBOL
+
+    SYMBOL
+        NAME "yakornaie_stoyanki_centr"
+        TYPE pixmap
+        IMAGE "../images/yakornaie_stoyanki_centr.png"
+    END # SYMBOL
+    
+    SYMBOL
+        NAME "yakornie_stoyanki_outline_1"
+        FILLED true
+        TYPE vector
+        POINTS
+            -10 0
+            10  0
+            -99 -99
+            -5  0
+            0 -5
+            5 0
+        END # POINTS
+    END
+    
+    SYMBOL
+        NAME "yakornie_stoyanki_outline_2"
+        FILLED true
+        TYPE vector
+        POINTS
+            0 10
+            0 -10
+            -99 -99
+            -5  5
+            5 5
+            -99 -99
+            -7 -5
+            -5 -10
+            5 -10
+            7 -5
+        END # POINTS
+    END
+
+    SYMBOL
+        NAME "circle_10"
+        FILLED true
+        TYPE ellipse
+        POINTS
+            20 20
+        END # POINTS
+    END
+    
+    SYMBOL
+        NAME "exclamation_mark"
+        FILLED true
+        TYPE vector
+        POINTS
+            0 8
+            0 -5
+            -99 -99
+            -3  -7
+            3  -7
+        END # POINTS
+    END
+        
+    SYMBOL
+        NAME "element_oblasti"
+        FILLED true
+        TYPE vector
+        POINTS
+            0 0
+            50  0
+            -99 -99
+            10  0
+            25 15
+            40 0
+        END # POINTS
+    END
+    
+    
+    SYMBOL
+        NAME "preduprezhdenie"
+        TYPE pixmap
+        IMAGE "../images/preduprezhdenie.png"
+    END
+    
+    SYMBOL
+        NAME "tumanii_signal"
+        TYPE pixmap
+        IMAGE "../images/tumanii_signal.png"
+    END
+    
+    SYMBOL
+        NAME "landmark(bashnya)"
+        TYPE pixmap
+        IMAGE "../images/landmark(bashnya).png"
+    END
+    SYMBOL
+        NAME "landmark(truba)"
+        TYPE pixmap
+        IMAGE "../images/landmark(truba).png"
+    END
+    
+    SYMBOL
+        NAME "landmark"
+        TYPE pixmap
+        IMAGE "../images/landmark.png"
+    END
+    
+    SYMBOL
+        NAME "mesto_vstrechi_locmana"
+        TYPE pixmap
+        IMAGE "../images/mesto_vstrechi_locmana.png"
+    END
+
+    SYMBOL
+        NAME "rayon_povishenoi_ostorozhnosti"
+        TYPE pixmap
+        IMAGE "../images/rayon_povishenoi_ostorozhnosti.png"
+    END
+    
+    SYMBOL
+        NAME "radiolokacionnii_mayak_otvetchik"
+        TYPE pixmap
+        IMAGE "../images/radiolokacionnii_mayak_otvetchik.png"
+    END
+    
+    SYMBOL
+        NAME "kontrolnaya_tochka_peredachi(1_put)"
+        TYPE pixmap
+        IMAGE "../images/kontrolnaya_tochka_peredachi(1_put).png"
+    END
+
+    SYMBOL
+        NAME "rayon_svalki"
+        TYPE pixmap
+        IMAGE "../images/rayon_svalki.png"
+    END
+    
+    SYMBOL
+        NAME "podvodnaya_osihaushaya_skala_without_sign"
+        TYPE pixmap
+        IMAGE "../images/podvodnaya_osihaushaya_skala_without_sign.png"
+    END
+    
+    SYMBOL
+        NAME "podvodnaya_osihaushaya_skala_with_sign"
+        TYPE pixmap
+        IMAGE "../images/podvodnaya_osihaushaya_skala_with_sign.png"
+    END
+    
+    SYMBOL
+        NAME "zatonuvshee_sudno"
+        TYPE pixmap
+        IMAGE "../images/zatonuvshee_sudno.png"
+    END
+    
+    SYMBOL
+        NAME "shvart.-vert.obor.podvizhnii_pal"
+        TYPE pixmap
+        IMAGE "../images/shvart.-vert.obor.podvizhnii_pal.png"
+    END
+    
+    SYMBOL
+        NAME "otd.stroeniya(cerkvi)(vid.rad)"
+        TYPE pixmap
+        IMAGE "../images/otd.stroeniya(cerkvi)(vid.rad).png"
+    END
+    
+    SYMBOL
+        NAME "ostrov"
+        TYPE pixmap
+        IMAGE "../images/ostrov.png"
+    END
+    
+    SYMBOL
+        NAME "teg(in)"
+        TYPE pixmap
+        IMAGE "../images/teg(in).png"
+    END
+    
+    SYMBOL
+        NAME "teg(out)"
+        TYPE pixmap
+        IMAGE "../images/teg(out).png"
+    END
+    
+    SYMBOL
+        NAME "simbol_?"
+        TYPE truetype
+        FONT "arial"
+        CHARACTER "?"
+    END
+    
+    SYMBOL
+        NAME "centr_recomendovan_puty"
+        TYPE pixmap
+        IMAGE "../images/centr_recomendovan_puty.png"
+    END
+    SYMBOL
+        NAME "centr_recomendovan_puty(2_puty)"
+        TYPE pixmap
+        IMAGE "../images/centr_recomendovan_puty(2_puty).png"
+    END
+    
+    SYMBOL
+        NAME "oblast_svalki_centr"
+        TYPE pixmap
+        IMAGE "../images/oblast_svalki_centr.png"
+    END
+    
+    SYMBOL
+        NAME "chast_syst_razdel_dvizh"
+        TYPE pixmap
+        IMAGE "../images/chast_syst_razdel_dvizh.png"
+    END
+    
+    SYMBOL
+        NAME "LNDRGN_point"
+        FILLED false
+        TYPE ellipse
+        POINTS
+            20 20
+        END
+    END
+    
+    SYMBOL
+        NAME "magnitnoe_sklonenie"
+        TYPE pixmap
+        IMAGE "../images/magnitnoe_sklonenie.png"
+    END
+    
+    SYMBOL
+        NAME "daymark(nesvetyashii)"
+        TYPE pixmap
+        IMAGE "../images/daymark(nesvetyashii).png"
+    END
+    
+    SYMBOL
+        NAME "kabel_podvodnii"
+        TYPE pixmap
+        IMAGE "../images/kabel_podvodnii.png"
+    END
+    
+    SYMBOL
+        NAME "line4FSHFAC"
+        TYPE vector
+        POINTS
+            0 5
+            0 10
+        END
+    END
+    
+    SYMBOL
+        NAME "PILPNT"
+        FILLED true
+        TYPE ellipse
+        POINTS
+            10 10
+        END
+    END
+    
+    SYMBOL
+        NAME "rastitelnost"
+        TYPE pixmap
+        IMAGE "../images/rastitelnost.png"
+    END
+    
+    SYMBOL
+        NAME "vodorosli"
+        TYPE pixmap
+        IMAGE "../images/vodorosli.png"
+    END
+    
+    SYMBOL
+        NAME "lights_without_sector_G"
+        TYPE pixmap
+        IMAGE "../images/lights_without_sector_G.png"
+        ANCHORPOINT 0.5 0
+    END
+    SYMBOL
+        NAME "lights_without_sector_R"
+        TYPE pixmap
+        IMAGE "../images/lights_without_sector_R.png"
+        ANCHORPOINT 0.5 0
+    END
+    SYMBOL
+        NAME "lights_without_sector_Y"
+        TYPE pixmap
+        IMAGE "../images/lights_without_sector_Y.png"
+        ANCHORPOINT 0.5 0
+    END
+    
+    
+    SYMBOL
+        NAME "znak_spec.naznacheniya(obshii)"
+        TYPE pixmap
+        IMAGE "../images/znak_spec.naznacheniya(obshii).png"
+    END
+    
+    SYMBOL
+        NAME "znak_spec.znak_spec.naznacheniya(vishka)"
+        TYPE pixmap
+        IMAGE "../images/znak_spec.naznacheniya(vishka).png"
+    END
+    
+#
+#   Топовые фиуры (topmark)
+#
+    SYMBOL
+        NAME "topovaya_figura(shar)"
+        TYPE pixmap
+        IMAGE "../images/topovaya_figura(shar).png"
+    END
+    SYMBOL
+        NAME "topovaya_figura(2_shara)"
+        TYPE pixmap
+        IMAGE "../images/topovaya_figura(2_shara).png"
+    END
+    SYMBOL
+        NAME "topovaya_figura(2_kon_versh_vverh)"
+        TYPE pixmap
+        IMAGE "../images/topovaya_figura(2_kon_versh_vverh).png"
+    END
+    SYMBOL
+        NAME "topovaya_figura(2_kon_versh_vroz)"
+        TYPE pixmap
+        IMAGE "../images/topovaya_figura(2_kon_versh_vroz).png"
+    END
+    SYMBOL
+        NAME "topovaya_figura(2_kon_versh_vniz)"
+        TYPE pixmap
+        IMAGE "../images/topovaya_figura(2_kon_versh_vniz).png"
+    END
+    SYMBOL
+        NAME "topovaya_figura(2_kon_versh_vmeste)"
+        TYPE pixmap
+        IMAGE "../images/topovaya_figura(2_kon_versh_vmeste).png"
+    END
+    
+#
+#   Знаки
+#    
+    SYMBOL
+        NAME "znak_spec.naznacheniya(mayak)"
+        TYPE pixmap
+        IMAGE "../images/znak_spec.naznacheniya(mayak).png"
+    END # SYMBOL
+    
+    SYMBOL
+        NAME "znak_spec.naznacheniya(konstr)"
+        TYPE pixmap
+        IMAGE "../images/znak_spec.naznacheniya(konstr).png"
+    END # SYMBOL
+
+#
+#   Буи
+#
+    SYMBOL
+        NAME "bui_kardinalnii(stolb)"
+        TYPE pixmap
+        IMAGE "../images/bui_kardinalnii(stolb).png"
+    END # SYMBOL
+    
+    SYMBOL
+        NAME "bui(konicheskii)"
+        TYPE pixmap
+        IMAGE "../images/bui(konicheskii).png"
+    END # SYMBOL
+    
+    SYMBOL
+        NAME "bui(veha)"
+        TYPE pixmap
+        IMAGE "../images/bui(veha).png"
+    END # SYMBOL
+    
+    SYMBOL
+        NAME "bui_chistoi_vodi(sphericheskii)"
+        TYPE pixmap
+        IMAGE "../images/bui_chistoi_vodi(sphericheskii).png"
+    END # SYMBOL
+    
+    SYMBOL
+        NAME "bui_lateralnii"
+        TYPE pixmap
+        IMAGE "../images/bui_lateralnii.png"
+    END # SYMBOL
+    
+END
