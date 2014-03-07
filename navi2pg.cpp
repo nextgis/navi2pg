@@ -1253,7 +1253,7 @@ void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
     const char* scheme = CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), NULL);
     if( scheme == NULL)
     {
-        LOG( CPLString().Printf("Error: Layer %s can not be created: The scheme isn't defined" ) );
+        LOG( CPLString().Printf("Error: Layer %s can not be created: The schema isn't defined" ) );
         return;
     }
 

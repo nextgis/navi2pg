@@ -35,7 +35,7 @@ namespace NAVI2PG
     {
         const std::string PG_CONNECTION_STRING = "pg_connection_string";
         const std::string S57_DATASOURCE_NAME = "S57_datasource_name";
-        const std::string SCHEME_NAME = "scheme_name";
+        const std::string SCHEME_NAME = "schema_name";
         const std::string MAPSERVER_CONFIG_TEMPLATE_FILENAME = "mapserevr_config_template_filename";
         const std::string MAPNIK_CONFIG_TEMPLATE_FILENAME = "mapnik_config_template_filename";
         const std::string MAPNIK_PYSCRIPT_TEMPLATE_FILENAME = "mapnik_pyscript_template_filename";
