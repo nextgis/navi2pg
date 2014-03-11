@@ -198,6 +198,51 @@
         </Datasource>
     </Layer>
     
+    <Style name="obstacles_pt">
+        <Rule name="Подводная осыхающая скала (без подписи)">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'OBSTRN'</Filter>
+            <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_without_sign.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Подводная осыхающая скала (с подписью)">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'UWTROC'</Filter>
+            <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_with_sign.png" allow-overlap="true" />
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="5" dy="-5"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule name="Характеристика морского дна">
+            <MaxScaleDenominator>50000</MaxScaleDenominator>
+            <Filter>[type] = 'SBDARE'</Filter>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule name="Затонувшее судно">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'WRECKS'</Filter>
+            <PointSymbolizer file="images/zatonuvshee_sudno.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Район свалки">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'DMPGRD'</Filter>
+            <PointSymbolizer file="images/rayon_svalki.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Сваи">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'PILPNT'</Filter>
+            <MarkersSymbolizer fill="black" width="3" height="3" stroke-width="0"  placement="point" marker-type="ellipse" allow-overlap="true"/>
+        </Rule>
+    </Style>
+    <Layer name="Препятствия (точечные)" srs="+init=epsg:4326" minzoom="10">
+        <StyleName>obstacles_pt</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."obstacles_pt"</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
     
     <Style name="depths_area_ln">
         <Rule> 
@@ -669,53 +714,6 @@
         </Datasource>
     </Layer>
 
-    
-    <Style name="obstacles_pt">
-        <Rule name="Подводная осыхающая скала (без подписи)">
-            <MaxScaleDenominator>100000</MaxScaleDenominator>
-            <Filter>[type] = 'OBSTRN'</Filter>
-            <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_without_sign.png" allow-overlap="true" />
-        </Rule>
-        <Rule name="Подводная осыхающая скала (с подписью)">
-            <MaxScaleDenominator>100000</MaxScaleDenominator>
-            <Filter>[type] = 'UWTROC'</Filter>
-            <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_with_sign.png" allow-overlap="true" />
-            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="5" dy="-5"> [name_en] </TextSymbolizer>
-        </Rule>
-        <Rule name="Характеристика морского дна">
-            <MaxScaleDenominator>50000</MaxScaleDenominator>
-            <Filter>[type] = 'SBDARE'</Filter>
-            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true"> [name_en] </TextSymbolizer>
-        </Rule>
-        <Rule name="Затонувшее судно">
-            <MaxScaleDenominator>100000</MaxScaleDenominator>
-            <Filter>[type] = 'WRECKS'</Filter>
-            <PointSymbolizer file="images/zatonuvshee_sudno.png" allow-overlap="true" />
-        </Rule>
-        <Rule name="Район свалки">
-            <MaxScaleDenominator>100000</MaxScaleDenominator>
-            <Filter>[type] = 'DMPGRD'</Filter>
-            <PointSymbolizer file="images/rayon_svalki.png" allow-overlap="true" />
-        </Rule>
-        <Rule name="Сваи">
-            <MaxScaleDenominator>100000</MaxScaleDenominator>
-            <Filter>[type] = 'PILPNT'</Filter>
-            <MarkersSymbolizer fill="black" width="3" height="3" stroke-width="0"  placement="point" marker-type="ellipse" allow-overlap="true"/>
-        </Rule>
-    </Style>
-    <Layer name="Препятствия (точечные)" srs="+init=epsg:4326" minzoom="10">
-        <StyleName>obstacles_pt</StyleName>
-        <Datasource>
-            <Parameter name="dbname">{PG_DBNAME}</Parameter>
-            <Parameter name="geometry_field">wkb_geometry</Parameter>
-            <Parameter name="host">{PG_HOST}</Parameter>
-            <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">"{PG_SCHEME}"."obstacles_pt"</Parameter>
-            <Parameter name="type">postgis</Parameter>
-            <Parameter name="user">{PG_USER}</Parameter>
-        </Datasource>
-    </Layer>
-    
     
     <Style name="route_pt">
         <Rule name="Район действия предупреждения (Запретная зона)">

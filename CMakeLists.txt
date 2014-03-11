@@ -4,6 +4,8 @@ set (PROJECT_NAME "navi2pg")
  
 project (${PROJECT_NAME}) 
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
 set(CMAKE_COLOR_MAKEFILE ON)
 
 set (HEADERS 
@@ -27,9 +29,15 @@ if(GDAL_FOUND)
     include_directories(${GDAL_INCLUDE_DIR}/frmts/vrt)
 endif(GDAL_FOUND)
 
+find_package(POSTGRES REQUIRED)
+if(POSTGRES_FOUND)
+        include_directories(${POSTGRES_INCLUDE_DIR})
+endif(POSTGRES_FOUND)
+
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} ${GDAL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${POSTGRES_LIBRARY})
 
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin

@@ -324,7 +324,7 @@ namespace NAVI2PG {
 * @brief Создание нового слоя в БД.
 * @param poDstDatasource Источник данных, где будет создан новый слой
 */
-        void Create(OGRDataSource *poDstDatasource);
+        void Create(OGRDataSource *poDstDatasource, OGRSpatialReference* spatRef);
 
     private:
 /**

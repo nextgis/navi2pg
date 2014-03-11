@@ -31,10 +31,96 @@
 #include "cpl_vsi.h"
 #include "cpl_string.h"
 
+#include "pg/ogr_pg.h"
+
 #include "logger.h"
 #include "navi2pg.h"
 #include "command_line_parser.h"
 
+namespace GDALPGUtility
+{
+    PGresult *OGRPG_PQexec(PGconn *conn, const char *query, int bMultipleCommandAllowed)
+    {
+        PGresult* hResult;
+    #if defined(PG_PRE74)
+        /* PQexecParams introduced in PG >= 7.4 */
+        hResult = PQexec(conn, query);
+    #else
+        if (bMultipleCommandAllowed)
+            hResult = PQexec(conn, query);
+        else
+            hResult = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
+    #endif
+
+    #ifdef DEBUG
+        const char* pszRetCode = "UNKNOWN";
+        char szNTuples[32];
+        szNTuples[0] = '\0';
+        if (hResult)
+        {
+            switch(PQresultStatus(hResult))
+            {
+                case PGRES_TUPLES_OK:
+                    pszRetCode = "PGRES_TUPLES_OK";
+                    sprintf(szNTuples, ", ntuples = %d", PQntuples(hResult));
+                    break;
+                case PGRES_COMMAND_OK:
+                    pszRetCode = "PGRES_COMMAND_OK";
+                    break;
+                case PGRES_NONFATAL_ERROR:
+                    pszRetCode = "PGRES_NONFATAL_ERROR";
+                    break;
+                case PGRES_FATAL_ERROR:
+                    pszRetCode = "PGRES_FATAL_ERROR";
+                    break;
+                default: break;
+            }
+        }
+        if (bMultipleCommandAllowed)
+            CPLDebug("PG", "PQexec(%s) = %s%s", query, pszRetCode, szNTuples);
+        else
+            CPLDebug("PG", "PQexecParams(%s) = %s%s", query, pszRetCode, szNTuples);
+
+    /* -------------------------------------------------------------------- */
+    /*      Generate an error report if an error occured.                   */
+    /* -------------------------------------------------------------------- */
+        if ( !hResult || (PQresultStatus(hResult) == PGRES_NONFATAL_ERROR ||
+                          PQresultStatus(hResult) == PGRES_FATAL_ERROR ) )
+        {
+            CPLDebug( "PG", "%s", PQerrorMessage( conn ) );
+        }
+    #endif
+
+        return hResult;
+    }
+
+    bool PGExecuteSQL(const CPLString &sStatement, OGRDataSource* pgDataSource)
+    {
+        OGRPGDataSource* pDS = dynamic_cast<OGRPGDataSource*>(pgDataSource);
+
+        if(!pDS)
+            return false;
+
+        CPLErrorReset();
+        PGconn* hPGConn = pDS->GetPGConn();
+
+        PGresult    *hResult = GDALPGUtility::OGRPG_PQexec( hPGConn, sStatement.c_str(), TRUE );
+        ExecStatusType status = PQresultStatus(hResult);
+        if (status == PGRES_COMMAND_OK)
+        {
+            OGRPGClearResult( hResult );
+            return true;
+        }
+        if( status == PGRES_NONFATAL_ERROR || status == PGRES_FATAL_ERROR )
+        {
+            std::cout << "Error: " << PQerrorMessage( hPGConn ) << std::endl;
+        }
+
+        OGRPGClearResult( hResult );
+
+        return false;
+    }
+}
 namespace
 {
     std::string readFromDBConnectString(const std::string& connectionString, const std::string& paramName)
@@ -1245,7 +1331,7 @@ void NAVI2PG::AddVALMAGSignatures::Execute(OGRFeature *dstFeature, OGRFeature *s
     dstFeature->SetField( "name_ru", CPLString().Printf("%.2f", valmag) );
 }
 
-void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
+void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource, OGRSpatialReference* spatRef)
 {
     char** papszLCO = NULL;
     papszLCO = CSLAddString(papszLCO, CPLString("OVERWRITE=yes").c_str() );
@@ -1262,7 +1348,7 @@ void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource)
      */
     CPLString fullLayerName(scheme);
     fullLayerName.append(".");
-    Layer_ = poDstDatasource->CreateLayer( fullLayerName.append(LayerName_.c_str()).c_str(), GetSpatialRef(), GeomType_, papszLCO );
+    Layer_ = poDstDatasource->CreateLayer( fullLayerName.append(LayerName_.c_str()).c_str(), spatRef, GeomType_, papszLCO );
 
     if (Layer_ == NULL)
     {
@@ -1703,7 +1789,7 @@ void NAVI2PG::CreateS57SignaturesStrategy::DoProcess()
 void NAVI2PG::CreateS57SignaturesStrategy::ModifyLayerDefnForAddNewFields()
 {
     OGRFieldDefn oFieldAngleCW( "lable", OFTString );
-    oFieldAngleCW.SetWidth(32);
+    oFieldAngleCW.SetWidth(255);
     Layer_->CreateField(&oFieldAngleCW);
 }
 OGRSpatialReference* NAVI2PG::CreateS57SignaturesStrategy::GetSpatialRef()
@@ -1793,10 +1879,30 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     }
 
     /*
+     * Автоматическое создание схемы
+     */
+    const char *crateSchemaFlag= CPLGetConfigOption(CommandLineKeys::CREATE_SCHEME_FLAG.c_str(), "FALSE");
+
+    if ( EQUAL(crateSchemaFlag,"TRUE"))
+    {
+        GDALPGUtility::PGExecuteSQL( CPLString().Printf("CREATE SCHEMA \"%s\";", CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), "")), poDstDatasource);
+    }
+
+    /*
      *  Конфигурация
      */
     std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
     //std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
+
+    /*
+     *  Определяем общую СК
+     */
+    size_t layerIndex = 0;
+    while(poSrcDatasource->GetLayer(layerIndex)->GetSpatialRef() == NULL)
+    {
+        layerIndex++;
+    }
+    OGRSpatialReference* spatRef = poSrcDatasource->GetLayer(layerIndex)->GetSpatialRef();
 
     /*
      *  Импорт данных в БД
@@ -1804,7 +1910,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     for(size_t i = 0; i < layersCreators.size(); ++i)
     {
         CreateLayerStrategy* layersCreator = layersCreators[i];
-        layersCreator->Create(poDstDatasource);
+        layersCreator->Create(poDstDatasource, spatRef);
     }
 
     /*

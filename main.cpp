@@ -28,7 +28,7 @@
  * @brief Чтение параметров командной строки, инициализация процедуры импорта данных из s57 в PostgresSQL
  *
  * Вызов
- *  navi2pg [-h] [--help] [-v] [--version] [--sign_cp1251] --scheme <scheme_name> <pg_connection_string> <S57_datasource_name> <mapserevr_config_template_filename> <mapnik_config_template_filename> <mapnik_pyscript_template_filename>
+ *  navi2pg [-h] [--help] [-v] [--version] [--sign_cp1251] [--create_schema] [--schema <schema_name>] <pg_connection_string> <S57_datasource_name> <mapserevr_config_template_filename> <mapnik_config_template_filename> <mapnik_pyscript_template_filename>
  *
  * Описание
  *  Утилита производит импорт данных из файла формата S57 в БД PostgreSQL,
@@ -46,7 +46,10 @@
  *  --sign_cp1251:
  *      Указать, если подписи в S57 находятся в кодировке CP1251
  *
- *  --scheme <scheme_name>:
+ *  --create_schema:
+ *      Указать, если схему нужно создать автоматически
+ *
+ *  --schema <schema_name>:
  *      Имя схемы из pg_connection_string куда будут импортированы данные,
  *      если не задано, то имя схемы будет соответствовать имени файла - источника данных
  *
