@@ -200,12 +200,12 @@
     
     <Style name="obstacles_pt">
         <Rule name="Подводная осыхающая скала (без подписи)">
-            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <MaxScaleDenominator>25000</MaxScaleDenominator>
             <Filter>[type] = 'OBSTRN'</Filter>
             <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_without_sign.png" allow-overlap="true" />
         </Rule>
         <Rule name="Подводная осыхающая скала (с подписью)">
-            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <MaxScaleDenominator>25000</MaxScaleDenominator>
             <Filter>[type] = 'UWTROC'</Filter>
             <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_with_sign.png" allow-overlap="true" />
             <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="5" dy="-5"> [name_en] </TextSymbolizer>

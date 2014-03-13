@@ -424,7 +424,7 @@ MAP
         TEMPLATE     "dummy"
         
         MINSCALE 1
-        MAXSCALE 100000
+        MAXSCALE 25000
         
         CLASSITEM 'type'
     
