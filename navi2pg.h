@@ -300,6 +300,17 @@ namespace NAVI2PG {
     };
 
 /**
+* @brief Класс-стратегия для добавления полей, содержащих подписи на английском и русском языках name_en и name_ru.
+* Подписи содержат информацию о значение изобаты, на основе значения поля VALDCO - значение изобаты.
+*/
+    class AddVALDCOSignatures: public AddSignatures
+    {
+    public:
+        AddVALDCOSignatures(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
+/**
 * @brief Абстрактный класс, представляющий интерфейс стратегии добавления нового слоя в БД.
 */
     class CreateLayerStrategy

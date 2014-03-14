@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Map srs="+init=epsg:3857" background-color="rgb(255,255,255)" >
     
+    <Style name="depths_area_plg">
+        <Rule name="Область глубин 0 0">
+            <Filter>[type] = 'DEPARE' and ([drval2] = 0 or [drval2] = null) </Filter>  <!-- FilteError -->
+            <PolygonSymbolizer fill="rgb(155, 200, 163) "/>
+        </Rule>
+        <Rule name="Область глубин 0 10">
+            <Filter>[type] = 'DEPARE' and [drval2] &lt;= 10 </Filter>  <!-- FilteError -->
+            <PolygonSymbolizer fill="rgb(145, 202, 243) "/>
+        </Rule>
+        <Rule name="Область глубин 10 more">
+            <Filter>[type] = 'DEPARE' and [drval2] &gt; 10</Filter> 
+            <PolygonSymbolizer fill="rgb(234, 255, 243)"/>
+        </Rule>
+        <Rule name="Углубленный район">
+            <Filter>[type] = 'DRGARE'</Filter> 
+            <LineSymbolizer stroke="rgb(234, 255, 243) " stroke-width="1.5"/>
+        </Rule>
+    </Style>
+    <Layer name="Глубины (площадные)" srs="+init=epsg:4326">
+        <StyleName>depths_area_plg</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."depths_area_plg"</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
     
     <Style name="land_region_plg">
         <Rule name="Область суши">
@@ -52,37 +82,6 @@
             <Parameter name="host">{PG_HOST}</Parameter>
             <Parameter name="password">{PG_PASSWORD}</Parameter>
             <Parameter name="table">"{PG_SCHEME}"."building_plg"</Parameter>
-            <Parameter name="type">postgis</Parameter>
-            <Parameter name="user">{PG_USER}</Parameter>
-        </Datasource>
-    </Layer>
-    
-    <Style name="depths_area_plg">
-        <Rule name="Область глубин 0 0">
-            <Filter>[type] = 'DEPARE' and ([drval2] = 0 or [drval2] = null) </Filter>  <!-- FilteError -->
-            <PolygonSymbolizer fill="rgb(155, 200, 163) "/>
-        </Rule>
-        <Rule name="Область глубин 0 10">
-            <Filter>[type] = 'DEPARE' and [drval2] &lt;= 10 </Filter>  <!-- FilteError -->
-            <PolygonSymbolizer fill="rgb(145, 202, 243) "/>
-        </Rule>
-        <Rule name="Область глубин 10 more">
-            <Filter>[type] = 'DEPARE' and [drval2] &gt; 10</Filter> 
-            <PolygonSymbolizer fill="rgb(234, 255, 243)"/>
-        </Rule>
-        <Rule name="Углубленный район">
-            <Filter>[type] = 'DRGARE'</Filter> 
-            <LineSymbolizer stroke="rgb(234, 255, 243) " stroke-width="1.5"/>
-        </Rule>
-    </Style>
-    <Layer name="Глубины (площадные)" srs="+init=epsg:4326">
-        <StyleName>depths_area_plg</StyleName>
-        <Datasource>
-            <Parameter name="dbname">{PG_DBNAME}</Parameter>
-            <Parameter name="geometry_field">wkb_geometry</Parameter>
-            <Parameter name="host">{PG_HOST}</Parameter>
-            <Parameter name="password">{PG_PASSWORD}</Parameter>
-            <Parameter name="table">"{PG_SCHEME}"."depths_area_plg"</Parameter>
             <Parameter name="type">postgis</Parameter>
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
@@ -245,7 +244,19 @@
     </Layer>
     
     <Style name="depths_area_ln">
-        <Rule> 
+        <Rule>
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="1" />
+            <TextSymbolizer face-name="DejaVu Sans Book" size="15" allow-overlap="true" dx="0" dy="0" placement="line"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule>
+            <MinScaleDenominator>100001</MinScaleDenominator>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="1" />
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="0" dy="0" placement="line"> [name_en] </TextSymbolizer>
+        </Rule>
+        <Rule>
+            <MinScaleDenominator>200001</MinScaleDenominator>
             <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="1" />
         </Rule>
     </Style>
@@ -801,7 +812,7 @@
     <Style name="coastline">
         <Rule>
             <Filter>[catcoa]=null or [catcoa]=8</Filter> <!-- Ошибки нет т.к. тут все объекты - береговые линии -->
-            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1" stroke-dasharray="20.0,115.0"/>
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1" stroke-dasharray="20.0,15.0"/>
         </Rule>
         <Rule>
             <ElseFilter />

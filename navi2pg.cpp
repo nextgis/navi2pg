@@ -401,7 +401,7 @@ namespace
             layersWithCopyRules.push_back(layerWithCopyRules);
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DEPCNT");
-            layerWithCopyRules.FieldsNamesForCopy_.push_back("VALDCO");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddVALDCOSignatures());
             layersWithCopyRules.push_back(layerWithCopyRules);
 
             layerWithCopyRules.FieldsNamesForCopy_.clear();
@@ -1329,6 +1329,14 @@ void NAVI2PG::AddVALMAGSignatures::Execute(OGRFeature *dstFeature, OGRFeature *s
 
     dstFeature->SetField( "name_en", CPLString().Printf("%.2f", valmag) );
     dstFeature->SetField( "name_ru", CPLString().Printf("%.2f", valmag) );
+}
+
+void NAVI2PG::AddVALDCOSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
+{
+    int valdco = srcFeature->GetFieldAsInteger( "VALDCO" );
+
+    dstFeature->SetField( "name_en", CPLString().Printf("%d", valdco) );
+    dstFeature->SetField( "name_ru", CPLString().Printf("%d", valdco) );
 }
 
 void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource, OGRSpatialReference* spatRef)
