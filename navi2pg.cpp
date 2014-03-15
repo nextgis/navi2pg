@@ -1056,7 +1056,7 @@ CPLString NAVI2PG::AddLightsSignatures::GetFirstPartOfSig(OGRFeature *srcFeature
         }
         case(7):
         {
-            litchrStr.Printf("lso%s", siggrpStr.c_str());
+            litchrStr.Printf("Iso%s", siggrpStr.c_str());
             break;
         }
         case(8):
