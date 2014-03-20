@@ -31,96 +31,11 @@
 #include "cpl_vsi.h"
 #include "cpl_string.h"
 
-#include "pg/ogr_pg.h"
-
 #include "logger.h"
 #include "navi2pg.h"
 #include "command_line_parser.h"
 
-namespace GDALPGUtility
-{
-    PGresult *OGRPG_PQexec(PGconn *conn, const char *query, int bMultipleCommandAllowed)
-    {
-        PGresult* hResult;
-    #if defined(PG_PRE74)
-        /* PQexecParams introduced in PG >= 7.4 */
-        hResult = PQexec(conn, query);
-    #else
-        if (bMultipleCommandAllowed)
-            hResult = PQexec(conn, query);
-        else
-            hResult = PQexecParams(conn, query, 0, NULL, NULL, NULL, NULL, 0);
-    #endif
 
-    #ifdef DEBUG
-        const char* pszRetCode = "UNKNOWN";
-        char szNTuples[32];
-        szNTuples[0] = '\0';
-        if (hResult)
-        {
-            switch(PQresultStatus(hResult))
-            {
-                case PGRES_TUPLES_OK:
-                    pszRetCode = "PGRES_TUPLES_OK";
-                    sprintf(szNTuples, ", ntuples = %d", PQntuples(hResult));
-                    break;
-                case PGRES_COMMAND_OK:
-                    pszRetCode = "PGRES_COMMAND_OK";
-                    break;
-                case PGRES_NONFATAL_ERROR:
-                    pszRetCode = "PGRES_NONFATAL_ERROR";
-                    break;
-                case PGRES_FATAL_ERROR:
-                    pszRetCode = "PGRES_FATAL_ERROR";
-                    break;
-                default: break;
-            }
-        }
-        if (bMultipleCommandAllowed)
-            CPLDebug("PG", "PQexec(%s) = %s%s", query, pszRetCode, szNTuples);
-        else
-            CPLDebug("PG", "PQexecParams(%s) = %s%s", query, pszRetCode, szNTuples);
-
-    /* -------------------------------------------------------------------- */
-    /*      Generate an error report if an error occured.                   */
-    /* -------------------------------------------------------------------- */
-        if ( !hResult || (PQresultStatus(hResult) == PGRES_NONFATAL_ERROR ||
-                          PQresultStatus(hResult) == PGRES_FATAL_ERROR ) )
-        {
-            CPLDebug( "PG", "%s", PQerrorMessage( conn ) );
-        }
-    #endif
-
-        return hResult;
-    }
-
-    bool PGExecuteSQL(const CPLString &sStatement, OGRDataSource* pgDataSource)
-    {
-        OGRPGDataSource* pDS = dynamic_cast<OGRPGDataSource*>(pgDataSource);
-
-        if(!pDS)
-            return false;
-
-        CPLErrorReset();
-        PGconn* hPGConn = pDS->GetPGConn();
-
-        PGresult    *hResult = GDALPGUtility::OGRPG_PQexec( hPGConn, sStatement.c_str(), TRUE );
-        ExecStatusType status = PQresultStatus(hResult);
-        if (status == PGRES_COMMAND_OK)
-        {
-            OGRPGClearResult( hResult );
-            return true;
-        }
-        if( status == PGRES_NONFATAL_ERROR || status == PGRES_FATAL_ERROR )
-        {
-            std::cout << "Error: " << PQerrorMessage( hPGConn ) << std::endl;
-        }
-
-        OGRPGClearResult( hResult );
-
-        return false;
-    }
-}
 namespace
 {
     std::string readFromDBConnectString(const std::string& connectionString, const std::string& paramName)
@@ -1576,16 +1491,16 @@ void NAVI2PG::CreateLightsSectorsStrategy::DoProcess()
         pt3.assignSpatialReference(&poSRS);
 
 
-        pt1.setX( poPoint->getX() - std::sin(sectr1*TO_RADIANS) * valnmr * 1852 );
-        pt1.setY( poPoint->getY() - std::cos(sectr1*TO_RADIANS) * valnmr * 1852 );
+        pt1.setX( poPoint->getX() - sin(sectr1*TO_RADIANS) * valnmr * 1852 );
+        pt1.setY( poPoint->getY() - cos(sectr1*TO_RADIANS) * valnmr * 1852 );
         pt1.transformTo(dstSpRef);
 
         pt2.setX( poPoint->getX() );
         pt2.setY( poPoint->getY() );
         pt2.transformTo(dstSpRef);
 
-        pt3.setX( poPoint->getX() - std::sin(sectr2*TO_RADIANS) * valnmr * 1852 );
-        pt3.setY( poPoint->getY() - std::cos(sectr2*TO_RADIANS) * valnmr * 1852 );
+        pt3.setX( poPoint->getX() - sin(sectr2*TO_RADIANS) * valnmr * 1852 );
+        pt3.setY( poPoint->getY() - cos(sectr2*TO_RADIANS) * valnmr * 1852 );
         pt3.transformTo(dstSpRef);
 
         OGRLineString* poLS = new OGRLineString();
@@ -1630,8 +1545,8 @@ void NAVI2PG::CreateLightsSectorsStrategy::DoProcess()
             {
                 OGRPoint pt;
                 pt.assignSpatialReference(&poSRS);
-                pt.setX( poPoint->getX() - std::sin(angle * TO_RADIANS) * (radius ) );
-                pt.setY( poPoint->getY() - std::cos(angle * TO_RADIANS) * (radius ) );
+                pt.setX( poPoint->getX() - sin(angle * TO_RADIANS) * (radius ) );
+                pt.setY( poPoint->getY() - cos(angle * TO_RADIANS) * (radius ) );
                 pt.transformTo(dstSpRef);
 
                 angle = angle + DegreesToPoint_;
@@ -1641,8 +1556,8 @@ void NAVI2PG::CreateLightsSectorsStrategy::DoProcess()
 
             OGRPoint pt;
             pt.assignSpatialReference(&poSRS);
-            pt.setX( poPoint->getX() - std::sin(angleTo * TO_RADIANS) * (radius ) );
-            pt.setY( poPoint->getY() - std::cos(angleTo * TO_RADIANS) * (radius ) );
+            pt.setX( poPoint->getX() - sin(angleTo * TO_RADIANS) * (radius ) );
+            pt.setY( poPoint->getY() - cos(angleTo * TO_RADIANS) * (radius ) );
             pt.transformTo(dstSpRef);
             sectorLine->addPoint(&pt);
 
@@ -1893,7 +1808,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
 
     if ( EQUAL(crateSchemaFlag,"TRUE"))
     {
-        GDALPGUtility::PGExecuteSQL( CPLString().Printf("CREATE SCHEMA \"%s\";", CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), "")), poDstDatasource);
+        poDstDatasource->ExecuteSQL( CPLString().Printf("CREATE SCHEMA \"%s\";", CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), "")), NULL, NULL );
     }
 
     /*
