@@ -1808,7 +1808,16 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
 
     if ( EQUAL(crateSchemaFlag,"TRUE"))
     {
-        poDstDatasource->ExecuteSQL( CPLString().Printf("CREATE SCHEMA \"%s\";", CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), "")), NULL, NULL );
+        CPLErrorReset();
+
+        poDstDatasource->ExecuteSQL( CPLString().Printf("CREATE SCHEMA\"%s\";",
+            CPLGetConfigOption(CommandLineKeys::SCHEME_NAME.c_str(), "")), NULL, NULL );
+
+        if( CPLGetLastErrorNo() != CE_None )
+        {
+            LOG(CPLString().Printf("Error. DB schems creation: %s", CPLGetLastErrorMsg()));
+        }
+        CPLErrorReset();
     }
 
     /*
