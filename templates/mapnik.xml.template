@@ -3,11 +3,11 @@
     
     <Style name="depths_area_plg">
         <Rule name="Область глубин 0 0">
-            <Filter>[type] = 'DEPARE' and ([drval2] = 0 or [drval2] = null) </Filter>  <!-- FilteError -->
+            <Filter>[type] = 'DEPARE' and ([drval2] = 0 or [drval2] = null) </Filter> 
             <PolygonSymbolizer fill="rgb(155, 200, 163) "/>
         </Rule>
         <Rule name="Область глубин 0 10">
-            <Filter>[type] = 'DEPARE' and [drval2] &lt;= 10 </Filter>  <!-- FilteError -->
+            <Filter>[type] = 'DEPARE' and ([drval2] &lt;= 10 and [drval2] &gt; 0) </Filter>
             <PolygonSymbolizer fill="rgb(145, 202, 243) "/>
         </Rule>
         <Rule name="Область глубин 10 more">
@@ -15,8 +15,12 @@
             <PolygonSymbolizer fill="rgb(234, 255, 243)"/>
         </Rule>
         <Rule name="Углубленный район">
-            <Filter>[type] = 'DRGARE'</Filter> 
-            <LineSymbolizer stroke="rgb(234, 255, 243) " stroke-width="1.5"/>
+            <Filter>[type] = 'DRGARE' and [drval2] &gt; 10</Filter> 
+            <PolygonSymbolizer fill="rgb(234, 255, 243)"/>
+        </Rule>
+        <Rule name="Углубленный район">
+            <Filter>[type] = 'DRGARE' and [drval2] &lt;= 10</Filter>
+            <PolygonSymbolizer fill="rgb(145, 202, 243)"/>
         </Rule>
     </Style>
     <Layer name="Глубины (площадные)" srs="+init=epsg:4326">
@@ -36,6 +40,7 @@
         <Rule name="Область суши">
             <Filter>[type] = 'LNDARE'</Filter>
             <PolygonSymbolizer fill="rgb(222,205,139)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="15" allow-overlap="false" placement="point"> [name_ru] </TextSymbolizer>
         </Rule>
         <Rule name="Местность" >
             <Filter>[type] = 'LNDRGN'</Filter> 
@@ -61,6 +66,7 @@
             <MaxScaleDenominator>500000</MaxScaleDenominator>
             <PolygonSymbolizer fill="rgb(182, 157, 64) "/>
             <LineSymbolizer stroke="rgb(163, 123, 57) " stroke-width="1"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="15" allow-overlap="false" placement="point"> [name_ru] </TextSymbolizer>
         </Rule>
         <Rule name="Район дока">
             <Filter>[type] = 'DOCARE'</Filter> 
@@ -72,6 +78,11 @@
             <MaxScaleDenominator>500000</MaxScaleDenominator>
             <Filter>[type] = 'SLCONS'</Filter> 
             <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="1.5"/>
+        </Rule>
+        <Rule name="Мост">
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <Filter>[type] = 'BRIDGE'</Filter> 
+            <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="3"/>
         </Rule>
     </Style>
     <Layer name="Сооружения (площадные)" srs="+init=epsg:4326">
@@ -106,6 +117,24 @@
         </Datasource>
     </Layer>
     
+    <Style name="lakes">
+        <Rule>
+            <PolygonSymbolizer fill="rgb(145, 202, 243) "/>
+            <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="1.0"/>
+        </Rule>
+    </Style>
+    <Layer name="Озера" srs="+init=epsg:4326">
+        <StyleName>lakes</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."lakes"</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
     
     <Style name="obstacles_plg">
         <Rule name="Опасность">
@@ -140,6 +169,35 @@
         <Rule name="Фарватер"> <!-- unsatisfactorily -->
             <Filter>[type] = 'FAIRWY'</Filter>
             <LinePatternSymbolizer file="images/element_oblasti.png"/>
+        </Rule>
+        <Rule name="Район кругового движения">
+            <Filter>[type] = 'TSSRON'</Filter>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <PolygonPatternSymbolizer file="images/rayon_krugovogo_dvijeniya_fon.png"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/rayon_krugovogo_dvijeniya_centr.png"/>
+        </Rule>
+        <Rule name="Пересечение путей">
+            <Filter>[type] = 'TSSCRS'</Filter>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <PolygonPatternSymbolizer file="images/peresechenie_putey.png"/>
+        </Rule>
+        <Rule name="Путь следование подводных лодок">
+            <Filter>[type] = 'SUBTLN'</Filter>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <LinePatternSymbolizer file="images/element_oblasti.png"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/preduprezhdenie.png"/>
+        </Rule>
+        <Rule name="Место встречи лоцмана">
+            <Filter>[type] = 'PILBOP'</Filter>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <LinePatternSymbolizer file="images/element_oblasti.png"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/mesto_vstrechi_locmana.png"/>
+        </Rule>
+        <Rule name="Зона пребрежного плавания">
+            <Filter>[type] = 'ISTZNE'</Filter>
+            <MaxScaleDenominator>200000</MaxScaleDenominator>
+            <LinePatternSymbolizer file="images/zona_prebrejnogo_plavaniya_perim.png"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/zona_prebrejnogo_plavaniya_centr.png"/>
         </Rule>
     </Style>
     <Layer name="Навигация (площадные)" srs="+init=epsg:4326">
@@ -207,12 +265,12 @@
             <MaxScaleDenominator>25000</MaxScaleDenominator>
             <Filter>[type] = 'UWTROC'</Filter>
             <PointSymbolizer file="images/podvodnaya_osihaushaya_skala_with_sign.png" allow-overlap="true" />
-            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="5" dy="-5"> [name_en] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="false" dx="5" dy="-5"> [name_en] </TextSymbolizer>
         </Rule>
         <Rule name="Характеристика морского дна">
             <MaxScaleDenominator>50000</MaxScaleDenominator>
             <Filter>[type] = 'SBDARE'</Filter>
-            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true"> [name_en] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="false"> [name_en] </TextSymbolizer>
         </Rule>
         <Rule name="Затонувшее судно">
             <MaxScaleDenominator>100000</MaxScaleDenominator>
@@ -223,6 +281,11 @@
             <MaxScaleDenominator>100000</MaxScaleDenominator>
             <Filter>[type] = 'DMPGRD'</Filter>
             <PointSymbolizer file="images/rayon_svalki.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Бар подводный">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'SNDWAV'</Filter>
+            <PointSymbolizer file="images/bar_podvodnii.png" allow-overlap="true" />
         </Rule>
         <Rule name="Сваи">
             <MaxScaleDenominator>100000</MaxScaleDenominator>
@@ -247,13 +310,13 @@
         <Rule>
             <MaxScaleDenominator>100000</MaxScaleDenominator>
             <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="1" />
-            <TextSymbolizer face-name="DejaVu Sans Book" size="15" allow-overlap="true" dx="0" dy="0" placement="line"> [name_en] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="15" allow-overlap="false" dx="0" dy="0" placement="line"> [name_en] </TextSymbolizer>
         </Rule>
         <Rule>
             <MinScaleDenominator>100001</MinScaleDenominator>
             <MaxScaleDenominator>200000</MaxScaleDenominator>
             <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="1" />
-            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="0" dy="0" placement="line"> [name_en] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="false" dx="0" dy="0" placement="line"> [name_en] </TextSymbolizer>
         </Rule>
         <Rule>
             <MinScaleDenominator>200001</MinScaleDenominator>
@@ -317,89 +380,189 @@
             <Filter>[type] = ''</Filter>
             <PointSymbolizer/>              
         </Rule>
-        <Rule name="Знак спец.назначения.">
+        <Rule name="Знак спец.назначения. Общ.">
             <Filter>[type] = 'BCNSPP_unknown'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(obshii).png" allow-overlap="true" transform="translate(0 -10)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(obshii).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Знак спец.назначения. Внимение.">
+            <Filter>[type] = 'BCNSPP_vnimanie'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(vnimanie).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Знак спец.назначения. Веха.">
+            <Filter>[type] = 'BCNSPP_veha'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak(veha).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
         <Rule name="Знак спец.назначения. Маяк.">
             <Filter>[type] = 'BCNSPP_mayak'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(mayak).png" allow-overlap="true" transform="translate(0 -10)" />
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak(mayak).png" allow-overlap="true" transform="translate(0 -7)" />
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
         <Rule name="Знак спец.назначения. Констр.">
             <Filter>[type] = 'BCNSPP_konstr'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(konstr).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak(konstr).png" allow-overlap="true" transform="translate(0 -7)"/>
         </Rule>
         <Rule name="Знак спец.назначения. Вышка.">
             <Filter>[type] = 'BCNSPP_vishka'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(vishka).png" allow-overlap="true" transform="translate(0 -10)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(vishka).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
+        
         <Rule name="Знак латеральный. Маяк.">
             <Filter>[type] = 'BCNLAT_mayak'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(mayak).png" allow-overlap="true" transform="translate(0 -10)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak(mayak).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
         <Rule name="Знак латеральный. Констр.">
             <Filter>[type] = 'BCNLAT_konstr'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_spec.naznacheniya(konstr).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak(konstr).png" allow-overlap="true" transform="translate(0 -7)"/>
         </Rule>
+        <Rule name="Знак латеральный. Веха.">
+            <Filter>[type] = 'BCNLAT_veha'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak(veha).png" allow-overlap="true" transform="translate(0 -7)"/>
+        </Rule>
+        <Rule name="Знак латеральный. Дерево2.">
+            <Filter>[type] = 'BCNLAT_derevo2'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/znak_lateralnii(derevo2).png" allow-overlap="true" transform="translate(0 -7)"/>
+        </Rule>
+        
         <Rule name="Буй кардинальный">
             <Filter>[type] = 'BOYCAR_unknown'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_lateralnii.png" allow-overlap="true" transform="translate(0 -10)"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui.png" allow-overlap="true" transform="translate(0 -7)"/>
         </Rule>
         <Rule name="Буй кардинальный. Веха">
             <Filter>[type] = 'BOYCAR_veha'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -7)"/>
         </Rule>
         <Rule name="Буй кардинальный. Конический">
             <Filter>[type] = 'BOYCAR_konicheskii'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(konicheskii).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(konicheskii).png" allow-overlap="true" transform="translate(0 -7)"/>
         </Rule>
         <Rule name="Буй кардинальный. Столб">
             <Filter>[type] = 'BOYCAR_stolb'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_kardinalnii(stolb).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(stolb).png" allow-overlap="true" transform="translate(0 -7)"/>
+        </Rule>
+        
+        <Rule name="Буй отд.опасности">
+            <Filter>[type] = 'BOYISD_unknown'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui.png" allow-overlap="true" transform="translate(0 -7)"/>
         </Rule>
         <Rule name="Буй отд.опасности (веха)">
-            <Filter>[type] = 'BOYISD'</Filter>
+            <Filter>[type] = 'BOYISD_veha'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -10)"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -7)"/>
+        </Rule>
+        
+        <Rule name="Буй чистой воды (сферический)">
+            <Filter>[type] = 'BOYSAW_unknown'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui.png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй чистой воды (столб)">
+            <Filter>[type] = 'BOYSAW_stolb'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(stolb).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
         <Rule name="Буй чистой воды (сферический)">
-            <Filter>[type] = 'BOYSAW'</Filter>
+             <Filter>[type] = 'BOYSAW_konicheskii'  or [type] = 'BOYSAW_sphericheskii'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_chistoi_vodi(sphericheskii).png" allow-overlap="true" transform="translate(0 -10)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(sphericheskii).png" allow-overlap="true" transform="translate(0 -8)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
-        <Rule name="Буй специального назначения. Веха">
+        
+        <Rule name="Буй специального назначения. Общ">
+            <Filter>[type] = 'BOYSPP_unknown'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui.png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй специального назначения. Общ. Cтолб">
+            <Filter>[type] = 'BOYSPP_stolb'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(stolb).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй специального назначения. Общ. Веха">
             <Filter>[type] = 'BOYSPP_veha'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -10)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
-        <Rule name="Буй специального назначения. Конический">
+        <Rule name="Буй специального назначения. Общ. Конический">
             <Filter>[type] = 'BOYSPP_konicheskii'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(konicheskii).png" allow-overlap="true" transform="translate(0 -10)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(konicheskii).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
-        <Rule name="Буй латеральный.">
-            <Filter>[type] = 'BOYLAT'</Filter>
+        <Rule name="Буй специального назначения. Общ. Сферический">
+            <Filter>[type] = 'BOYSPP_sphericheskii'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
-            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui_lateralnii.png" allow-overlap="true" transform="translate(0 -10)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="-20"> [name_ru]  </TextSymbolizer>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(sphericheskii).png" allow-overlap="true" transform="translate(0 -8)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
         </Rule>
+        <Rule name="Буй специального назначения. Общ. Цилиндрический">
+            <Filter>[type] = 'BOYSPP_cilindricheskii'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(cilindricheskii).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй специального назначения. Общ. Супербуй">
+            <Filter>[type] = 'BOYSPP_superbui'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(superbui).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        
+        <Rule name="Буй латеральный.">
+            <Filter>[type] = 'BOYLAT_unknown'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui.png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй латеральный. Конический">
+            <Filter>[type] = 'BOYLAT_konicheskii'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(konicheskii).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй латеральный. Цилиндрический">
+            <Filter>[type] = 'BOYLAT_cilindricheskii'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(cilindricheskii).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй латеральный. Cтолб">
+            <Filter>[type] = 'BOYLAT_stolb'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(stolb).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        <Rule name="Буй латеральный. Веха">
+            <Filter>[type] = 'BOYLAT_veha'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/bui(veha).png" allow-overlap="true" transform="translate(0 -7)"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="-20"> [name_ru]  </TextSymbolizer>
+        </Rule>
+        
         <Rule name="Радиолокационный маяк ответчик">
             <Filter>[type] = 'RTPBCN'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
@@ -410,53 +573,74 @@
             <MaxScaleDenominator>500000</MaxScaleDenominator>
             <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/tumanii_signal.png" allow-overlap="true" transform="translate(-16 10)"/>
         </Rule>
+        <Rule name="Плавучий маяк">
+            <Filter>[type] = 'LITVES'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/plavuchii_mayak.png" allow-overlap="true" transform="translate(-16 10)"/>
+        </Rule>
         <Rule name="Огни (зеленые)">
             <Filter>[type] = 'LIGHTS_without_sector_orient_G'</Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_G.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
         <Rule name="Огни (красные)">
             <Filter>[type] = 'LIGHTS_without_sector_orient_R'</Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_R.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
         <Rule name="Огни (белый)">
             <Filter>[type] = 'LIGHTS_without_sector_orient_W'</Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
         <Rule name="Огни (желтый)">
             <Filter>[type] = 'LIGHTS_without_sector_orient_Y'</Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate([orient_cw] 0 -14.5)"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
         <Rule name="Огни (зеленые)">
             <Filter>[type] = 'LIGHTS_without_sector_not_orient_G' </Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_G.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
         <Rule name="Огни (красные)">
             <Filter>[type] = 'LIGHTS_without_sector_not_orient_R' </Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_R.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
         <Rule name="Огни (белый)">
             <Filter>[type] = 'LIGHTS_without_sector_not_orient_W' </Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
         <Rule name="Огни (желтый)">
             <Filter>[type] = 'LIGHTS_without_sector_not_orient_Y' </Filter>
 			<MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/lights_without_sector_Y.png" allow-overlap="true" transform="translate(0 14.5),rotate(-45 0 -14.5)"  />
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="20" dy="20"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" placement-type="list" dx="20" dy="20"> [name_ru]
+                <Placement dy="30"/>
+            </TextSymbolizer>
         </Rule>
     </Style>
     <Layer name="Знаки" srs="+init=epsg:4326">
@@ -581,6 +765,11 @@
             <MaxScaleDenominator>500000</MaxScaleDenominator>
             <PointSymbolizer file="images/otd.stroeniya(cerkvi)(vid.rad).png" allow-overlap="true"/>
         </Rule>
+        <Rule name="Ворота шлюза">
+            <Filter>[type] = 'GATCON'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PointSymbolizer file="images/vorota_shluza.png" allow-overlap="true"/>
+        </Rule>
     </Style>
     <Layer name="ОТД.Строения" srs="+init=epsg:4326">
         <StyleName>building_pt</StyleName>
@@ -626,7 +815,7 @@
             <Filter>[type] = 'LNDRGN'</Filter>
             <MaxScaleDenominator>25000</MaxScaleDenominator>
             <MarkersSymbolizer fill="orange" width="5" height="5" stroke="black" stroke-width="2"  placement="point" marker-type="ellipse" allow-overlap="true"/> 
-            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="true" dx="10" dy="5"> [name_ru]  </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" dx="10" dy="5"> [name_ru]  </TextSymbolizer>
         </Rule>
     </Style>
     <Layer name="Область суши" srs="+init=epsg:4326">
@@ -699,7 +888,7 @@
             <Filter>[type] = 'LNDMRK_visible_tower'</Filter>
 			<MaxScaleDenominator>100000</MaxScaleDenominator>
             <PointSymbolizer file="images/landmark(bashnya).png" allow-overlap="true" transform="translate(0, -10)" />
-            <TextSymbolizer face-name="DejaVu Sans Book" size="8" allow-overlap="true" dx="10" dy="10"> [name_en] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="8" allow-overlap="false" dx="10" dy="10"> [name_en] </TextSymbolizer>
         </Rule>
         <Rule name="Ландмарк. Видимый. Труба.">
             <Filter>[type] = 'LNDMRK_unknown_pipe'</Filter>
@@ -707,9 +896,9 @@
             <PointSymbolizer file="images/landmark(truba).png" allow-overlap="true" transform="translate(0, -10)" />
         </Rule>
         <Rule name="Ландмарк. Ориентир">
-            <Filter>[type] = 'LNDMRK_unknown_unknown'</Filter>
+            <Filter>[type] = 'LNDMRK_unknown_unknown' or [type] = 'LNDMRK_visible_unknown'</Filter>
 			<MaxScaleDenominator>100000</MaxScaleDenominator>
-            <PointSymbolizer file="images/landmark.png" allow-overlap="true" transform="translate(0, -10)" />
+            <PointSymbolizer file="images/landmark.png" allow-overlap="true" transform="translate(0, 0)" />
         </Rule>
     </Style>
     <Layer name="Отметки (mark)" srs="+init=epsg:4326">
@@ -747,6 +936,11 @@
             <MaxScaleDenominator>100000</MaxScaleDenominator>
             <PointSymbolizer file="images/mesto_vstrechi_locmana.png" allow-overlap="true" />
         </Rule>
+        <Rule name="ПРДС">
+            <Filter>[type] = 'SISTAT'</Filter>
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <PointSymbolizer file="images/prds.png" allow-overlap="true" />
+        </Rule>
     </Style>
     <Layer name="Навигация (точечные)" srs="+init=epsg:4326">
         <StyleName>route_pt</StyleName>
@@ -766,7 +960,7 @@
         <Rule name="Район действия предупреждения (Запретная зона)">
             <MaxScaleDenominator>100000</MaxScaleDenominator>
             <PointSymbolizer file="images/magnitnoe_sklonenie.png" allow-overlap="true" />
-            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="true" dx="5" horizontal-alignment="right"> [name_en] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="10" allow-overlap="false" dx="5" horizontal-alignment="right"> [name_en] </TextSymbolizer>
         </Rule>
     </Style>
     <Layer name="Магнитное склонение" srs="+init=epsg:4326">
@@ -793,6 +987,12 @@
             <Filter>[type] = 'DYKCON'</Filter>
             <MaxScaleDenominator>500000</MaxScaleDenominator>
             <LineSymbolizer stroke="rgb(0, 0, 0) " stroke-width="2"/>
+        </Rule>
+        <Rule name="Ворота кессонные">
+            <Filter>[type] = 'GATCON'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="2"/>
+            <PointSymbolizer file="images/vorota_kessonnie.png" allow-overlap="true"/>
         </Rule>
     </Style>
     <Layer name="Сооружения (линейные)" srs="+init=epsg:4326">
@@ -882,6 +1082,10 @@
             <Filter>[type] = 'CBLSUB'</Filter>
             <LinePatternSymbolizer file="images/kabel_podvodnii.png"/>
         </Rule>
+        <Rule name="Трубопровод (на земле, воде)">
+            <Filter>[type] = 'PIPSOL'</Filter>
+            <LinePatternSymbolizer file="images/truboprovod.png"/>
+        </Rule>
         <Rule name="Рыболовные снасти (сети)">
             <Filter>[type] = 'FSHFAC'</Filter>
             <LinePatternSymbolizer file="images/ribolovnie_seti.png"/>
@@ -905,7 +1109,7 @@
         <Rule name="Линия навигации (с подписью)">
             <Filter>[type] = 'NAVLNE_limiting'</Filter>
             <LineSymbolizer stroke="rgb(107, 113, 110 ) " stroke-width="1" stroke-dasharray="5.0,2.0"/>
-            <TextSymbolizer face-name="DejaVu Sans Book" size="5" allow-overlap="true" dx="5"  dy="-2" horizontal-alignment="right"> [name_en] </TextSymbolizer>
+            <TextSymbolizer face-name="DejaVu Sans Book" size="5" allow-overlap="false" dx="5"  dy="-2" horizontal-alignment="right"> [name_en] </TextSymbolizer>
         </Rule>
         <Rule name="Линия навигации (без подписи)">
             <Filter>[type] = 'NAVLNE_recomend_path' or [type] = 'NAVLNE_unknown'</Filter>

@@ -75,25 +75,39 @@ namespace NAVI2PG {
     };
 
 /**
-* @brief Класс, представляющий стратегию редактирования поля type на основании данных поля BOYSHP.
+* @brief Класс, представляющий стратегию редактирования поля type объектов BOYCAR, BOYLAT, BOYSPP, BOYISD, BOYSAW на основании данных поля BOYSHP.
 * BOYSHP - форма буя
 */
-    class BOYSHPSpecify: public ModifyTypeField
+    class BOYSpecify: public ModifyTypeField
     {
     public:
-        BOYSHPSpecify(){}
+        BOYSpecify(){}
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
+
 /**
 * @brief Класс, представляющий стратегию редактирования поля type на основании данных поля BCNSHP.
 * BCNSHP - форма знака
 */
-    class BCNSHPSpecify: public ModifyTypeField
+    class BCNLATSpecify: public ModifyTypeField
     {
     public:
-        BCNSHPSpecify(){}
+        BCNLATSpecify(){}
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
+
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании данных полей BCNSHP и CATSPM.
+* BCNSHP - форма знака
+* CATSPM - Категория знака специального назначения
+*/
+    class BCNSPPSpecify: public ModifyTypeField
+    {
+    public:
+        BCNSPPSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
 /**
 * @brief Класс, представляющий стратегию редактирования поля type на основании полей SECTR1 и SECTR2.
 */
@@ -164,6 +178,15 @@ namespace NAVI2PG {
     {
     public:
         TRAFICSpecify(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+/**
+* @brief Класс, представляющий стратегию редактирования поля type на основании поля CATSLC - категория берогового сооружения.
+*/
+    class CATSLCSpecify: public ModifyTypeField
+    {
+    public:
+        CATSLCSpecify(){}
         virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
     };
 

@@ -105,6 +105,12 @@ SYMBOLSET
     END
     
     SYMBOL
+        NAME "plavuchii_mayak"
+        TYPE pixmap
+        IMAGE "../images/plavuchii_mayak.png"
+    END
+    
+    SYMBOL
         NAME "landmark(bashnya)"
         TYPE pixmap
         IMAGE "../images/landmark(bashnya).png"
@@ -152,6 +158,12 @@ SYMBOLSET
     END
     
     SYMBOL
+        NAME "bar_podvodnii"
+        TYPE pixmap
+        IMAGE "../images/bar_podvodnii.png"
+    END
+    
+    SYMBOL
         NAME "podvodnaya_osihaushaya_skala_without_sign"
         TYPE pixmap
         IMAGE "../images/podvodnaya_osihaushaya_skala_without_sign.png"
@@ -179,6 +191,16 @@ SYMBOLSET
         NAME "otd.stroeniya(cerkvi)(vid.rad)"
         TYPE pixmap
         IMAGE "../images/otd.stroeniya(cerkvi)(vid.rad).png"
+    END
+    SYMBOL
+        NAME "vorota_kessonnie"
+        TYPE pixmap
+        IMAGE "../images/vorota_kessonnie.png"
+    END
+    SYMBOL
+        NAME "vorota_shluza"
+        TYPE pixmap
+        IMAGE "../images/vorota_shluza.png"
     END
     
     SYMBOL
@@ -257,6 +279,12 @@ SYMBOLSET
     END
     
     SYMBOL
+        NAME "truboprovod"
+        TYPE pixmap
+        IMAGE "../images/truboprovod.png"
+    END
+    
+    SYMBOL
         NAME "line4FSHFAC"
         TYPE vector
         POINTS
@@ -305,17 +333,43 @@ SYMBOLSET
         ANCHORPOINT 0.5 0
     END
     
-    
     SYMBOL
-        NAME "znak_spec.naznacheniya(obshii)"
+        NAME "rayon_krugovogo_dvijeniya_fon"
         TYPE pixmap
-        IMAGE "../images/znak_spec.naznacheniya(obshii).png"
+        IMAGE "../images/rayon_krugovogo_dvijeniya_fon.png"
+    END
+    SYMBOL
+        NAME "peresechenie_putey"
+        TYPE pixmap
+        IMAGE "../images/peresechenie_putey.png"
+    END
+    SYMBOL
+        NAME "rayon_krugovogo_dvijeniya_centr"
+        TYPE pixmap
+        IMAGE "../images/rayon_krugovogo_dvijeniya_centr.png"
+    END
+    SYMBOL
+        NAME "prds"
+        TYPE pixmap
+        IMAGE "../images/prds.png"
     END
     
     SYMBOL
-        NAME "znak_spec.znak_spec.naznacheniya(vishka)"
+        NAME "zona_prebrejnogo_plavaniya_centr"
         TYPE pixmap
-        IMAGE "../images/znak_spec.naznacheniya(vishka).png"
+        IMAGE "../images/zona_prebrejnogo_plavaniya_centr.png"
+    END
+    SYMBOL
+        NAME "zona_prebrejnogo_plavaniya_perim"
+        FILLED true
+        TYPE vector
+        POINTS
+            0 0
+            50  0
+            -99 -99
+            25 0
+            25 25
+        END # POINTS
     END
     
 #
@@ -354,50 +408,79 @@ SYMBOLSET
     
 #
 #   «Ì‡ÍË
-#    
+#   
     SYMBOL
-        NAME "znak_spec.naznacheniya(mayak)"
+        NAME "znak(mayak)"
         TYPE pixmap
-        IMAGE "../images/znak_spec.naznacheniya(mayak).png"
-    END # SYMBOL
-    
+        IMAGE "../images/znak(mayak).png"
+    END
     SYMBOL
-        NAME "znak_spec.naznacheniya(konstr)"
+        NAME "znak(konstr)"
         TYPE pixmap
-        IMAGE "../images/znak_spec.naznacheniya(konstr).png"
-    END # SYMBOL
+        IMAGE "../images/znak(konstr).png"
+    END
+    SYMBOL
+        NAME "znak(veha)"
+        TYPE pixmap
+        IMAGE "../images/znak(veha).png"
+    END
+    SYMBOL
+        NAME "znak_spec.naznacheniya(obshii)"
+        TYPE pixmap
+        IMAGE "../images/znak_spec.naznacheniya(obshii).png"
+    END
+    SYMBOL
+        NAME "znak_spec.naznacheniya(vnimanie)"
+        TYPE pixmap
+        IMAGE "../images/znak_spec.naznacheniya(vnimanie).png"
+    END
+    SYMBOL
+        NAME "znak_spec.naznacheniya(vishka)"
+        TYPE pixmap
+        IMAGE "../images/znak_spec.naznacheniya(vishka).png"
+    END
+    SYMBOL
+        NAME "znak_lateralnii(derevo2)"
+        TYPE pixmap
+        IMAGE "../images/znak_lateralnii(derevo2).png"
+    END
 
 #
 #   ¡ÛË
 #
     SYMBOL
-        NAME "bui_kardinalnii(stolb)"
+        NAME "bui"
         TYPE pixmap
-        IMAGE "../images/bui_kardinalnii(stolb).png"
-    END # SYMBOL
-    
-    SYMBOL
-        NAME "bui(konicheskii)"
-        TYPE pixmap
-        IMAGE "../images/bui(konicheskii).png"
-    END # SYMBOL
-    
+        IMAGE "../images/bui.png"
+    END
     SYMBOL
         NAME "bui(veha)"
         TYPE pixmap
         IMAGE "../images/bui(veha).png"
-    END # SYMBOL
-    
+    END
     SYMBOL
-        NAME "bui_chistoi_vodi(sphericheskii)"
+        NAME "bui(konicheskii)"
         TYPE pixmap
-        IMAGE "../images/bui_chistoi_vodi(sphericheskii).png"
-    END # SYMBOL
-    
+        IMAGE "../images/bui(konicheskii).png"
+    END
     SYMBOL
-        NAME "bui_lateralnii"
+        NAME "bui(stolb)"
         TYPE pixmap
-        IMAGE "../images/bui_lateralnii.png"
-    END # SYMBOL
-    
+        IMAGE "../images/bui(stolb).png"
+    END
+    SYMBOL
+        NAME "bui(sphericheskii)"
+        TYPE pixmap
+        IMAGE "../images/bui(sphericheskii).png"
+    END
+    SYMBOL
+        NAME "bui(cilindricheskii)"
+        TYPE pixmap
+        IMAGE "../images/bui(cilindricheskii).png"
+    END
+    SYMBOL
+        NAME "bui(superbui)"
+        TYPE pixmap
+        IMAGE "../images/bui(superbui).png"
+    END   
 END

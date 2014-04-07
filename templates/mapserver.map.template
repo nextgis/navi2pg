@@ -55,7 +55,15 @@ MAP
         STATUS       ON
         TYPE POLYGON
         TEMPLATE     "dummy"
-                CLASS            NAME "Область глубин 0 0"            EXPRESSION ( "[type]"="DEPARE" AND [drval2]=0)            STYLE                COLOR  155 200 163                WIDTH 1            END        END
+        
+        CLASS
+            NAME "Область глубин 0 0"
+            EXPRESSION ( "[type]"="DEPARE" AND [drval2]=0)
+            STYLE
+                COLOR  155 200 163
+                WIDTH 1
+            END
+        END
         CLASS
             NAME "Область глубин 0 10"
             EXPRESSION ( "[type]"="DEPARE" AND [drval2]<=10 )
@@ -66,22 +74,177 @@ MAP
         END
         CLASS
             NAME "Область глубин 10 more"
-            EXPRESSION ( "[type]"="DEPARE" AND [drval2]>=10)
+            EXPRESSION ( "[type]"="DEPARE" AND [drval2]>10)
             STYLE
                 COLOR  234 255 243
                 WIDTH 1
             END
         END
         CLASS
-            NAME "Углубленный район"
-            EXPRESSION ( "[type]"="DRGARE")
+            NAME "Углубленный район > 10"
+            EXPRESSION ( "[type]"="DRGARE" AND [drval2]>10)
             STYLE
                 COLOR  234 255 243
             END
         END
+        CLASS
+            NAME "Углубленный район <= 10"
+            EXPRESSION ( "[type]"="DRGARE" AND [drval2]<=10)
+            STYLE
+                COLOR  145 202 243
+            END
+        END
     END    
     
-##   Область суши#        LAYER                 NAME land_region_plg        TYPE POLYGON        DUMP true        TEMPLATE "dummy"                CONNECTIONTYPE postgis        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"                DATA "wkb_geometry from \"{PG_SCHEME}\".\"land_region_plg\" USING UNIQUE ogc_fid USING USING srid=4326"        METADATA            wms_title 'Область суши'        END                PROJECTION            "init=epsg:4326"        END                    STATUS ON        TRANSPARENCY 100                CLASSITEM 'type'                CLASS            NAME "Местность"            EXPRESSION "LNDRGN"            STYLE                OUTLINECOLOR 204 212 207                OUTLINEWIDTH 1                PATTERN 10 10 END            END        END        CLASS            NAME "Область суши"            EXPRESSION "LNDARE"            STYLE                COLOR 222 205 139            END        END    END        SCALEBAR        IMAGECOLOR 255 255 255                LABEL            COLOR 0 0 0            SIZE TINY        END                STYLE 1        SIZE 100 2        COLOR 0 0 0        UNITS METERS        INTERVALS 2        TRANSPARENT FALSE        STATUS ON    END##   Сооружения (площадные)#    LAYER        NAME building_plg        METADATA            wms_title "Сооружения (площадные)"        END        PROJECTION            "init=epsg:4326"        END        CONNECTIONTYPE postgis        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"        DATA "wkb_geometry from \"{PG_SCHEME}\".\"building_plg\" USING UNIQUE ogc_fid USING USING srid=4326"                STATUS       ON        TYPE POLYGON        TEMPLATE     "dummy"                MINSCALE 1        MAXSCALE 500000                CLASSITEM 'type'                CLASS            NAME "Район застройки"            EXPRESSION "BUAARE"            STYLE                COLOR  182 157 64                OUTLINECOLOR  163 123 57                WIDTH 1            END        END        CLASS            NAME "Район дока"            EXPRESSION "DOCARE"            STYLE                COLOR  145 202 243            END            STYLE                OUTLINEWIDTH  1                PATTERN 5 5 END                OUTLINECOLOR  0 0 0            END        END        CLASS            NAME "Береговое сооружение"            EXPRESSION "SLCONS"            STYLE                OUTLINECOLOR  107 113 110                WIDTH 1.5            END        END    END    
+#
+#   Область суши
+#    
+    LAYER         
+        NAME land_region_plg
+        
+        PROCESSING "LABEL_NO_CLIP=True"
+        
+        TYPE POLYGON
+        DUMP true
+        TEMPLATE "dummy"
+        
+        CONNECTIONTYPE postgis
+        CONNECTION "user=alisovenko password=alisovenko dbname=naval host=gis-lab.info port=5432"
+        
+        DATA "wkb_geometry from \"{PG_SCHEME}\".\"land_region_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
+        METADATA
+            wms_title 'Область суши'
+        END
+        
+        PROJECTION
+            "init=epsg:4326"
+        END    
+        
+        STATUS ON
+        TRANSPARENCY 100
+        
+        CLASSITEM 'type'
+        LABELITEM 'name_ru'
+        
+        CLASS
+            NAME "Местность"
+            EXPRESSION "LNDRGN"
+            STYLE
+                OUTLINECOLOR 204 212 207
+                OUTLINEWIDTH 1
+                PATTERN 10 10 END
+            END
+        END
+        CLASS
+            NAME "Область суши"
+            EXPRESSION "LNDARE"
+            STYLE
+                COLOR 222 205 139
+            END
+            
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 15
+                POSITION CC
+                ENCODING UTF-8
+                ALIGN center
+            END
+        END
+    END
+    
+    SCALEBAR
+        IMAGECOLOR 255 255 255
+        
+        LABEL
+            COLOR 0 0 0
+            SIZE TINY
+        END
+        
+        STYLE 1
+        SIZE 100 2
+        COLOR 0 0 0
+        UNITS METERS
+        INTERVALS 2
+        TRANSPARENT FALSE
+        STATUS ON
+    END
+    
+#
+#   Сооружения (площадные)
+#
+    LAYER
+        NAME building_plg
+        PROCESSING "LABEL_NO_CLIP=True"
+        METADATA
+            wms_title "Сооружения (площадные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user=alisovenko password=alisovenko dbname=naval host=gis-lab.info port=5432"
+        DATA "wkb_geometry from \"CA39995I\".\"building_plg\" USING UNIQUE ogc_fid USING USING srid=4326"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        MINSCALE 1
+        MAXSCALE 500000
+        
+        CLASSITEM 'type'
+        LABELITEM 'name_ru'
+        
+        CLASS
+            NAME "Район застройки"
+            EXPRESSION "BUAARE"
+            STYLE
+                COLOR  182 157 64
+                OUTLINECOLOR  163 123 57
+                WIDTH 1
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 15
+                POSITION CC
+                ENCODING UTF-8
+                ALIGN center
+            END
+        END
+        CLASS
+            NAME "Район дока"
+            EXPRESSION "DOCARE"
+            STYLE
+                COLOR  145 202 243
+            END
+            STYLE
+                OUTLINEWIDTH  1
+                PATTERN 5 5 END
+                OUTLINECOLOR  0 0 0
+            END
+        END
+        CLASS
+            NAME "Береговое сооружение"
+            EXPRESSION "SLCONS"
+            STYLE
+                OUTLINECOLOR  107 113 110
+                WIDTH 1.5
+            END
+        END
+        CLASS
+            NAME "Мост"
+            EXPRESSION "BRIDGE"
+            STYLE
+                OUTLINECOLOR  150 159 153
+                WIDTH 3
+            END
+        END
+    END
+    
 #
 #   Реки
 #
@@ -110,7 +273,35 @@ MAP
         END        
     END
     
-
+#
+#   Озера
+#
+    LAYER
+        NAME lakes
+        METADATA
+            wms_title "Озера"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from \"{PG_SCHEME}\".\"lakes\" USING UNIQUE ogc_fid USING USING srid=4326"
+        
+        STATUS       ON
+        TYPE POLYGON
+        TEMPLATE     "dummy"
+        
+        
+        CLASS
+            STYLE
+                COLOR 145 202 243
+                OUTLINECOLOR 0 0 0
+                WIDTH 1
+            END
+        END        
+    END
+    
 #
 #   Препятствия (площадные)
 #
@@ -196,7 +387,75 @@ MAP
                 OUTLINECOLOR 173 180 176
                 GAP -40
             END
-        END         
+        END
+        CLASS
+            NAME "Район кругового движения"
+            EXPRESSION "TSSRON" 
+            MINSCALE 1
+            MAXSCALE 200000
+            STYLE
+                SYMBOL "rayon_krugovogo_dvijeniya_fon"
+            END
+            STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 64
+                SYMBOL 'rayon_krugovogo_dvijeniya_centr'
+            END
+        END
+        CLASS
+            NAME "Пересечение путей"
+            EXPRESSION "TSSCRS" 
+            MINSCALE 1
+            MAXSCALE 200000
+            STYLE
+                SYMBOL "peresechenie_putey"
+            END
+        END
+        CLASS
+            NAME "Путь следование подводных лодок"
+            EXPRESSION "SUBTLN" 
+            STYLE
+                SYMBOL "element_oblasti"
+                OUTLINECOLOR 255 80 255
+                INITIALGAP 0
+                SIZE 5
+                GAP -20
+            END
+            STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 64
+                SYMBOL 'preduprezhdenie'
+            END
+        END
+        CLASS
+            NAME "Место встречи лоцмана"
+            EXPRESSION "PILBOP" 
+            STYLE
+                SYMBOL "element_oblasti"
+                OUTLINECOLOR 255 80 255
+                INITIALGAP 0
+                SIZE 5
+                GAP -20
+            END
+            STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 64
+                SYMBOL 'mesto_vstrechi_locmana'
+            END
+        END
+        CLASS
+            NAME "Зона пребрежного плавания"
+            EXPRESSION "ISTZNE" 
+            STYLE
+                SYMBOL "zona_prebrejnogo_plavaniya_perim"                OUTLINECOLOR 255 80 255                INITIALGAP 0                SIZE 5                GAP -20
+            END
+            STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 64
+                SYMBOL 'zona_prebrejnogo_plavaniya_centr'
+            END
+        END
+        
     END
 
     
@@ -377,7 +636,7 @@ MAP
                 SYMBOL 'rayon_svalki'
             END
         END
-        
+                CLASS            NAME "Бар подводный"            EXPRESSION "SNDWAV"            STYLE                SYMBOL 'bar_podvodnii'            END        END        
         CLASS
             NAME "Сваи"
             EXPRESSION "PILPNT"
@@ -562,21 +821,75 @@ MAP
         #   Знаки BCN
         #
         CLASS
-           NAME "Знак спец.назначения."  
+           NAME "Знак спец.назначения.Общ."  
            EXPRESSION ("[type]"="BCNSPP_unknown")
             STYLE
                 MAXSIZE 32
                 SYMBOL 'znak_spec.naznacheniya(obshii)'
-                OFFSET 0 -10
-            END            LABEL                COLOR 0 0 0                TYPE TRUETYPE                FONT arial                SIZE 7                ANTIALIAS TRUE                POSITION UL                PARTIALS FALSE                MINDISTANCE 0                BUFFER 3                ENCODING UTF-8            END 
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION UL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END 
+        END
+        CLASS
+           NAME "Знак спец.назначения.Внимение."  
+           EXPRESSION ("[type]"="BCNSPP_vnimanie")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_spec.naznacheniya(vnimanie)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION UL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END 
+        END
+        CLASS
+            NAME "Знак спец.назначения. Веха."  
+            EXPRESSION ("[type]"="BCNSPP_veha")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak(veha)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END 
         END
         CLASS
             NAME "Знак спец.назначения. Маяк."  
             EXPRESSION ("[type]"="BCNSPP_mayak")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'znak_spec.naznacheniya(mayak)'
-                OFFSET 0 -10
+                SYMBOL 'znak(mayak)'
+                OFFSET 0 -7
             END
             
             LABEL
@@ -591,14 +904,14 @@ MAP
                 BUFFER 3
                 ENCODING UTF-8
             END 
-        END 
+        END
         CLASS
             NAME "Знак спец.назначения. Констр." 
             EXPRESSION ("[type]"="BCNSPP_konstr")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'znak_spec.naznacheniya(konstr)'
-                OFFSET 0 -10
+                SYMBOL 'znak(konstr)'
+                OFFSET 0 -7
             END
         END
         CLASS
@@ -606,20 +919,30 @@ MAP
             EXPRESSION ("[type]"="BCNSPP_vishka")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'znak_spec.znak_spec.naznacheniya(vishka)'
-                OFFSET 0 -10
-            END            LABEL                COLOR 0 0 0                TYPE TRUETYPE                FONT arial                SIZE 7                ANTIALIAS TRUE                POSITION UL                PARTIALS FALSE                MINDISTANCE 0                BUFFER 3                ENCODING UTF-8            END 
+                SYMBOL 'znak_spec.naznacheniya(vishka)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION UL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+            END 
         END
-
         CLASS
             NAME "Знак латеральный. Маяк."  
             EXPRESSION ("[type]"="BCNLAT_mayak")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'znak_spec.naznacheniya(mayak)'
-                OFFSET 0 -10
+                SYMBOL 'znak(mayak)'
+                OFFSET 0 -7
             END
-            
             LABEL
                 COLOR 0 0 0
                 TYPE TRUETYPE
@@ -638,11 +961,29 @@ MAP
             EXPRESSION ("[type]"="BCNLAT_konstr")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'znak_spec.naznacheniya(konstr)'
-                OFFSET 0 -10
+                SYMBOL 'znak(konstr)'
+                OFFSET 0 -7
             END
         END
-        
+        CLASS
+            NAME "Знак латеральный. Веха." 
+            EXPRESSION ("[type]"="BCNLAT_veha")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak(veha)'
+                OFFSET 0 -7
+            END
+        END
+        CLASS
+            NAME "Знак латеральный. Дерево2." 
+            EXPRESSION ("[type]"="BCNLAT_derevo2")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'znak_lateralnii(derevo2)'
+                OFFSET 0 -7
+            END
+        END
+
         #
         #   Буи BOY
         #
@@ -651,17 +992,17 @@ MAP
             EXPRESSION ("[type]"="BOYCAR_unknown")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'bui_lateralnii'
-                OFFSET 0 -10
+                SYMBOL 'bui'
+                OFFSET 0 -7
             END
-        END 
+        END
         CLASS
             NAME "Буй кардинальный. Веха" 
             EXPRESSION ("[type]"="BOYCAR_veha")
             STYLE
                 MAXSIZE 32
                 SYMBOL 'bui(veha)'
-                OFFSET 0 -10
+                OFFSET 0 -7
             END
         END 
         CLASS
@@ -670,7 +1011,7 @@ MAP
             STYLE
                 MAXSIZE 32
                 SYMBOL 'bui(konicheskii)'
-                OFFSET 0 -10
+                OFFSET 0 -7
             END
         END 
         CLASS
@@ -678,28 +1019,55 @@ MAP
           EXPRESSION ("[type]"="BOYCAR_stolb")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'bui_kardinalnii(stolb)'
-                OFFSET 0 -10
+                SYMBOL 'bui(stolb)'
+                OFFSET 0 -7
             END
         END
         
         CLASS
+            NAME "Буй отд.опасности"  
+            EXPRESSION ("[type]"="BOYISD_unknown")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui'
+                OFFSET 0 -7
+            END
+        END
+        CLASS
             NAME "Буй отд.опасности (веха)"
-            EXPRESSION ("[type]"="BOYISD")
+            EXPRESSION ("[type]"="BOYISD_veha")
             STYLE
               MAXSIZE 32
               SYMBOL 'bui(veha)'
-              OFFSET 0 -10
+              OFFSET 0 -7
           END
         END
         
         CLASS
-            NAME "Буй чистой воды (сферический)"         
-            EXPRESSION ("[type]"="BOYSAW")
+            NAME "Буй чистой воды"  
+            EXPRESSION ("[type]"="BOYSAW_unknown")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'bui_chistoi_vodi(sphericheskii)'
-                OFFSET 0 -10
+                SYMBOL 'bui'
+                OFFSET 0 -7
+            END
+        END
+        CLASS
+            NAME "Буй чистой воды (столб)"  
+            EXPRESSION ("[type]"="BOYSAW_stolb")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(stolb)'
+                OFFSET 0 -7
+            END
+        END
+        CLASS
+            NAME "Буй чистой воды (сферический)"         
+            EXPRESSION ("[type]"="BOYSAW_konicheskii" or "[type]"="BOYSAW_sphericheskii")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(sphericheskii)'
+                OFFSET 0 -8
             END
             LABEL
                 COLOR 0 0 0
@@ -714,16 +1082,33 @@ MAP
                 ENCODING UTF-8
                 MAXSIZE 16
             END 
-
         END
         
         CLASS
-            NAME "Буй специального назначения. Веха"
+            NAME "Буй специального назначения. Общ"  
+            EXPRESSION ("[type]"="BOYSPP_unknown")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui'
+                OFFSET 0 -7
+            END
+        END
+        CLASS
+            NAME "Буй специального назначения. Общ. Cтолб"  
+            EXPRESSION ("[type]"="BOYSPP_stolb")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(stolb)'
+                OFFSET 0 -7
+            END
+        END
+        CLASS
+            NAME "Буй специального назначения. Общ. Веха"
             EXPRESSION ("[type]"="BOYSPP_veha")
             STYLE
                 MAXSIZE 32
                 SYMBOL 'bui(veha)'
-                OFFSET 0 -10
+                OFFSET 0 -7
             END
             LABEL
                 COLOR 0 0 0
@@ -740,12 +1125,12 @@ MAP
             END
         END
         CLASS
-            NAME "Буй специального назначения. Конический"
+            NAME "Буй специального назначения. Общ. Конический"
             EXPRESSION ("[type]"="BOYSPP_konicheskii")
             STYLE
                 MAXSIZE 32
                 SYMBOL 'bui(konicheskii)'
-                OFFSET 0 -10
+                OFFSET 0 -7
             END
             LABEL
                 COLOR 0 0 0
@@ -762,18 +1147,159 @@ MAP
             END
         END
         CLASS
-            NAME "Буй латеральный."         
-            EXPRESSION ("[type]"="BOYLAT")
+            NAME "Буй специального назначения. Общ. Сферический"
+            EXPRESSION ("[type]"="BOYSPP_sphericheskii")
             STYLE
                 MAXSIZE 32
-                SYMBOL 'bui_lateralnii'
-                OFFSET 0 -10
+                SYMBOL 'bui(sphericheskii)'
+                OFFSET 0 -8
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        CLASS
+            NAME "Буй специального назначения. Общ. Цилиндрический"
+            EXPRESSION ("[type]"="BOYSPP_cilindricheskii")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(cilindricheskii)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        CLASS
+            NAME "Буй специального назначения. Общ. Супербуй"
+            EXPRESSION ("[type]"="BOYSPP_superbui")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(superbui)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END        
+        CLASS
+            NAME "Буй латеральный."
+            EXPRESSION ("[type]"="BOYLAT_unknown")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui'
+                OFFSET 0 -7
             END
             LABEL
                 COLOR 0 0 0
                 TYPE TRUETYPE
                 FONT arial
                 SIZE 10
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        CLASS
+            NAME "Буй латеральный. Конический"
+            EXPRESSION ("[type]"="BOYLAT_konicheskii")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(konicheskii)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        CLASS
+            NAME "Буй латеральный. Цилиндрический"
+            EXPRESSION ("[type]"="BOYLAT_cilindricheskii")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(cilindricheskii)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
+                ANTIALIAS TRUE
+                POSITION CL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                BUFFER 3
+                ENCODING UTF-8
+                MAXSIZE 16
+            END
+        END
+        CLASS
+            NAME "Буй латеральный. Cтолб"  
+            EXPRESSION ("[type]"="BOYLAT_stolb")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(stolb)'
+                OFFSET 0 -7
+            END
+        END
+        CLASS
+            NAME "Буй латеральный. Веха"
+            EXPRESSION ("[type]"="BOYLAT_veha")
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'bui(veha)'
+                OFFSET 0 -7
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 7
                 ANTIALIAS TRUE
                 POSITION CL
                 PARTIALS FALSE
@@ -802,7 +1328,7 @@ MAP
                 OFFSET -16 16
             END
         END
-        
+                CLASS        NAME "Плавучий маяк"        EXPRESSION ("[type]"="LITVES")                   STYLE                MAXSIZE 32                SYMBOL 'plavuchii_mayak'                OFFSET -16 16            END        END        
         CLASS
             NAME "Огни (зеленые)"
             EXPRESSION ("[type]"="LIGHTS_without_sector_orient_G")
@@ -812,7 +1338,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -836,7 +1362,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -859,7 +1385,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -882,7 +1408,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -906,7 +1432,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -930,7 +1456,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -953,7 +1479,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -976,7 +1502,7 @@ MAP
                 FONT arial
                 SIZE 7
                 ANTIALIAS TRUE
-                POSITION CR
+                POSITION auto
                 PARTIALS FALSE
                 MINDISTANCE 0
                 BUFFER 3
@@ -1191,6 +1717,15 @@ MAP
             NAME "(Церкви) (Вид.рад)"
             STYLE
                 SYMBOL 'otd.stroeniya(cerkvi)(vid.rad)'
+                MAXSIZE 32
+            END
+        END
+        
+        CLASS
+            EXPRESSION  "GATCON"
+            NAME "Ворота шлюза"
+            STYLE
+                SYMBOL 'vorota_shluza'
                 MAXSIZE 32
             END
         END
@@ -1440,11 +1975,11 @@ MAP
         END
         CLASS
             NAME "Ландмарк. Ориентир"
-            EXPRESSION ('[type]'='LNDMRK_unknown_unknown')
+            EXPRESSION ('[type]'='LNDMRK_unknown_unknown' or '[type]'='LNDMRK_visible_unknown')
             STYLE
                 MAXSIZE 32
                 SYMBOL 'landmark'
-                OFFSET 0 -10
+                OFFSET 0 0
             END
         END
         
@@ -1507,6 +2042,14 @@ MAP
             STYLE
                 MAXSIZE 32
                 SYMBOL 'mesto_vstrechi_locmana'
+            END
+        END
+        CLASS
+            NAME "ПРДС"
+            EXPRESSION "SISTAT"
+            STYLE
+                MAXSIZE 32
+                SYMBOL 'prds'
             END
         END
         
@@ -1596,6 +2139,11 @@ MAP
                 WIDTH 2
                 COLOR 0 0 0
             END
+        END
+        CLASS
+            EXPRESSION  "GATCON"
+            NAME "Ворота кессонные"
+            STYLE                SYMBOL 'vorota_kessonnie'                GEOMTRANSFORM centroid                MAXSIZE 32            END            STYLE                WIDTH 2                COLOR 107 113 110            END
         END
     END
     
@@ -1764,6 +2312,14 @@ MAP
             EXPRESSION  "CBLSUB"
             STYLE
                 SYMBOL "kabel_podvodnii"
+            END
+        END
+        CLASS
+            NAME "Трубопровод (на земле, воде)"
+            EXPRESSION  "PIPSOL"
+            STYLE
+                SYMBOL "truboprovod"
+                GAP -25
             END
         END
         CLASS
