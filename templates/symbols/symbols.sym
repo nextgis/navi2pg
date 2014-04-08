@@ -372,6 +372,26 @@ SYMBOLSET
         END # POINTS
     END
     
+    SYMBOL
+        NAME "morskaya_ferma"
+        TYPE pixmap
+        IMAGE "../images/morskaya_ferma.png"
+    END
+    SYMBOL
+        NAME "oblast_turbulentnosti_vodi"
+        TYPE pixmap
+        IMAGE "../images/oblast_turbulentnosti_vodi.png"
+    END
+    SYMBOL
+        NAME "raion_lova_ribi_centr"
+        TYPE pixmap
+        IMAGE "../images/raion_lova_ribi_centr.png"
+    END
+    SYMBOL
+        NAME "kabel_navesnoi"
+        TYPE pixmap
+        IMAGE "../images/kabel_navesnoi.png"
+    END
 #
 #   Топовые фиуры (topmark)
 #

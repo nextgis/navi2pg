@@ -287,6 +287,17 @@ namespace NAVI2PG {
     };
 
 /**
+* @brief Класс-стратегия для добавления полей, содержащих подписи на английском и русском языках name_en и name_ru.
+* Подписи содержат информацию о значение вертикального просвета, на основе значения поля VERCLR - Вертикальный просвет.
+*/
+    class AddVERCLRSignatures: public AddSignatures
+    {
+    public:
+        AddVERCLRSignatures(){}
+        virtual void Execute(OGRFeature* dstFeature, OGRFeature* srcFeature);
+    };
+
+/**
 * @brief Класс-стратегия для добавления полей depth_whole и depth_fractional, содержащих целую и дробную часть значения глубины  соответственно.
 * Целая и дробная части значения глубины определяются по значению поля VALSOU - Значение глубины.
 */

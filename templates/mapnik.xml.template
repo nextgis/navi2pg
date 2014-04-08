@@ -84,6 +84,13 @@
             <Filter>[type] = 'BRIDGE'</Filter> 
             <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="3"/>
         </Rule>
+        <Rule name="Морская платформа">
+            <Filter>[type] = 'OFSPLF'</Filter>
+            <MaxScaleDenominator>500000</MaxScaleDenominator>
+            <PolygonSymbolizer fill="rgb(182, 157, 64)"/>
+            <LineSymbolizer stroke="rgb(107, 113, 110) " stroke-width="3"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" allow-overlap="false" size="15" dx="20" dy="20"> [name_ru] </TextSymbolizer>
+        </Rule>
     </Style>
     <Layer name="Сооружения (площадные)" srs="+init=epsg:4326">
         <StyleName>building_plg</StyleName>
@@ -145,6 +152,11 @@
             <Filter>[type] = 'DMPGRD'</Filter>
             <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/oblast_svalki_centr.png" orientation="180"/>
             <LinePatternSymbolizer file="images/element_oblasti.png"/>
+        </Rule>
+        <Rule name="Район лова рыбы">
+            <Filter>[type] = 'FSHGRD'</Filter>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/raion_lova_ribi_centr.png" orientation="180"/>
+            <LineSymbolizer stroke="rgb(189, 200, 193) " stroke-width="1.0" stroke-dasharray="5.0,5.0"/>
         </Rule>
     </Style>
     <Layer name="Препятствия (площадные)" srs="+init=epsg:4326">
@@ -291,6 +303,16 @@
             <MaxScaleDenominator>100000</MaxScaleDenominator>
             <Filter>[type] = 'PILPNT'</Filter>
             <MarkersSymbolizer fill="black" width="3" height="3" stroke-width="0"  placement="point" marker-type="ellipse" allow-overlap="true"/>
+        </Rule>
+        <Rule name="Морская ферма. Культура">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'MARCUL'</Filter>
+            <PointSymbolizer file="images/morskaya_ferma.png" allow-overlap="true" />
+        </Rule>
+        <Rule name="Область турбулентности воды">
+            <MaxScaleDenominator>100000</MaxScaleDenominator>
+            <Filter>[type] = 'WATTUR'</Filter>
+            <PointSymbolizer file="images/oblast_turbulentnosti_vodi.png" allow-overlap="true" />
         </Rule>
     </Style>
     <Layer name="Препятствия (точечные)" srs="+init=epsg:4326" minzoom="10">
@@ -1089,6 +1111,12 @@
         <Rule name="Рыболовные снасти (сети)">
             <Filter>[type] = 'FSHFAC'</Filter>
             <LinePatternSymbolizer file="images/ribolovnie_seti.png"/>
+        </Rule>
+        <Rule name="Кабель навесной">
+            <Filter>[type] = 'CBLOHD'</Filter>
+            <LineSymbolizer stroke="rgb(150, 159, 153) " stroke-width="2" stroke-dasharray="10.0,10.0"/>
+            <ShieldSymbolizer face-name="DejaVu Sans Book" file="images/kabel_navesnoi.png"/>
+            <TextSymbolizer face-name="DejaVu Sans Book" placement="point" dx="5" dy ="10" size="20" allow-overlap="true"> [name_en] </TextSymbolizer>
         </Rule>
     </Style>
     <Layer name="Препятствия (линейные)" srs="+init=epsg:4326">

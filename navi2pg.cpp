@@ -76,37 +76,34 @@ namespace
         OGRwkbGeometryType geomType;
 
         /*
-         * конфигурация слоя route_plg
+         * конфигурация слоя building_plg
          */
-        layerName = "route_plg";
+        layerName = "building_plg";
         geomType = wkbPolygon;
 
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("CTNARE");
-        layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BUAARE");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
+            layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TSEZNE");
-        layersWithCopyRules.push_back(layerWithCopyRules);
 
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("FAIRWY");
-        layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DOCARE");
+            layersWithCopyRules.push_back(layerWithCopyRules);
 
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TSSRON");
-        layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SLCONS");
+            layersWithCopyRules.push_back(layerWithCopyRules);
 
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("TSSCRS");
-        layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BRIDGE");
+            layersWithCopyRules.push_back(layerWithCopyRules);
 
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SUBTLN");
-        layersWithCopyRules.push_back(layerWithCopyRules);
-
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("PILBOP");
-        layersWithCopyRules.push_back(layerWithCopyRules);
-
-        layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("ISTZNE");
-        layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("OFSPLF");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
+            layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
         layersWithCopyRules.clear();
+
 
         return configuration;
     }
@@ -281,6 +278,11 @@ namespace
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BRIDGE");
             layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("OFSPLF");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
+            layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
         layersWithCopyRules.clear();
@@ -477,6 +479,11 @@ namespace
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("PIPSOL");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("CBLOHD");
+            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddVERCLRSignatures());
+            layersWithCopyRules.push_back(layerWithCopyRules);
+            layerWithCopyRules.AddNewFieldStrategies_.clear();
+
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("OBSTRN");
             layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddVALSOUasExtFields());
             layersWithCopyRules.push_back(layerWithCopyRules);
@@ -497,6 +504,9 @@ namespace
             layersWithCopyRules.push_back(layerWithCopyRules);
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DMPGRD");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("FSHGRD");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
@@ -532,6 +542,12 @@ namespace
             layersWithCopyRules.push_back(layerWithCopyRules);
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SNDWAV");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("MARCUL");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("WATTUR");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
         configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
@@ -1308,6 +1324,15 @@ void NAVI2PG::AddVALSOUSignatures::Execute(OGRFeature *dstFeature, OGRFeature *s
 
 }
 
+void NAVI2PG::AddVERCLRSignatures::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
+{
+   double verclr = srcFeature->GetFieldAsDouble( "VERCLR" );
+
+   dstFeature->SetField( "name_en", CPLString().Printf("dr %.1f", verclr) );
+   dstFeature->SetField( "name_ru", CPLString().Printf("dr %.1f", verclr) );
+
+}
+
 void NAVI2PG::AddVALSOUasExtFields::Execute(OGRFeature *dstFeature, OGRFeature *srcFeature)
 {
     double valsou = srcFeature->GetFieldAsDouble( "VALSOU" );
@@ -1973,9 +1998,9 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     /*
      *  Конфигурация
      */
-    std::vector<CreateLayerStrategy*>layersCreators;
+    //std::vector<CreateLayerStrategy*>layersCreators;
     //std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
-    //std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
+    std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
 
     /*
      *  Определяем общую СК

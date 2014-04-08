@@ -242,7 +242,7 @@ MAP
                 OUTLINECOLOR  150 159 153
                 WIDTH 3
             END
-        END
+        END        CLASS            EXPRESSION  "OFSPLF"            NAME "Морская платформа"            STYLE                COLOR 182 157 64                OUTLINECOLOR  107 113 110                WIDTH 3            END            LABEL                COLOR 0 0 0                TYPE TRUETYPE                FONT arial                SIZE 15                ANTIALIAS TRUE                POSITION UL                PARTIALS FALSE                MINDISTANCE 0                ENCODING UTF-8                TEXT ('[name_ru]')            END        END
     END
     
 #
@@ -329,8 +329,7 @@ MAP
                 OUTLINECOLOR 107 113 110
                 PATTERN 10 10 END
             END
-        END   
-
+        END
         CLASS
             NAME "Район свалки"
             EXPRESSION "DMPGRD"
@@ -346,7 +345,21 @@ MAP
                 SIZE 5
                 angle 180
             END
-        END   
+        END
+        CLASS
+            NAME "Район лова рыбы"
+            EXPRESSION "FSHGRD"
+            STYLE
+                GEOMTRANSFORM centroid
+                MAXSIZE 32
+                SYMBOL "raion_lova_ribi_centr"
+            END
+            STYLE
+                OUTLINECOLOR 189 200 193
+                WIDTH 1
+                PATTERN 5 5 END
+            END
+        END
     END
         
 
@@ -570,14 +583,14 @@ MAP
         TYPE POINT
         TEMPLATE     "dummy"
         
-        MINSCALE 1
-        MAXSCALE 25000
         
         CLASSITEM 'type'
     
         CLASS
             NAME "Подводная осыхающая скала (без подписи)"
             EXPRESSION "OBSTRN"
+            MINSCALE 1
+            MAXSCALE 25000
             STYLE
                 SYMBOL 'podvodnaya_osihaushaya_skala_without_sign'
             END
@@ -585,6 +598,8 @@ MAP
         CLASS
             NAME "Подводная осыхающая скала (с подписью)"
             EXPRESSION "UWTROC"
+            MINSCALE 1
+            MAXSCALE 25000
             STYLE
                 SYMBOL 'podvodnaya_osihaushaya_skala_with_sign'
             END
@@ -604,8 +619,8 @@ MAP
         CLASS
             NAME "Характеристика морского дна"
             EXPRESSION "SBDARE"
-            STYLE
-            END
+            MINSCALE 1
+            MAXSCALE 25000
             LABEL
                 COLOR 0 0 0
                 TYPE TRUETYPE
@@ -623,6 +638,8 @@ MAP
         CLASS
             NAME "Затонувшее судно"
             EXPRESSION "WRECKS"
+            MINSCALE 1
+            MAXSCALE 50000
             STYLE
                 SYMBOL 'zatonuvshee_sudno'
                 MAXSIZE 32
@@ -632,20 +649,50 @@ MAP
         CLASS
             NAME "Район свалки"
             EXPRESSION "DMPGRD"
+            MINSCALE 1
+            MAXSCALE 50000
             STYLE
                 SYMBOL 'rayon_svalki'
             END
         END
-                CLASS            NAME "Бар подводный"            EXPRESSION "SNDWAV"            STYLE                SYMBOL 'bar_podvodnii'            END        END        
+        CLASS
+            NAME "Бар подводный"
+            EXPRESSION "SNDWAV"
+            MINSCALE 1
+            MAXSCALE 50000
+            STYLE
+                SYMBOL 'bar_podvodnii'
+            END
+        END
         CLASS
             NAME "Сваи"
             EXPRESSION "PILPNT"
+            MINSCALE 1
+            MAXSCALE 50000
             STYLE
                 MAXSIZE 32
                 SYMBOL 'PILPNT'
                 COLOR 0 0 0
                 SIZE 10.0
                 WIDTH 4.0
+            END
+        END
+        CLASS
+            NAME "Морская ферма. Культура"
+            EXPRESSION "MARCUL"
+            MINSCALE 1
+            MAXSCALE 50000
+            STYLE
+                SYMBOL 'morskaya_ferma'
+            END
+        END
+        CLASS
+            NAME "Область турбулентности воды"
+            EXPRESSION "WATTUR"
+            MINSCALE 1
+            MAXSCALE 50000
+            STYLE
+                SYMBOL 'oblast_turbulentnosti_vodi'
             END
         END
     END
@@ -1720,7 +1767,6 @@ MAP
                 MAXSIZE 32
             END
         END
-        
         CLASS
             EXPRESSION  "GATCON"
             NAME "Ворота шлюза"
@@ -1729,7 +1775,6 @@ MAP
                 MAXSIZE 32
             END
         END
-        
         PROCESSING "CLOSE_CONNECTION=DEFER" 
     END  
 
@@ -2337,8 +2382,34 @@ MAP
             END
             
         END
+        CLASS
+            NAME "Кабель навесной"
+            EXPRESSION  "CBLOHD"
+            STYLE
+                WIDTH 2
+                COLOR 150 159 153
+                PATTERN 10 10 END
+            END
+            STYLE
+                GEOMTRANSFORM centroid
+                SYMBOL "kabel_navesnoi"
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 15
+                ANTIALIAS TRUE
+                POSITION LR
+                PARTIALS TRUE
+                MINDISTANCE 0
+                ENCODING UTF-8
+                OFFSET 20 -20
+                ANGLE auto
+                TEXT ('[name_en]')
+            END
+        END
     END
-    
 
 #
 #   Навигация (линейные)
