@@ -96,6 +96,12 @@ namespace
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BRIDGE");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("RUNWAY");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BUISGL");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("OFSPLF");
             layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
             layersWithCopyRules.push_back(layerWithCopyRules);
@@ -277,6 +283,12 @@ namespace
             layersWithCopyRules.push_back(layerWithCopyRules);
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BRIDGE");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("RUNWAY");
+            layersWithCopyRules.push_back(layerWithCopyRules);
+
+            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BUISGL");
             layersWithCopyRules.push_back(layerWithCopyRules);
 
             layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("OFSPLF");
@@ -1999,8 +2011,8 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
      *  Конфигурация
      */
     //std::vector<CreateLayerStrategy*>layersCreators;
-    //std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
-    std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
+    std::vector<CreateLayerStrategy*>layersCreators = configurate(poSrcDatasource);
+    //std::vector<CreateLayerStrategy*>layersCreators = configurateTest(poSrcDatasource);
 
     /*
      *  Определяем общую СК

@@ -242,7 +242,44 @@ MAP
                 OUTLINECOLOR  150 159 153
                 WIDTH 3
             END
-        END        CLASS            EXPRESSION  "OFSPLF"            NAME "Морская платформа"            STYLE                COLOR 182 157 64                OUTLINECOLOR  107 113 110                WIDTH 3            END            LABEL                COLOR 0 0 0                TYPE TRUETYPE                FONT arial                SIZE 15                ANTIALIAS TRUE                POSITION UL                PARTIALS FALSE                MINDISTANCE 0                ENCODING UTF-8                TEXT ('[name_ru]')            END        END
+        END
+        CLASS
+            EXPRESSION  "OFSPLF"
+            NAME "Морская платформа"
+            STYLE
+                COLOR 182 157 64
+                OUTLINECOLOR  107 113 110
+                WIDTH 3
+            END
+            LABEL
+                COLOR 0 0 0
+                TYPE TRUETYPE
+                FONT arial
+                SIZE 15
+                ANTIALIAS TRUE
+                POSITION UL
+                PARTIALS FALSE
+                MINDISTANCE 0
+                ENCODING UTF-8
+                TEXT ('[name_ru]')
+            END
+        END
+        CLASS
+            NAME "Взлетно посадочная полоса"
+            EXPRESSION "RUNWAY"
+            STYLE
+                COLOR  182 157 64
+            END
+        END
+        CLASS
+            NAME "Здание отдельностоящее видимое"
+            EXPRESSION "BUISGL"
+            STYLE
+                COLOR  182 157 64
+                OUTLINECOLOR  0 0 0
+                WIDTH 1
+            END
+        END
     END
     
 #
