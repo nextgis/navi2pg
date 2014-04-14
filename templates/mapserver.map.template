@@ -2622,5 +2622,30 @@ MAP
         
     END    
 
-   
+#
+#   Системный (линейные)
+#
+    LAYER
+        NAME system_lines
+        METADATA
+            wms_title "Системный (линейные)"
+        END
+        PROJECTION
+            "init=epsg:4326"
+        END
+        CONNECTIONTYPE postgis
+        CONNECTION "user={PG_USER} password={PG_PASSWORD} dbname={PG_DBNAME} host={PG_HOST} port={PG_PORT}"
+        DATA "wkb_geometry from \"{PG_SCHEME}\".\"system_lines\" USING UNIQUE ogc_fid USING USING srid=4326"
+        
+        STATUS ON
+        TYPE LINE
+        TEMPLATE     "dummy"
+        
+        CLASS
+            STYLE
+                WIDTH 1
+                COLOR 251 127 72 
+            END
+        END
+    END
 END

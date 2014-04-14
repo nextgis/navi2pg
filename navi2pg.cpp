@@ -75,41 +75,6 @@ namespace
         CPLString layerName;
         OGRwkbGeometryType geomType;
 
-        /*
-         * конфигурация слоя building_plg
-         */
-        layerName = "building_plg";
-        geomType = wkbPolygon;
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BUAARE");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
-            layersWithCopyRules.push_back(layerWithCopyRules);
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
-
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("DOCARE");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("SLCONS");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BRIDGE");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("RUNWAY");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("BUISGL");
-            layersWithCopyRules.push_back(layerWithCopyRules);
-
-            layerWithCopyRules.SrcLayer_ = poSrcDatasource->GetLayerByName("OFSPLF");
-            layerWithCopyRules.AddNewFieldStrategies_.push_back(new NAVI2PG::AddSignatures());
-            layersWithCopyRules.push_back(layerWithCopyRules);
-            layerWithCopyRules.AddNewFieldStrategies_.clear();
-
-        configuration.push_back(new NAVI2PG::CopyFeaturesStrategy(layerName, geomType, layersWithCopyRules));
-        layersWithCopyRules.clear();
-
 
         return configuration;
     }
@@ -738,6 +703,17 @@ namespace
         OGRLayer* lightsLayer = poSrcDatasource->GetLayerByName("LIGHTS");
 
         configuration.push_back(new NAVI2PG::CreateLightsSectorsStrategy(layerName, geomType, lightsLayer));
+
+        /*
+         * конфигурация слоя system_lines
+         */
+        layerName = "system_lines";
+
+        OGRLayer* edgeLayer = poSrcDatasource->GetLayerByName("Edge");
+        OGRLayer* linesLayer = poSrcDatasource->GetLayerByName("$LINES");
+        OGRLayer* connectedNodeLayer = poSrcDatasource->GetLayerByName("ConnectedNode");
+
+        configuration.push_back(new NAVI2PG::CreateSystemLinesStrategy(layerName, edgeLayer, linesLayer, connectedNodeLayer));
 
         return configuration;
     }
@@ -1917,6 +1893,126 @@ bool NAVI2PG::CreateS57SignaturesStrategy::LayerCreationPossibility()
     return false;
 }
 
+std::vector<int> NAVI2PG::CreateSystemLinesStrategy::getSubLinesRCIDs(const CPLString& lineDescription)
+{
+    size_t begin = lineDescription.find("(");
+    size_t end = lineDescription.find(":");
+    int subLineCounts = atoi(lineDescription.substr(begin+1, end - 1).c_str());
+
+    std::stringstream ss(lineDescription.substr(lineDescription.find(":")+1, lineDescription.find(")")));
+
+    std::vector<int> result;
+    for(int i = 0; i < subLineCounts; ++i)
+    {
+        int subLineRCID;
+        char delim;
+        ss >> subLineRCID;
+        ss >> delim;
+
+        result.push_back(subLineRCID);
+    }
+
+    return result;
+}
+
+void NAVI2PG::CreateSystemLinesStrategy::getSubLine(const int subLineRCID, OGRLineString* resultSubLine)
+{
+    EdgeLayer_->ResetReading();
+    OGRFeature *poFeatureFromEdge;
+    while( (poFeatureFromEdge = EdgeLayer_->GetNextFeature()) != NULL )
+    {
+        int rcid =poFeatureFromEdge->GetFieldAsInteger("RCID");
+
+        if (subLineRCID == rcid)
+        {
+
+            OGRLineString* geomFromEdge = (OGRLineString*)poFeatureFromEdge->GetGeometryRef();
+
+            int nameRCID_0 = poFeatureFromEdge->GetFieldAsInteger("NAME_RCID_0");
+            int nameRCID_1 = poFeatureFromEdge->GetFieldAsInteger("NAME_RCID_1");
+
+            ConnectedNodeLayer_->ResetReading();
+            OGRFeature *poFeatureFromConnectedNode;
+            OGRPoint* firstPoint;
+            OGRPoint* secondPoint;
+            while( (poFeatureFromConnectedNode = ConnectedNodeLayer_->GetNextFeature()) != NULL )
+            {
+                int rcid =poFeatureFromConnectedNode->GetFieldAsInteger("RCID");
+                if (nameRCID_0 == rcid)
+                {
+                    firstPoint = (OGRPoint*)poFeatureFromConnectedNode->GetGeometryRef();
+                }
+
+                if (nameRCID_1 == rcid)
+                {
+                    secondPoint = (OGRPoint*)poFeatureFromConnectedNode->GetGeometryRef();
+                }
+            }
+
+            resultSubLine->addPoint(firstPoint);
+            resultSubLine->addSubLineString(geomFromEdge);
+            resultSubLine->addPoint(secondPoint);
+        }
+
+        OGRFeature::DestroyFeature(poFeatureFromEdge);
+    }
+}
+
+void NAVI2PG::CreateSystemLinesStrategy::DoProcess()
+{
+    ModifyLayerDefnForAddNewFields();
+
+    if(LinesLayer_==NULL || EdgeLayer_ == NULL || ConnectedNodeLayer_ == NULL)
+        return;
+
+    LinesLayer_->ResetReading();
+
+    OGRFeature *poFeatureFromLines;
+
+    while( (poFeatureFromLines = LinesLayer_->GetNextFeature()) != NULL )
+    {
+        CPLString lineDescription = poFeatureFromLines->GetFieldAsString("NAME_RCID");
+
+        std::vector<int> subLinesRCIDs = getSubLinesRCIDs(lineDescription);
+
+        OGRFeature* poFeatureTo = OGRFeature::CreateFeature(Layer_->GetLayerDefn());
+
+        OGRLineString geomFromEdge;
+
+        for(size_t i = 0; i < subLinesRCIDs.size(); ++i)
+        {
+            OGRLineString subLine;
+            getSubLine(subLinesRCIDs[i], &subLine);
+            geomFromEdge.addSubLineString(&subLine);
+        }
+
+        poFeatureTo->SetGeometry(&geomFromEdge);
+
+        Layer_->CreateFeature(poFeatureTo);
+
+        OGRFeature::DestroyFeature( poFeatureTo );
+
+        OGRFeature::DestroyFeature(poFeatureFromLines);
+    }
+
+}
+void NAVI2PG::CreateSystemLinesStrategy::ModifyLayerDefnForAddNewFields()
+{
+}
+OGRSpatialReference* NAVI2PG::CreateSystemLinesStrategy::GetSpatialRef()
+{
+    if(EdgeLayer_==NULL)
+        return NULL;
+
+    return EdgeLayer_->GetSpatialRef();
+}
+bool NAVI2PG::CreateSystemLinesStrategy::LayerCreationPossibility()
+{
+    if(EdgeLayer_ != NULL && LinesLayer_ != NULL && ConnectedNodeLayer_ != NULL)
+        return true;
+
+    return false;
+}
 
 void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnectionString)
 {

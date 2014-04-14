@@ -530,6 +530,41 @@ namespace NAVI2PG {
     };
 
 /**
+* @brief Класс-стратегия добавления слоя, содержащего объекты "Выделение линейных" из классификатора ГИС Панорама.
+* Данные формируются на основании слоев "Edge" и "$LINES"
+*/
+    class CreateSystemLinesStrategy : public CreateLayerStrategy
+    {
+        OGRLayer* EdgeLayer_;
+        OGRLayer* LinesLayer_;
+        OGRLayer* ConnectedNodeLayer_;
+    public:
+/**
+* @brief Конструктор.
+* @param layerName Имя нового слоя
+* @param edgeLayer Слой "Edge"
+* @param linesLayer Слой "$LINES"
+* @param connectedNodeLayer Слой "ConnectedNode"
+*/
+        CreateSystemLinesStrategy(const CPLString& layerName, OGRLayer* edgeLayer, OGRLayer* linesLayer, OGRLayer* connectedNodeLayer)
+            : CreateLayerStrategy(layerName, wkbLineString),
+              EdgeLayer_(edgeLayer),
+              LinesLayer_(linesLayer),
+              ConnectedNodeLayer_(connectedNodeLayer)
+        {
+
+        }
+
+    private:
+        std::vector<int> getSubLinesRCIDs(const CPLString& lineDescription);
+        void getSubLine(const int subLineRCID, OGRLineString* resultSubLine);
+        void DoProcess();
+        void ModifyLayerDefnForAddNewFields();
+        OGRSpatialReference* GetSpatialRef();
+        bool LayerCreationPossibility();
+    };
+
+/**
  * @brief Импортирование данных из файла формата s57 в БД PostgreSQL
  *
  * @param fromS57DataSource - полный путь до файла-источника данных s57

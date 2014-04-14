@@ -1197,4 +1197,22 @@
             <Parameter name="user">{PG_USER}</Parameter>
         </Datasource>
     </Layer>
+    
+    <Style name="system_lines">
+        <Rule>
+            <LineSymbolizer stroke="rgb(251, 127, 72) " stroke-width="1"/>
+        </Rule>
+    </Style>
+    <Layer name="Системный (линейные)" srs="+init=epsg:4326">
+        <StyleName>system_lines</StyleName>
+        <Datasource>
+            <Parameter name="dbname">{PG_DBNAME}</Parameter>
+            <Parameter name="geometry_field">wkb_geometry</Parameter>
+            <Parameter name="host">{PG_HOST}</Parameter>
+            <Parameter name="password">{PG_PASSWORD}</Parameter>
+            <Parameter name="table">"{PG_SCHEME}"."system_lines"</Parameter>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="user">{PG_USER}</Parameter>
+        </Datasource>
+    </Layer>
 </Map>

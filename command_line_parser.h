@@ -24,7 +24,7 @@
 #include <map>
 #include <string>
 
-#define VERSION "1.2.2"
+#define VERSION "1.3.0"
 
 namespace NAVI2PG
 {
