@@ -2224,6 +2224,11 @@ void NAVI2PG::CopyConfigFile(
 
     std::ifstream input;
     input.open(mapConfigTemplateFilename, std::ios::in);
+    if (!input.good())
+    {
+        LOG( CPLString().Printf("Error: Wrong template filename %s", mapConfigTemplateFilename) );
+        return;
+    }
 
     std::ofstream output;
     output.open(mapConfigFilename, std::ios::out);
