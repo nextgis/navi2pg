@@ -29,7 +29,7 @@ namespace
 {
     void Usage()
     {
-        std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] [--sign_cp1251] ";
+        std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] [--sign_cp1251] [--log_level level]";
         std::cout << "[--create_schema]" << " ";
         std::cout << "[--schema <schema_name>]" << " ";
         std::cout << NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING << " ";
@@ -76,6 +76,11 @@ NAVI2PG::ValuesCollection NAVI2PG::CommandLineParse(int argc, char* argv[])
         else if( EQUAL(argv[iArg], "--sign_cp1251" ) )
         {
             CPLSetConfigOption("NEED_CONVERT_SIGN_TO_CP1251","TRUE");
+        }
+
+        else if( EQUAL(argv[iArg], "--log_level" ) )
+        {
+            CPLSetConfigOption(CommandLineKeys::LOG_LEVEL.c_str(), argv[++iArg]);
         }
 
         else if( EQUAL(argv[iArg], "--create_schema" ) )

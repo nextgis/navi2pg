@@ -24,6 +24,38 @@
 
 #include <iostream>
 
+/**
+* namespace NAVI2PG
+* @brief Импортирование данных из файла формата s57 в БД PostgreSQL
+*/
+namespace NAVI2PG {
+
+/**
+* namespace LOGGER
+* @brief Логгирование
+*/
+    namespace LOGGER {
+
+        enum LOG_LEVEL
+        {
+            LOG_LEVEL_ERROR = 0,
+            LOG_LEVEL_WARNING,
+            LOG_LEVEL_INFO,
+            LOG_LEVEL_DEBUG,
+            LOG_LEVEL_DEBUG_1,
+            LOG_LEVEL_DEBUG_2
+        };
+
+        void printLogMessage(LOG_LEVEL logLevel, const char* msg);
+
+        static NAVI2PG::LOGGER::LOG_LEVEL LogLevel = NAVI2PG::LOGGER::LOG_LEVEL_INFO;
+
+        void SetLogLevel(LOG_LEVEL logLevel);
+    }
+}
+
 #define LOG(msg) std::cout << msg << std::endl;
+#define LLOG(logLevel, msg) NAVI2PG::LOGGER::printLogMessage(logLevel, msg)
+
 
 #endif // LOGGER_H

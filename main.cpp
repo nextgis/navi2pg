@@ -83,6 +83,10 @@ int main(int nArgc, char ** papszArgv)
 
     NAVI2PG::ValuesCollection valuesCollection = NAVI2PG::CommandLineParse(nArgc, papszArgv);
 
+    const char* log_level = CPLGetConfigOption(NAVI2PG::CommandLineKeys::LOG_LEVEL.c_str(),NULL);
+    if (log_level != NULL)
+        NAVI2PG::LOGGER::SetLogLevel((NAVI2PG::LOGGER::LOG_LEVEL)atoi(log_level));
+
     const char  *pszS57DataSource =
             valuesCollection[NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME].c_str();
     const char  *pszPGConnectionString =

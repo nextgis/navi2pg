@@ -24,7 +24,7 @@
 #include <map>
 #include <string>
 
-#define VERSION "1.3.1"
+#define VERSION "1.3.2"
 
 namespace NAVI2PG
 {
@@ -37,6 +37,7 @@ namespace NAVI2PG
         const std::string S57_DATASOURCE_NAME = "S57_datasource_name";
         const std::string CREATE_SCHEME_FLAG = "create_scheme_flag";
         const std::string SCHEME_NAME = "scheme_name";
+        const std::string LOG_LEVEL = "log_level";
         const std::string MAPSERVER_CONFIG_TEMPLATE_FILENAME = "mapserevr_config_template_filename";
         const std::string MAPNIK_CONFIG_TEMPLATE_FILENAME = "mapnik_config_template_filename";
         const std::string MAPNIK_PYSCRIPT_TEMPLATE_FILENAME = "mapnik_pyscript_template_filename";

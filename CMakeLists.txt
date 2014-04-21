@@ -14,6 +14,7 @@ set (HEADERS
 set (SOURCES 
         command_line_parser.cpp
         navi2pg.cpp
+        logger.cpp
         main.cpp)
 
 find_package(GDAL REQUIRED)

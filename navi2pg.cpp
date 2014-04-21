@@ -1413,9 +1413,13 @@ void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource, OGRSpa
     fullLayerName.append(".");
     Layer_ = poDstDatasource->CreateLayer( fullLayerName.append(LayerName_.c_str()).c_str(), spatRef, GeomType_, papszLCO );
 
+    LLOG(LOGGER::LOG_LEVEL_DEBUG,
+         CPLString().Printf("Layer %s success created", LayerName_.c_str()).c_str());
+
     if (Layer_ == NULL)
     {
-        LOG( CPLString().Printf("Error: Layer %s can not be created: %s", LayerName_.c_str(), CPLGetLastErrorMsg()) );
+        LLOG(LOGGER::LOG_LEVEL_ERROR,
+             CPLString().Printf("Error: Layer %s can not be created: %s", LayerName_.c_str(), CPLGetLastErrorMsg()));
         return;
     }
     /*
@@ -1428,6 +1432,8 @@ void NAVI2PG::CreateLayerStrategy::Create(OGRDataSource *poDstDatasource, OGRSpa
 
 void NAVI2PG::CopyFeaturesStrategy::DoProcess()
 {
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CopyFeaturesStrategy::DoProcess - Start"));
+
     if(AddTypeFieldFlag_)
     {
         OGRFieldDefn* oFieldType = new OGRFieldDefn( "type", OFTString );
@@ -1436,7 +1442,7 @@ void NAVI2PG::CopyFeaturesStrategy::DoProcess()
         if( Layer_->CreateField(oFieldType) != OGRERR_NONE )
         {
             //TODO Set exception
-            LOG( "Creating field 'type' failed.\n" );
+            LLOG(LOGGER::LOG_LEVEL_WARNING, "Creating field 'type' failed.");
         }
     }
 
@@ -1450,7 +1456,11 @@ void NAVI2PG::CopyFeaturesStrategy::DoProcess()
         if(srcLayer == NULL)
             continue;
 
+        LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("Source layer %d: %s", iSrcLayer, srcLayer->GetName()).c_str());
+
         srcLayer->ResetReading();
+
+        LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("source layer reset reading success"));
 
         std::vector<CPLString> fieldsNamesForCopy = SrcLayers_[iSrcLayer].FieldsNamesForCopy_;
         std::vector<AddNewFieldStrategy*> strategies = SrcLayers_[iSrcLayer].AddNewFieldStrategies_;
@@ -1470,8 +1480,9 @@ void NAVI2PG::CopyFeaturesStrategy::DoProcess()
 
             if(!poGeometry->IsValid())
             {
-                LOG(CPLString().Printf("Error. The geometry is not valid (Layer: %s, RCID: %d)",
-                                       srcLayer->GetName(), poFeatureFrom->GetFieldAsInteger("RCID")));
+                LLOG(LOGGER::LOG_LEVEL_WARNING,
+                     CPLString().Printf("Error. The geometry is not valid (Layer: %s, RCID: %d)",
+                                        srcLayer->GetName(), poFeatureFrom->GetFieldAsInteger("RCID")));
                 continue;
             }
 
@@ -1483,8 +1494,9 @@ void NAVI2PG::CopyFeaturesStrategy::DoProcess()
 
                 if(exteriorRing == NULL)
                 {
-                    LOG(CPLString().Printf("Error. Polygon is empty (Layer: %s, RCID: %d)",
-                                           srcLayer->GetName(), poFeatureFrom->GetFieldAsInteger("RCID")));
+                    LLOG(LOGGER::LOG_LEVEL_WARNING,
+                         CPLString().Printf("Error. Polygon is empty (Layer: %s, RCID: %d)",
+                                        srcLayer->GetName(), poFeatureFrom->GetFieldAsInteger("RCID")));
                     continue;
                 }
 
@@ -1525,10 +1537,12 @@ void NAVI2PG::CopyFeaturesStrategy::DoProcess()
 
     }
 
-
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CopyFeaturesStrategy::DoProcess - Finish"));
 }
 void NAVI2PG::CopyFeaturesStrategy::ModifyLayerDefnForCopyFields()
 {
+    LLOG(LOGGER::LOG_LEVEL_DEBUG, CPLString().Printf("ModifyLayerDefnForCopyFields").c_str());
+
     for(size_t iSrcLayer = 0; iSrcLayer < SrcLayers_.size(); ++iSrcLayer)
     {
         OGRLayer* srcLayer = SrcLayers_[iSrcLayer].SrcLayer_;
@@ -1550,17 +1564,22 @@ void NAVI2PG::CopyFeaturesStrategy::ModifyLayerDefnForCopyFields()
                 continue;
             }
 
+            LLOG(LOGGER::LOG_LEVEL_DEBUG_2, CPLString().Printf("Try to create field (copy field) %s", fieldDefn->GetNameRef()).c_str());
+
             if( Layer_->CreateField(fieldDefn) != OGRERR_NONE )
             {
-                //TODO Set exception
-                LOG( "Creating field failed.\n" );
+                LLOG(LOGGER::LOG_LEVEL_WARNING, CPLString().Printf("creating field failed (copy field)").c_str());
                 continue;
             }
+
+            LLOG(LOGGER::LOG_LEVEL_DEBUG_2, CPLString().Printf("creating field success (copy field)").c_str());
         }
     }
 }
 void NAVI2PG::CopyFeaturesStrategy::ModifyLayerDefnForAddNewFields()
 {
+    LLOG(LOGGER::LOG_LEVEL_DEBUG, CPLString().Printf("ModifyLayerDefnForAddNewFields").c_str());
+
     for(size_t iSrcLayer = 0; iSrcLayer < SrcLayers_.size(); ++iSrcLayer)
     {
         std::vector<AddNewFieldStrategy*> strategies = SrcLayers_[iSrcLayer].AddNewFieldStrategies_;
@@ -1580,12 +1599,15 @@ void NAVI2PG::CopyFeaturesStrategy::ModifyLayerDefnForAddNewFields()
                     continue;
                 }
 
+                LLOG(LOGGER::LOG_LEVEL_DEBUG_2, CPLString().Printf("Try to create field (new field) %s", fieldDefn->GetNameRef()).c_str());
+
                 if( Layer_->CreateField(fieldDefn) != OGRERR_NONE )
                 {
-                    //TODO Set exception
-                    LOG( "Creating field failed.\n" );
+                    LLOG(LOGGER::LOG_LEVEL_WARNING, CPLString().Printf("creating field failed (new field)").c_str());
                     return;
                 }
+
+                LLOG(LOGGER::LOG_LEVEL_DEBUG_2, CPLString().Printf("creating field success (new field)").c_str());
             }
         }
     }
@@ -1612,12 +1634,18 @@ bool NAVI2PG::CopyFeaturesStrategy::LayerCreationPossibility()
 
 void NAVI2PG::CreateLightsSectorsStrategy::DoProcess()
 {
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateLightsSectorsStrategy::DoProcess - Start"));
+
     ModifyLayerDefnForAddNewFields();
 
     if(LightsLayer_ == NULL)
         return;
 
+    //LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("Source layer %d: %s", LightsLayer_->GetName()).c_str());
+
     LightsLayer_->ResetReading();
+
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("source layer reset reading success"));
 
     OGRFeature* poFeatureFrom = NULL;
     while( (poFeatureFrom = LightsLayer_->GetNextFeature()) != NULL )
@@ -1731,6 +1759,8 @@ void NAVI2PG::CreateLightsSectorsStrategy::DoProcess()
             radius *= RadiusReductionCoef_;
         }
     }
+
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateLightsSectorsStrategy::DoProcess - Finish"));
 }
 void NAVI2PG::CreateLightsSectorsStrategy::ModifyLayerDefnForAddNewFields()
 {
@@ -1761,15 +1791,20 @@ bool NAVI2PG::CreateLightsSectorsStrategy::LayerCreationPossibility()
     return false;
 }
 
-
 void NAVI2PG::CreateTSSLPTStrategy::DoProcess()
 {
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateTSSLPTStrategy::DoProcess - Start"));
+
     ModifyLayerDefnForAddNewFields();
 
     if (TSSLPTLayer_ == NULL)
         return;
 
+    //LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("Source layer %d: %s", TSSLPTLayer_->GetName()).c_str());
+
     TSSLPTLayer_->ResetReading();
+
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("source layer reset reading success"));
 
     OGRFeature* poFeatureFrom = NULL;
     while( (poFeatureFrom = TSSLPTLayer_->GetNextFeature()) != NULL )
@@ -1792,6 +1827,7 @@ void NAVI2PG::CreateTSSLPTStrategy::DoProcess()
         Layer_->CreateFeature(poFeatureTo);
     }
 
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateTSSLPTStrategy::DoProcess - Finish"));
 }
 void NAVI2PG::CreateTSSLPTStrategy::ModifyLayerDefnForAddNewFields()
 {
@@ -1819,14 +1855,18 @@ bool NAVI2PG::CreateTSSLPTStrategy::LayerCreationPossibility()
 
 void NAVI2PG::CreateS57SignaturesStrategy::DoProcess()
 {
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateS57SignaturesStrategy::DoProcess - Start"));
+
     ModifyLayerDefnForAddNewFields();
 
     if(TextsLayer_==NULL)
         return;
 
+    //LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("Source layer %d: %s", TextsLayer_->GetName()).c_str());
+
     TextsLayer_->ResetReading();
 
-    OGRFeatureDefn* defnTexts = TextsLayer_->GetLayerDefn();
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("source layer reset reading success"));
 
     const char* need_convert = CPLGetConfigOption("NEED_CONVERT_SIGN_TO_CP1251",NULL);
 
@@ -1871,6 +1911,7 @@ void NAVI2PG::CreateS57SignaturesStrategy::DoProcess()
         OGRFeature::DestroyFeature(poFeatureFromTexts);
     }
 
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateS57SignaturesStrategy::DoProcess - Finish"));
 }
 void NAVI2PG::CreateS57SignaturesStrategy::ModifyLayerDefnForAddNewFields()
 {
@@ -1960,12 +2001,16 @@ void NAVI2PG::CreateSystemLinesStrategy::getSubLine(const int subLineRCID, OGRLi
 
 void NAVI2PG::CreateSystemLinesStrategy::DoProcess()
 {
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateSystemLinesStrategy::DoProcess - Start"));
+
     ModifyLayerDefnForAddNewFields();
 
-    if(LinesLayer_==NULL || EdgeLayer_ == NULL || ConnectedNodeLayer_ == NULL)
+    if(LinesLayer_ == NULL || EdgeLayer_ == NULL || ConnectedNodeLayer_ == NULL)
         return;
 
     LinesLayer_->ResetReading();
+
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("source LinesLayer_ reset reading success"));
 
     OGRFeature *poFeatureFromLines;
 
@@ -1995,6 +2040,7 @@ void NAVI2PG::CreateSystemLinesStrategy::DoProcess()
         OGRFeature::DestroyFeature(poFeatureFromLines);
     }
 
+    LLOG(LOGGER::LOG_LEVEL_DEBUG_1, CPLString().Printf("CreateSystemLinesStrategy::DoProcess - Finish"));
 }
 void NAVI2PG::CreateSystemLinesStrategy::ModifyLayerDefnForAddNewFields()
 {
@@ -2098,7 +2144,7 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
 
         if( CPLGetLastErrorNo() != CE_None )
         {
-            LOG(CPLString().Printf("Error. DB schems creation: %s", CPLGetLastErrorMsg()));
+            LLOG(LOGGER::LOG_LEVEL_ERROR, CPLString().Printf("DB schems creation: %s", CPLGetLastErrorMsg()) );
         }
         CPLErrorReset();
     }
