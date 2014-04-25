@@ -2202,26 +2202,24 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     newExtent.MaxX = maxExtentPoint.getX();
     newExtent.MaxY = maxExtentPoint.getY();
 
-    const char* mapserver_config_file = CPLGetConfigOption(CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(),NULL);
-    if(mapserver_config_file != NULL)
-    {
-        //LOG("mapserver config creatinon");
-        CopyConfigFile(mapserver_config_file, CPLResetExtension(pszS57DataSource, "map"), newExtent, pszPGConnectionString);
-    }
+    const char* mapserver_config_file =
+               CPLGetConfigOption(
+                   CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(),
+                   "/usr/local/share/navi2pg/mapserver.map.template");
+   CopyConfigFile(mapserver_config_file, CPLResetExtension(pszS57DataSource, "map"), newExtent, pszPGConnectionString);
 
-    const char* mapnik_config_file = CPLGetConfigOption(CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(),NULL);
-    if(mapnik_config_file != NULL)
-    {
-        //LOG("mapnik config creatinon");
-        CopyConfigFile(mapnik_config_file, CPLResetExtension(pszS57DataSource, "mapnik.xml"), newExtent, pszPGConnectionString);
-    }
+   const char* mapnik_config_file =
+           CPLGetConfigOption(
+               CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(),
+               "/usr/local/share/navi2pg/mapnik.xml.template");
+   CopyConfigFile(mapnik_config_file, CPLResetExtension(pszS57DataSource, "mapnik.xml"), newExtent, pszPGConnectionString);
 
-    const char* mapnik_pyscript_file = CPLGetConfigOption(CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(),NULL);
-    if(mapnik_pyscript_file != NULL)
-    {
-        //LOG("mapnik pyscript creatinon");
-        CopyConfigFile(mapnik_pyscript_file, CPLResetExtension(pszS57DataSource, "mapnik.py"), newExtent, pszPGConnectionString);
-    }
+   const char* mapnik_pyscript_file =
+           CPLGetConfigOption(
+               CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(),
+               "/usr/local/share/navi2pg/mapnik.py.template");
+   CopyConfigFile(mapnik_pyscript_file, CPLResetExtension(pszS57DataSource, "mapnik.py"), newExtent, pszPGConnectionString);
+
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );
@@ -2272,7 +2270,7 @@ void NAVI2PG::CopyConfigFile(
     input.open(mapConfigTemplateFilename, std::ios::in);
     if (!input.good())
     {
-        LOG( CPLString().Printf("Error: Wrong template filename %s", mapConfigTemplateFilename) );
+        LOG( CPLString().Printf("Error: Template file %s not found ", mapConfigTemplateFilename) );
         return;
     }
 

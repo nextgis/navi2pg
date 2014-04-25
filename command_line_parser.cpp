@@ -34,9 +34,13 @@ namespace
         std::cout << "[--schema <schema_name>]" << " ";
         std::cout << NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING << " ";
         std::cout << NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME << " ";
+        std::cout << "[";
         std::cout << NAVI2PG::CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME << " ";
+        std::cout << "[";
         std::cout << NAVI2PG::CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME << " ";
+        std::cout << "[";
         std::cout << NAVI2PG::CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME;
+        std::cout << "]]]";
         std::cout << std::endl;
 
         exit( 1 );

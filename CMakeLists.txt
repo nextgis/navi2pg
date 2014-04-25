@@ -37,3 +37,6 @@ install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib)
     
+install(FILES ${CMAKE_SOURCE_DIR}/templates/mapnik.py.template DESTINATION /usr/local/share/navi2pg/)
+install(FILES ${CMAKE_SOURCE_DIR}/templates/mapnik.xml.template DESTINATION /usr/local/share/navi2pg/)
+install(FILES ${CMAKE_SOURCE_DIR}/templates/mapserver.map.template DESTINATION /usr/local/share/navi2pg/)
