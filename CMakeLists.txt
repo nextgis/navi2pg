@@ -36,7 +36,11 @@ install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib)
-    
-install(FILES ${CMAKE_SOURCE_DIR}/templates/mapnik.py.template DESTINATION /usr/local/share/navi2pg/)
-install(FILES ${CMAKE_SOURCE_DIR}/templates/mapnik.xml.template DESTINATION /usr/local/share/navi2pg/)
-install(FILES ${CMAKE_SOURCE_DIR}/templates/mapserver.map.template DESTINATION /usr/local/share/navi2pg/)
+
+if(WIN32)
+
+else(WIN32)#UNIX
+    install(FILES ${CMAKE_SOURCE_DIR}/templates/mapnik.py.template DESTINATION /usr/local/share/navi2pg/mapnik.py.template)
+    install(FILES ${CMAKE_SOURCE_DIR}/templates/mapnik.xml.template DESTINATION /usr/local/share/navi2pg/mapnik.xml.template)
+    install(FILES ${CMAKE_SOURCE_DIR}/templates/mapserver.map.template DESTINATION /usr/local/share/navi2pg/mapserver.map.template)
+endif()

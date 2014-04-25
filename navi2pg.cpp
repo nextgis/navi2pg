@@ -2202,24 +2202,52 @@ void NAVI2PG::Import(const char  *pszS57DataSource, const char  *pszPGConnection
     newExtent.MaxX = maxExtentPoint.getX();
     newExtent.MaxY = maxExtentPoint.getY();
 
-    const char* mapserver_config_file =
+#ifdef WIN32
+        const char* mapserver_config_file =
+                   CPLGetConfigOption(
+                       CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(),
+                       NULL);
+        if(mapserver_config_file != NULL)
+        {
+            CopyConfigFile(mapserver_config_file, CPLResetExtension(pszS57DataSource, "map"), newExtent, pszPGConnectionString);
+        }
+
+       const char* mapnik_config_file =
                CPLGetConfigOption(
-                   CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(),
-                   "/usr/local/share/navi2pg/mapserver.map.template");
-   CopyConfigFile(mapserver_config_file, CPLResetExtension(pszS57DataSource, "map"), newExtent, pszPGConnectionString);
+                   CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(),
+                   NULL);
+       if(mapnik_config_file != NULL)
+       {
+            CopyConfigFile(mapnik_config_file, CPLResetExtension(pszS57DataSource, "mapnik.xml"), newExtent, pszPGConnectionString);
+       }
 
-   const char* mapnik_config_file =
-           CPLGetConfigOption(
-               CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(),
-               "/usr/local/share/navi2pg/mapnik.xml.template");
-   CopyConfigFile(mapnik_config_file, CPLResetExtension(pszS57DataSource, "mapnik.xml"), newExtent, pszPGConnectionString);
+       const char* mapnik_pyscript_file =
+               CPLGetConfigOption(
+                   CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(),
+                   NULL);
+       if(mapnik_pyscript_file != NULL)
+       {
+            CopyConfigFile(mapnik_pyscript_file, CPLResetExtension(pszS57DataSource, "mapnik.py"), newExtent, pszPGConnectionString);
+       }
+#else
+        const char* mapserver_config_file =
+                   CPLGetConfigOption(
+                       CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME.c_str(),
+                       "/usr/local/share/navi2pg/mapserver.map.template");
+       CopyConfigFile(mapserver_config_file, CPLResetExtension(pszS57DataSource, "map"), newExtent, pszPGConnectionString);
 
-   const char* mapnik_pyscript_file =
-           CPLGetConfigOption(
-               CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(),
-               "/usr/local/share/navi2pg/mapnik.py.template");
-   CopyConfigFile(mapnik_pyscript_file, CPLResetExtension(pszS57DataSource, "mapnik.py"), newExtent, pszPGConnectionString);
+       const char* mapnik_config_file =
+               CPLGetConfigOption(
+                   CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME.c_str(),
+                   "/usr/local/share/navi2pg/mapnik.xml.template");
+       CopyConfigFile(mapnik_config_file, CPLResetExtension(pszS57DataSource, "mapnik.xml"), newExtent, pszPGConnectionString);
 
+       const char* mapnik_pyscript_file =
+               CPLGetConfigOption(
+                   CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME.c_str(),
+                   "/usr/local/share/navi2pg/mapnik.py.template");
+       CopyConfigFile(mapnik_pyscript_file, CPLResetExtension(pszS57DataSource, "mapnik.py"), newExtent, pszPGConnectionString);
+#endif
 
     OGRDataSource::DestroyDataSource( poSrcDatasource );
     OGRDataSource::DestroyDataSource( poDstDatasource );

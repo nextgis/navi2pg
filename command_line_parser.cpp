@@ -29,6 +29,17 @@ namespace
 {
     void Usage()
     {
+#ifdef WIN32
+        std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] [--sign_cp1251] [--log_level level]";
+        std::cout << "[--create_schema]" << " ";
+        std::cout << "[--schema <schema_name>]" << " ";
+        std::cout << NAVI2PG::CommandLineKeys::PG_CONNECTION_STRING << " ";
+        std::cout << NAVI2PG::CommandLineKeys::S57_DATASOURCE_NAME << " ";
+        std::cout << NAVI2PG::CommandLineKeys::MAPSERVER_CONFIG_TEMPLATE_FILENAME << " ";
+        std::cout << NAVI2PG::CommandLineKeys::MAPNIK_CONFIG_TEMPLATE_FILENAME << " ";
+        std::cout << NAVI2PG::CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME;
+        std::cout << std::endl;
+#else
         std::cout << "Usage: navi2ogr [-h] [--help] [-v] [--version] [--sign_cp1251] [--log_level level]";
         std::cout << "[--create_schema]" << " ";
         std::cout << "[--schema <schema_name>]" << " ";
@@ -42,7 +53,7 @@ namespace
         std::cout << NAVI2PG::CommandLineKeys::MAPNIK_PYSCRIPT_TEMPLATE_FILENAME;
         std::cout << "]]]";
         std::cout << std::endl;
-
+#endif
         exit( 1 );
     }
 }
